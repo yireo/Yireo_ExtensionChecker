@@ -1,0 +1,34 @@
+{
+  "name": "yireo/magento2-extensionchecker",
+  "license": "OSL-3.0",
+  "type": "magento2-module",
+  "version": "2.0.0",
+  "homepage": "",
+  "description": "Scan the code of a Magento module",
+  "keywords": [
+    "composer-installer",
+    "magento"
+  ],
+  "authors": [
+    {
+      "name": "Jisse Reitsma (Yireo)",
+      "email": "jisse@yireo.com"
+    }
+  ],
+  "require": {
+    "magento/module-store": "^100.1|^101.0",
+    "php": ">=7.0.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "*",
+    "composer/composer": "*@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "Yireo\\ExtensionChecker\\": ""
+    },
+    "files": [
+      "registration.php"
+    ]
+  }
+}
