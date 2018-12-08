@@ -4,10 +4,7 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use InvalidArgumentException;
-use Magento\Framework\Component\ComponentRegistrar;
-use Magento\Framework\Module\ModuleList;
 use Symfony\Component\Console\Output\Output;
-use function Symfony\Component\DependencyInjection\Tests\Fixtures\factoryFunction;
 
 /**
  * Class Scan
@@ -27,17 +24,15 @@ class Scan
     private $moduleName = '';
 
     /**
-     * @var ModuleList
+     * @var Module
      */
-    private $moduleList;
-    /**
-     * @var ComponentRegistrar
-     */
-    private $componentRegistrar;
+    private $module;
+
     /**
      * @var ClassCollector
      */
     private $classCollector;
+
     /**
      * @var ClassInspector
      */
@@ -46,21 +41,18 @@ class Scan
     /**
      * Scan constructor.
      *
-     * @param ModuleList $moduleList
-     * @param ComponentRegistrar $componentRegistrar
+     * @param Module $module
      * @param ClassCollector $classCollector
      * @param ClassInspector $classInspector
      */
     public function __construct(
-        ModuleList $moduleList,
-        ComponentRegistrar $componentRegistrar,
+        Module $module,
         ClassCollector $classCollector,
         ClassInspector $classInspector
     ) {
-        $this->moduleList = $moduleList;
-        $this->componentRegistrar = $componentRegistrar;
         $this->classCollector = $classCollector;
         $this->classInspector = $classInspector;
+        $this->module = $module;
     }
 
     /**
@@ -76,7 +68,7 @@ class Scan
      */
     public function setModuleName(string $moduleName): void
     {
-        if (!in_array($moduleName, $this->moduleList->getNames())) {
+        if ($this->module->isKnown($moduleName) === false) {
             $message = sprintf('Module "%s" is unknown', $moduleName);
             throw new InvalidArgumentException($message);
         }
@@ -97,7 +89,7 @@ class Scan
      */
     public function scan()
     {
-        $moduleFolder = $this->getModuleFolder();
+        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
         $classes = $this->classCollector->getClassesFromFolder($moduleFolder);
         $allDependencies = [];
 
@@ -124,14 +116,6 @@ class Scan
         foreach ($components as $component) {
             $this->output->writeln('- ' . $component);
         }
-    }
-
-    /**
-     * @return string
-     */
-    private function getModuleFolder(): string
-    {
-        return $this->componentRegistrar->getPath('module', $this->moduleName);
     }
 
     /**
