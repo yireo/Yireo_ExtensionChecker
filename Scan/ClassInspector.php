@@ -96,6 +96,14 @@ class ClassInspector
     public function getComponentByClass(): string
     {
         $parts = explode('\\', $this->className);
+        if (empty($parts)) {
+            return '';
+        }
+
+        if (count($parts) === 1) {
+            return $parts[0];
+        }
+
         return $parts[0] . '_' . $parts[1];
     }
 
