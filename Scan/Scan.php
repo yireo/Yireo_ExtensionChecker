@@ -131,6 +131,10 @@ class Scan
         $components = [];
         foreach ($classes as $class) {
             $component = $this->classInspector->setClassName((string)$class)->getComponentByClass();
+            if ($component === $this->moduleName) {
+                continue;
+            }
+
             $components[] = $component;
         }
 
