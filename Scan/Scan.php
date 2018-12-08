@@ -112,9 +112,22 @@ class Scan
         }
 
         $components = $this->getComponentsByClasses($allDependencies);
-        $this->output->writeln('Dependencies of this module:');
+        $packageInfo = $this->module->getPackageInfo($this->moduleName);
+        $moduleInfo = $this->module->getModuleInfo($this->moduleName);
+
+        $this->output->writeln('Package dependencies of this module:');
         foreach ($components as $component) {
-            $this->output->writeln('- ' . $component);
+            $msg = ' -> ' . $component;
+
+            if (!in_array($component, $packageInfo['requirements'])) {
+                $msg .= ' = DEPENDENCY NOT IN composer.json;';
+            }
+
+            if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
+                $msg .= ' = DEPENDENCY NOT IN module.xml;';
+            }
+
+            $this->output->writeln($msg);
         }
     }
 

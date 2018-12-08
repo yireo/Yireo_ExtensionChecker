@@ -10,6 +10,11 @@ namespace Yireo\ExtensionChecker\Scan;
  */
 class Composer
 {
+    public function __construct(
+
+    ) {
+    }
+
     public function loadByModule(string $moduleName)
     {
 

@@ -79,7 +79,7 @@ class ClassInspector
             return false;
         }
 
-        if (!strstr($class->getDocComment(), '@deprecated')) {
+        if (!strstr((string)$class->getDocComment(), '@deprecated')) {
             return false;
         }
 

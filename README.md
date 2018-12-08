@@ -3,8 +3,14 @@ This extension validates the code of other extensions and is complementary to st
 
     ./bin/magento yireo:extensionchecker:scan Yireo_Example
 
-## Scanning for deprecated dependencies
-Because a Magento installation is required for running the ExtensionChecker, it is able to read the PHP code of a specific Magento module and see if its dependencies are valid. One thing that it does is open those dependencies using the Reflection API to see if the sources are deprecated. This works complete with the use of the ObjectManager.
+## Deprecated dependencies
+Class dependencies (injected via the constructor) are inspected to see if they are deprecated, for the used Magento version.
 
-## Scanning for hard-coded Proxies
+## Undeclared dependencies
+Class dependencies (injected via the constructor) are traced back to their corresponding module (or the framework or something else), which should be reflected upon in the `composer.json` file and the `module.xml` file.
+
+## @todo: Incorrect versioning for dependencies
+When loading dependencies in `composer.json`, semantic versioning should be used to identify the right release for your dependency (major, minor, patch). A wildcard `*` is definitely forbidden.
+
+## @todo: Hard-coded Proxies
 A Proxy is a DI trick which should be configured in the `di.xml` file of a module and not be hard-coded in PHP.
