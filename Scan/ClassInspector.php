@@ -54,6 +54,10 @@ class ClassInspector
         }
 
         $constructor = $class->getConstructor();
+        if (!$constructor) {
+            return $dependencies;
+        }
+
         $parameters = $constructor->getParameters();
 
         foreach ($parameters as $parameter) {
