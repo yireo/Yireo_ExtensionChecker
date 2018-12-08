@@ -94,20 +94,15 @@ class Scan
         $allDependencies = [];
 
         foreach ($classes as $class) {
-            $msg = sprintf('Class "%s" has the following dependencies: ', $class);
-            $this->output->writeln($msg);
-
             $dependencies = $this->classInspector->setClassName($class)->getDependencies();
             $allDependencies = array_merge($allDependencies, $dependencies);
 
             foreach ($dependencies as $dependency) {
                 $this->classInspector->setClassName((string)$dependency);
-                $msg = ' -> ' . $dependency;
                 if ($this->classInspector->isDeprecated()) {
-                    $msg .= ' DEPRECATED!!!!';
+                    $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $dependency, $class);
+                    $this->output->writeln($msg);
                 }
-
-                $this->output->writeln($msg);
             }
         }
 
@@ -115,19 +110,16 @@ class Scan
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
         $moduleInfo = $this->module->getModuleInfo($this->moduleName);
 
-        $this->output->writeln('Package dependencies of this module:');
         foreach ($components as $component) {
-            $msg = ' -> ' . $component;
-
             if (!in_array($component, $packageInfo['requirements'])) {
-                $msg .= ' = DEPENDENCY NOT IN composer.json;';
+                $msg = sprintf('Dependency "%s" not found composer.json', $component);
+                $this->output->writeln($msg);
             }
 
             if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
-                $msg .= ' = DEPENDENCY NOT IN module.xml;';
+                $msg = sprintf('Dependency "%s" not found module.xml', $component);
+                $this->output->writeln($msg);
             }
-
-            $this->output->writeln($msg);
         }
     }
 
