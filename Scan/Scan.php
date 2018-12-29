@@ -111,6 +111,10 @@ class Scan
         $moduleInfo = $this->module->getModuleInfo($this->moduleName);
 
         foreach ($components as $component) {
+            if ($component === $this->moduleName) {
+                continue;
+            }
+
             if (!in_array($component, $packageInfo['requirements'])) {
                 $msg = sprintf('Dependency "%s" not found composer.json', $component);
                 $this->output->writeln($msg);
