@@ -108,6 +108,25 @@ class ClassInspector
     }
 
     /**
+     * @return string
+     */
+    public function getPackageByClass(): string
+    {
+        try {
+            $class = $this->getReflectionClass();
+        } catch (ReflectionException $exception) {
+            return '';
+        }
+
+        $filename = $class->getFileName();
+        if (!preg_match('/vendor\/([^\/]+)\/([^\/]+)\//', $filename, $match)) {
+            return '';
+        }
+
+        return $match[1] . '/' . $match[2];
+    }
+
+    /**
      * @throws ReflectionException
      */
     private function getReflectionClass(): ReflectionClass

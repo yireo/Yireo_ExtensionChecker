@@ -107,6 +107,7 @@ class Scan
         }
 
         $components = $this->getComponentsByClasses($allDependencies);
+        $packages = $this->getPackagesByClasses($allDependencies);
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
         $moduleInfo = $this->module->getModuleInfo($this->moduleName);
 
@@ -115,13 +116,19 @@ class Scan
                 continue;
             }
 
-            if (!in_array($component, $packageInfo['requirements'])) {
-                $msg = sprintf('Dependency "%s" not found composer.json', $component);
-                $this->output->writeln($msg);
-            }
-
             if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
                 $msg = sprintf('Dependency "%s" not found module.xml', $component);
+                $this->output->writeln($msg);
+            }
+        }
+
+        foreach ($packages as $package) {
+            if ($package === $packageInfo['name']) {
+                continue;
+            }
+
+            if (!in_array($package, $packageInfo['dependencies'])) {
+                $msg = sprintf('Dependency "%s" not found composer.json', $package);
                 $this->output->writeln($msg);
             }
         }
@@ -139,5 +146,23 @@ class Scan
         }
 
         return array_unique($components);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getPackagesByClasses(array $classes): array
+    {
+        $packages = [];
+        foreach ($classes as $class) {
+            $package = $this->classInspector->setClassName((string)$class)->getPackageByClass();
+            if (!$package) {
+                continue;
+            }
+
+            $packages[] = $package;
+        }
+
+        return array_unique($packages);
     }
 }

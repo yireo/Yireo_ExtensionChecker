@@ -109,10 +109,43 @@ class Module
         $this->moduleName = $moduleName;
 
         $info = [];
+        $info['name'] = $this->packageInfo->getPackageName($moduleName);
         $info['version'] = $this->packageInfo->getVersion($moduleName);
         $info['requirements'] = $this->getRequirements();
+        $info['dependencies'] = $this->getDependencies();
 
         return $info;
+    }
+
+    /**
+     * @return array
+     */
+    private function getDependencies(): array
+    {
+        $dependencies = [];
+        $composerData = $this->getComposerJsonData();
+
+        if (!empty($composerData['require'])) {
+            foreach ($composerData['require'] as $dependency => $version) {
+                if (!$dependency) {
+                    continue;
+                }
+
+                $dependencies[] = $dependency;
+            }
+        }
+
+        if (!empty($composerData['require-dev'])) {
+            foreach ($composerData['require-dev'] as $dependency => $version) {
+                if (!$dependency) {
+                    continue;
+                }
+
+                $dependencies[] = $dependency;
+            }
+        }
+
+        return $dependencies;
     }
 
     /**
