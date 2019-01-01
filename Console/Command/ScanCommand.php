@@ -57,7 +57,8 @@ class ScanCommand extends Command
         $this->addArgument(
             'module',
             InputOption::VALUE_REQUIRED,
-            'Module name');
+            'Module name'
+        );
     }
 
     /**

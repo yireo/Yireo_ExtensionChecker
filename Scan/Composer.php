@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
+
 /**
  * Class Composer
  *
@@ -11,7 +13,7 @@ namespace Yireo\ExtensionChecker\Scan;
 class Composer
 {
     /**
-     * @var \Magento\Framework\App\Filesystem\DirectoryList
+     * @var DirectoryList
      */
     private $directoryList;
 
@@ -19,7 +21,7 @@ class Composer
      * Composer constructor.
      */
     public function __construct(
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+        DirectoryList $directoryList
     ) {
         $this->directoryList = $directoryList;
     }

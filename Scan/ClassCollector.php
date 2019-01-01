@@ -69,18 +69,17 @@ class ClassCollector
             }
 
             if ($foundNamespace === true) {
-
-                if(is_array($token) && in_array($token[0], [T_STRING, T_NS_SEPARATOR])) {
+                if (is_array($token) && in_array($token[0], [T_STRING, T_NS_SEPARATOR])) {
                     $namespace .= $token[1];
-
-                }
-                else if ($token === ';') {
-                    $foundNamespace = false;
+                } else {
+                    if ($token === ';') {
+                        $foundNamespace = false;
+                    }
                 }
             }
 
             if ($foundClass === true) {
-                if(is_array($token) && $token[0] == T_STRING) {
+                if (is_array($token) && $token[0] == T_STRING) {
                     $class = $token[1];
                     break;
                 }
