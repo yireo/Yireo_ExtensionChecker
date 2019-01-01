@@ -22,12 +22,18 @@ class ClassInspector
      * @var array
      */
     private $registry = [];
+    /**
+     * @var Tokenizer
+     */
+    private $tokenizer;
 
     /**
      * ClassInspector constructor.
      */
-    public function __construct()
-    {
+    public function __construct(
+        Tokenizer $tokenizer
+    ) {
+        $this->tokenizer = $tokenizer;
     }
 
     /**
@@ -124,6 +130,15 @@ class ClassInspector
         }
 
         return $match[1] . '/' . $match[2];
+    }
+
+    /**
+     * @return string[]
+     * @throws ReflectionException
+     */
+    public function getStringTokensFromFilename(): array
+    {
+        return $this->tokenizer->getStringTokensFromFilename($this->getReflectionClass()->getFileName());
     }
 
     /**

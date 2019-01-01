@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use InvalidArgumentException;
+use ReflectionException;
 use Symfony\Component\Console\Output\Output;
 
 /**
@@ -114,6 +115,8 @@ class Scan
             }
         }
 
+        $this->scanClassesForPhpExtensions($classes);
+
         $components = $this->getComponentsByClasses($allDependencies);
         $packages = $this->getPackagesByClasses($allDependencies);
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
@@ -140,6 +143,35 @@ class Scan
                 $msg .= ' ';
                 $msg .= sprintf('Current version is %s', $package['version']);
                 $this->output->writeln($msg);
+            }
+        }
+    }
+
+    /**
+     * @param array $classes
+     * @throws ReflectionException
+     */
+    private function scanClassesForPhpExtensions(array $classes)
+    {
+        $stringTokens = [];
+        foreach ($classes as $class) {
+            $newTokens = $this->classInspector->setClassName($class)->getStringTokensFromFilename();
+            $stringTokens = array_merge($stringTokens, $newTokens);
+        }
+
+        $stringTokens = array_unique($stringTokens);
+
+        $phpExtensions = ['json', 'xml', 'pcre', 'gd', 'bcmath'];
+        foreach ($phpExtensions as $phpExtension) {
+            $phpExtensionFunctions = get_extension_funcs($phpExtension);
+            foreach ($phpExtensionFunctions as $phpExtensionFunction) {
+                if (!in_array($phpExtensionFunction, $stringTokens)) {
+                    continue;
+                }
+
+                $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction, $phpExtension);
+                $this->output->writeln($msg);
+                break;
             }
         }
     }
