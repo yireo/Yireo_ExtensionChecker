@@ -35,10 +35,12 @@ class Module
      * @var PackageInfo
      */
     private $packageInfo;
+
     /**
      * @var File
      */
     private $fileReader;
+
     /**
      * @var Json
      */

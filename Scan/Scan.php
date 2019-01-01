@@ -39,20 +39,28 @@ class Scan
     private $classInspector;
 
     /**
+     * @var Composer
+     */
+    private $composer;
+
+    /**
      * Scan constructor.
      *
      * @param Module $module
      * @param ClassCollector $classCollector
      * @param ClassInspector $classInspector
+     * @param Composer $composer
      */
     public function __construct(
         Module $module,
         ClassCollector $classCollector,
-        ClassInspector $classInspector
+        ClassInspector $classInspector,
+        Composer $composer
     ) {
         $this->classCollector = $classCollector;
         $this->classInspector = $classInspector;
         $this->module = $module;
+        $this->composer = $composer;
     }
 
     /**
@@ -123,12 +131,14 @@ class Scan
         }
 
         foreach ($packages as $package) {
-            if ($package === $packageInfo['name']) {
+            if ($package['name'] === $packageInfo['name']) {
                 continue;
             }
 
-            if (!in_array($package, $packageInfo['dependencies'])) {
-                $msg = sprintf('Dependency "%s" not found composer.json', $package);
+            if (!in_array($package['name'], $packageInfo['dependencies'])) {
+                $msg = sprintf('Dependency "%s" not found composer.json.', $package['name']);
+                $msg .= ' ';
+                $msg .= sprintf('Current version is %s', $package['version']);
                 $this->output->writeln($msg);
             }
         }
@@ -149,6 +159,7 @@ class Scan
     }
 
     /**
+     * @param array $classes
      * @return string[]
      */
     private function getPackagesByClasses(array $classes): array
@@ -160,9 +171,21 @@ class Scan
                 continue;
             }
 
-            $packages[] = $package;
+            $packages[$package] = [
+                'name' => $package,
+                'version' => $this->getVersionByPackage($package),
+            ];
         }
 
-        return array_unique($packages);
+        return $packages;
+    }
+
+    /**
+     * @param string $package
+     * @return string
+     */
+    private function getVersionByPackage(string $package): string
+    {
+        return $this->composer->getVersionByPackage($package);
     }
 }

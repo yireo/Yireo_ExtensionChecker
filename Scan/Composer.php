@@ -10,13 +10,52 @@ namespace Yireo\ExtensionChecker\Scan;
  */
 class Composer
 {
-    public function __construct(
+    /**
+     * @var \Magento\Framework\App\Filesystem\DirectoryList
+     */
+    private $directoryList;
 
+    /**
+     * Composer constructor.
+     */
+    public function __construct(
+        \Magento\Framework\App\Filesystem\DirectoryList $directoryList
     ) {
+        $this->directoryList = $directoryList;
     }
 
-    public function loadByModule(string $moduleName)
+    /**
+     * @param string $package
+     * @return string
+     */
+    public function getVersionByPackage(string $package): string
     {
+        $installedPackages = $this->getInstalledPackages();
 
+        foreach ($installedPackages as $installedPackage) {
+            if ($installedPackage['name'] === $package) {
+                return $installedPackage['version'];
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * @return array
+     */
+    private function getInstalledPackages(): array
+    {
+        static $installedPackages = [];
+
+        if (!empty($installedPackages)) {
+            return $installedPackages;
+        }
+
+        chdir($this->directoryList->getRoot());
+        exec('composer show --format=json', $output);
+        $packages = json_decode(implode('', $output), true);
+        $installedPackages = $packages['installed'];
+        return $installedPackages;
     }
 }
