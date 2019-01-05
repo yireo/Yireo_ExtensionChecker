@@ -20,7 +20,7 @@ Class dependencies (injected via the constructor) are traced back to their corre
 Also, by tokenizing the PHP source, it is detected whether the `composer.json` file should reflect a specific PHP extension (for example, `ext-json`) when an extension-specific PHP function is used (for example, `json_encode`).
 
 ## @todo: Incorrect versioning for dependencies
-When loading dependencies in `composer.json`, semantic versioning should be used to identify the right release for your dependency (major, minor, patch). A wildcard `*` is definitely forbidden.
+When loading dependencies in `composer.json`, semantic versioning should be used to identify the right release for your dependency (major, minor, patch). A wildcard `*` is definitely forbidden. Magento dependencies should be in proper format. All dependencies should have major definitions that are not in the future.
 
 ## @todo: Hard-coded Proxies
 A Proxy is a DI trick which should be configured in the `di.xml` file of a module and not be hard-coded in PHP.
