@@ -4,9 +4,9 @@ This extension validates the code of other extensions and is complementary to st
     ./bin/magento yireo:extensionchecker:scan Yireo_Example
 
 ## Installation
-As usual:
+Install the module as a composer requirement for developer environments:
 
-    composer require yireo/magento2-extensionchecker
+    composer require --dev yireo/magento2-extensionchecker
     ./bin/magento module:enable Yireo_ExtensionChecker
     
 Note that if you want to scan a module, this module also needs to be enabled. Personally, we use this extension in our CI/CD chain, to make sure zero issues are reported at all times.
