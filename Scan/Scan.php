@@ -153,6 +153,8 @@ class Scan
      */
     private function scanClassesForPhpExtensions(array $classes)
     {
+        $packageInfo = $this->module->getPackageInfo($this->moduleName);
+
         $stringTokens = [];
         foreach ($classes as $class) {
             $newTokens = $this->classInspector->setClassName($class)->getStringTokensFromFilename();
@@ -163,6 +165,10 @@ class Scan
 
         $phpExtensions = ['json', 'xml', 'pcre', 'gd', 'bcmath'];
         foreach ($phpExtensions as $phpExtension) {
+            if (in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
+                continue;
+            }
+
             $phpExtensionFunctions = get_extension_funcs($phpExtension);
             foreach ($phpExtensionFunctions as $phpExtensionFunction) {
                 if (!in_array($phpExtensionFunction, $stringTokens)) {
