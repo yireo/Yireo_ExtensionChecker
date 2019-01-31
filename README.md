@@ -1,7 +1,7 @@
 # Yireo ExtensionChecker
 This extension validates the code of other extensions and is complementary to static code analysis tools like PHPCS.
 
-    ./bin/magento yireo:extensionchecker:scan Yireo_Example
+    ./bin/magento yireo_extensionchecker:scan Yireo_Example
 
 ## Installation
 Install the module as a composer requirement for developer environments:
