@@ -192,6 +192,10 @@ class Module
     private function getComposerJsonData(): array
     {
         $composerFile = $this->getModuleFolder($this->moduleName) . '/composer.json';
+        if (!file_exists($composerFile)) {
+            return [];
+        }
+
         $contents = $this->fileReader->read($composerFile);
         $data = $this->jsonSerializer->unserialize($contents);
 
