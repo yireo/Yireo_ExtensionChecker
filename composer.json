@@ -23,8 +23,7 @@
     "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "*",
-    "composer/composer": "*@dev"
+    "phpunit/phpunit": "^6.0"
   },
   "autoload": {
     "psr-4": {
