@@ -42,10 +42,6 @@ class FileCollector
                 continue;
             }
 
-            if (strstr($file->getPath(), '/Test/')) {
-                continue;
-            }
-
             $files[] = $file->getRealPath();
         }
 
