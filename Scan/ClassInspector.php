@@ -22,6 +22,7 @@ class ClassInspector
      * @var array
      */
     private $registry = [];
+
     /**
      * @var Tokenizer
      */
@@ -38,6 +39,7 @@ class ClassInspector
 
     /**
      * @param string $className
+     *
      * @return $this
      */
     public function setClassName(string $className)
