@@ -42,6 +42,10 @@ class FileCollector
                 continue;
             }
 
+            if (preg_match('/^Test\//', $file->getRelativePathname())) {
+                continue;
+            }
+
             $files[] = $file->getRealPath();
         }
 
