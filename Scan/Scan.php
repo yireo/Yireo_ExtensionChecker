@@ -141,6 +141,7 @@ class Scan
             if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
                 $msg = sprintf('Dependency "%s" not found module.xml', $component);
                 $this->output->writeln($msg);
+                continue;
             }
         }
 
