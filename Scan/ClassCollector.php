@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use RuntimeException;
+
 /**
  * Class ClassCollector
  *
@@ -38,7 +40,7 @@ class ClassCollector
         foreach ($files as $file) {
             try {
                 $className = $this->getClassNameFromFile($file);
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 continue;
             }
 
@@ -87,7 +89,7 @@ class ClassCollector
         }
 
         if (empty($class)) {
-            throw new \RuntimeException(sprintf('Class is empty for file "%s"', $file));
+            throw new RuntimeException(sprintf('Class is empty for file "%s"', $file));
         }
 
         return $namespace ? $namespace . '\\' . $class : $class;

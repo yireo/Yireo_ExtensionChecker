@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use InvalidArgumentException;
+use Magento\Setup\Exception;
 use ReflectionException;
 use Symfony\Component\Console\Output\Output;
 
