@@ -3,8 +3,10 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Magento\Framework\App\ObjectManager;
 use ReflectionClass;
 use ReflectionException;
+use Throwable;
 
 /**
  * Class ClassInspector
@@ -56,12 +58,12 @@ class ClassInspector
         $dependencies = [];
 
         try {
-            $class = $this->getReflectionClass();
+            $object = $this->getReflectionObject();
         } catch (ReflectionException $exception) {
             return $dependencies;
         }
 
-        $constructor = $class->getConstructor();
+        $constructor = $object->getConstructor();
         if (!$constructor) {
             return $dependencies;
         }
@@ -81,17 +83,16 @@ class ClassInspector
 
     /**
      * @return bool
-     * @todo This might be beautified a bit
      */
     public function isDeprecated(): bool
     {
         try {
-            $class = $this->getReflectionClass();
+            $object = $this->getReflectionObject();
         } catch (ReflectionException $exception) {
             return false;
         }
 
-        if (!strstr((string)$class->getDocComment(), '@deprecated')) {
+        if (!strstr((string)$object->getDocComment(), '@deprecated')) {
             return false;
         }
 
@@ -121,12 +122,12 @@ class ClassInspector
     public function getPackageByClass(): string
     {
         try {
-            $class = $this->getReflectionClass();
+            $object = $this->getReflectionObject();
         } catch (ReflectionException $exception) {
             return '';
         }
 
-        $filename = $class->getFileName();
+        $filename = $object->getFileName();
         if (!preg_match('/vendor\/([^\/]+)\/([^\/]+)\//', $filename, $match)) {
             return '';
         }
@@ -140,21 +141,38 @@ class ClassInspector
      */
     public function getStringTokensFromFilename(): array
     {
-        return $this->tokenizer->getStringTokensFromFilename($this->getReflectionClass()->getFileName());
+        try {
+            $object = $this->getReflectionObject();
+        } catch (ReflectionException $e) {
+            return [];
+        }
+
+        return $this->tokenizer->getStringTokensFromFilename($object->getFileName());
     }
 
     /**
      * @throws ReflectionException
      */
-    private function getReflectionClass(): ReflectionClass
+    private function getReflectionObject(): ReflectionClass
     {
         if (isset($this->registry[$this->className])) {
             return $this->registry[$this->className];
         }
 
-        $class = new ReflectionClass($this->className);
-        $this->registry[$this->className] = $class;
+        $objectManager = ObjectManager::getInstance();
+        $object = $objectManager->get($this->className);
+        if (!$object instanceof $this->className) {
+            throw new ReflectionException();
+        }
 
-        return $class;
+        try {
+            $object = new ReflectionClass($this->className);
+        } catch (Throwable $e) {
+            return null;
+        }
+
+        $this->registry[$this->className] = $object;
+
+        return $object;
     }
 }
