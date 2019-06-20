@@ -7,6 +7,7 @@ use InvalidArgumentException;
 use Magento\Setup\Exception;
 use ReflectionException;
 use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class Scan
@@ -94,7 +95,7 @@ class Scan
     /**
      * @param Output $output
      */
-    public function setOutput(Output $output)
+    public function setOutput(OutputInterface $output)
     {
         $this->output = $output;
     }

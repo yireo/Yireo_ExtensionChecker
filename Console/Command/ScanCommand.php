@@ -14,6 +14,7 @@ namespace Yireo\ExtensionChecker\Console\Command;
 
 use Exception;
 use InvalidArgumentException;
+use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Output\OutputInterface as Output;
@@ -69,10 +70,11 @@ class ScanCommand extends Command
     }
 
     /**
-     * @param Input $input
+     * @param Input  $input
      * @param Output $output
      *
      * @return void
+     * @throws ReflectionException
      */
     protected function execute(Input $input, Output $output)
     {
