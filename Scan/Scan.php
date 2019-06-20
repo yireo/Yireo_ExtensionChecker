@@ -26,6 +26,11 @@ class Scan
     private $moduleName = '';
 
     /**
+     * @var bool
+     */
+    private $hideDeprecated = false;
+
+    /**
      * @var Module
      */
     private $module;
@@ -48,10 +53,10 @@ class Scan
     /**
      * Scan constructor.
      *
-     * @param Module $module
+     * @param Module         $module
      * @param ClassCollector $classCollector
      * @param ClassInspector $classInspector
-     * @param Composer $composer
+     * @param Composer       $composer
      */
     public function __construct(
         Module $module,
@@ -95,7 +100,15 @@ class Scan
     }
 
     /**
-     *
+     * @param bool $hideDeprecated
+     */
+    public function setHideDeprecated(bool $hideDeprecated)
+    {
+        $this->hideDeprecated = $hideDeprecated;
+    }
+
+    /**
+     * @throws ReflectionException
      */
     public function scan()
     {
@@ -108,11 +121,7 @@ class Scan
             $allDependencies = array_merge($allDependencies, $dependencies);
 
             foreach ($dependencies as $dependency) {
-                $this->classInspector->setClassName((string)$dependency);
-                if ($this->classInspector->isDeprecated()) {
-                    $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $dependency, $class);
-                    $this->output->writeln($msg);
-                }
+                $this->reportDeprecatedClass((string)$dependency, $class);
             }
         }
 
@@ -149,7 +158,25 @@ class Scan
     }
 
     /**
+     * @param string $className
+     * @param string $originalClassName
+     */
+    private function reportDeprecatedClass(string $className, string $originalClassName)
+    {
+        if ($this->hideDeprecated === true) {
+            return;
+        }
+
+        $this->classInspector->setClassName($className);
+        if ($this->classInspector->isDeprecated()) {
+            $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $className, $originalClassName);
+            $this->output->writeln($msg);
+        }
+    }
+
+    /**
      * @param array $classes
+     *
      * @throws ReflectionException
      */
     private function scanClassesForPhpExtensions(array $classes)
@@ -203,6 +230,7 @@ class Scan
 
     /**
      * @param array $classes
+     *
      * @return string[]
      */
     private function getPackagesByClasses(array $classes): array
@@ -225,6 +253,7 @@ class Scan
 
     /**
      * @param string $package
+     *
      * @return string
      */
     private function getVersionByPackage(string $package): string

@@ -59,6 +59,13 @@ class ScanCommand extends Command
             InputOption::VALUE_REQUIRED,
             'Module name'
         );
+
+        $this->addOption(
+            'hide-deprecated',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Hide deprecated dependency notices'
+        );
     }
 
     /**
@@ -79,8 +86,11 @@ class ScanCommand extends Command
             throw new InvalidArgumentException('Argument "Foo_Bar" is missing');
         }
 
+        $hideDeprecated = (bool)$input->getOption('hide-deprecated');
+
         $this->scan->setOutput($output);
         $this->scan->setModuleName($moduleName);
+        $this->scan->setHideDeprecated($hideDeprecated);
         $this->scan->scan();
     }
 }
