@@ -3,7 +3,7 @@
   "license": "OSL-3.0",
   "type": "magento2-module",
   "version": "1.1.0",
-  "homepage": "",
+  "homepage": "https://github.com/yireo/Yireo_ExtensionChecker",
   "description": "Scan the code of a Magento module",
   "keywords": [
     "composer-installer",
