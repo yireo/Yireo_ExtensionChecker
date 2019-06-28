@@ -186,6 +186,10 @@ class ClassInspector
     private function isInstantiable($className): bool
     {
         $instanceType = $this->objectManagerConfig->getPreference($className);
+        if (!class_exists($instanceType)) {
+            return false;
+        }
+
         $reflectionClass = new ReflectionClass($instanceType);
 
         if (!$reflectionClass->isInstantiable()) {

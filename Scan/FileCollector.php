@@ -42,7 +42,7 @@ class FileCollector
                 continue;
             }
 
-            if (preg_match('/^Test\//', $file->getRelativePathname())) {
+            if (strstr($file->getRelativePathname(), 'Test/')) {
                 continue;
             }
 
