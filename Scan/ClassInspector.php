@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -29,14 +30,36 @@ class ClassInspector
      * @var Tokenizer
      */
     private $tokenizer;
+    /**
+     * @var \Magento\Framework\ObjectManager\Factory\Dynamic\Developer
+     */
+    private $developerFactory;
+    /**
+     * @var ObjectManagerInterface
+     */
+    private $objectManager;
+    /**
+     * @var \Magento\Framework\ObjectManager\ConfigInterface
+     */
+    private $objectManagerConfig;
 
     /**
      * ClassInspector constructor.
+     * @param Tokenizer $tokenizer
+     * @param \Magento\Framework\ObjectManager\Factory\Dynamic\Developer $developerFactory
+     * @param ObjectManagerInterface $objectManager
+     * @param \Magento\Framework\ObjectManager\ConfigInterface $objectManagerConfig
      */
     public function __construct(
-        Tokenizer $tokenizer
+        Tokenizer $tokenizer,
+        \Magento\Framework\ObjectManager\Factory\Dynamic\Developer $developerFactory,
+        ObjectManagerInterface $objectManager,
+        \Magento\Framework\ObjectManager\ConfigInterface $objectManagerConfig
     ) {
         $this->tokenizer = $tokenizer;
+        $this->developerFactory = $developerFactory;
+        $this->objectManager = $objectManager;
+        $this->objectManagerConfig = $objectManagerConfig;
     }
 
     /**
@@ -90,6 +113,8 @@ class ClassInspector
             $object = $this->getReflectionObject();
         } catch (ReflectionException $exception) {
             return false;
+        } catch (Throwable $throwable) {
+            return false;
         }
 
         if (!strstr((string)$object->getDocComment(), '@deprecated')) {
@@ -128,6 +153,10 @@ class ClassInspector
         }
 
         $filename = $object->getFileName();
+        if (empty($filename)) {
+            return '';
+        }
+
         if (!preg_match('/vendor\/([^\/]+)\/([^\/]+)\//', $filename, $match)) {
             return '';
         }
@@ -151,6 +180,27 @@ class ClassInspector
     }
 
     /**
+     * @return bool
+     * @throws ReflectionException
+     */
+    private function isInstantiable($className): bool
+    {
+        $instanceType = $this->objectManagerConfig->getPreference($className);
+        $reflectionClass = new ReflectionClass($instanceType);
+
+        if (!$reflectionClass->isInstantiable()) {
+            return false;
+        }
+
+        if ($reflectionClass->isAbstract()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
      * @throws ReflectionException
      */
     private function getReflectionObject(): ReflectionClass
@@ -159,18 +209,11 @@ class ClassInspector
             return $this->registry[$this->className];
         }
 
-        $objectManager = ObjectManager::getInstance();
-        $object = $objectManager->get($this->className);
-        if (!$object instanceof $this->className) {
-            throw new ReflectionException();
+        if ($this->isInstantiable($this->className) === false) {
+            throw new ReflectionException('Class does not exist');
         }
 
-        try {
-            $object = new ReflectionClass($this->className);
-        } catch (Throwable $e) {
-            return null;
-        }
-
+        $object = new ReflectionClass($this->className);
         $this->registry[$this->className] = $object;
 
         return $object;
