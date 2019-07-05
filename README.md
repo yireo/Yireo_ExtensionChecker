@@ -36,3 +36,11 @@ When loading dependencies in `composer.json`, semantic versioning should be used
 
 ## @todo: Hard-coded Proxies
 A Proxy is a DI trick which should be configured in the `di.xml` file of a module and not be hard-coded in PHP.
+
+## Tip: Check multiple modules 
+You can quickly check upon multiple modules with a command like this:
+
+    bin/magento mod:st --enabled | grep Yireo_ | while read MODULE ; do 
+        echo "Checking $MODULE"
+        bin/magento yireo_extensionchecker:scan $MODULE --hide-deprecated 1
+    done
