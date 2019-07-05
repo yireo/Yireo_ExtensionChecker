@@ -14,7 +14,7 @@ Note that if you want to scan a module, this module also needs to be enabled. Pe
 ## Example output
 Running this module might give the following output:
 
-    bin/magento yireo_extensionchecker:scan PrintDSGNR_QueueAdminhtml    
+    bin/magento yireo_extensionchecker:scan Yireo_ExampleAdminhtml    
     Dependency "Magento_Backend" not found module.xml
     Dependency "Magento_Ui" not found module.xml
     Dependency "magento/module-backend" not found composer.json. Current version is 101.0.2
