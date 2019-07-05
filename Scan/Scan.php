@@ -120,22 +120,26 @@ class Scan
         foreach ($classes as $class) {
             $dependencies = $this->classInspector->setClassName($class)->getDependencies();
             $allDependencies = array_merge($allDependencies, $dependencies);
-
             foreach ($dependencies as $dependency) {
                 $this->reportDeprecatedClass((string)$dependency, $class);
             }
         }
 
         $this->scanClassesForPhpExtensions($classes);
+        $this->scanModuleDependencies($allDependencies);
+        $this->scanComposerDependencies($allDependencies);
+    }
 
+    /**
+     * @param array $allDependencies
+     */
+    private function scanModuleDependencies(array $allDependencies)
+    {
         $components = $this->getComponentsByClasses($allDependencies);
         $components = array_merge($components, $this->getComponentsByGuess());
         $components = array_unique($components);
 
-        $packages = $this->getPackagesByClasses($allDependencies);
-        $packageInfo = $this->module->getPackageInfo($this->moduleName);
         $moduleInfo = $this->module->getModuleInfo($this->moduleName);
-
         foreach ($components as $component) {
             if ($component === $this->moduleName) {
                 continue;
@@ -147,6 +151,19 @@ class Scan
                 continue;
             }
         }
+    }
+
+    /**
+     * @param array $allDependencies
+     */
+    private function scanComposerDependencies(array $allDependencies)
+    {
+        if ($this->hasComposerFile() === false) {
+            return;
+        }
+
+        $packages = $this->getPackagesByClasses($allDependencies);
+        $packageInfo = $this->module->getPackageInfo($this->moduleName);
 
         foreach ($packages as $package) {
             if ($package['name'] === $packageInfo['name']) {
@@ -186,6 +203,10 @@ class Scan
      */
     private function scanClassesForPhpExtensions(array $classes)
     {
+        if ($this->hasComposerFile() === false) {
+            return;
+        }
+
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
 
         $stringTokens = [];
@@ -283,5 +304,18 @@ class Scan
     private function getVersionByPackage(string $package): string
     {
         return $this->composer->getVersionByPackage($package);
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasComposerFile(): bool
+    {
+        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
+        if (!is_file($moduleFolder.'/composer.json')) {
+            return false;
+        }
+
+        return true;
     }
 }
