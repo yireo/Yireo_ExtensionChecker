@@ -54,10 +54,10 @@ class Scan
     /**
      * Scan constructor.
      *
-     * @param Module         $module
+     * @param Module $module
      * @param ClassCollector $classCollector
      * @param ClassInspector $classInspector
-     * @param Composer       $composer
+     * @param Composer $composer
      */
     public function __construct(
         Module $module,
@@ -129,6 +129,9 @@ class Scan
         $this->scanClassesForPhpExtensions($classes);
 
         $components = $this->getComponentsByClasses($allDependencies);
+        $components = array_merge($components, $this->getComponentsByGuess());
+        $components = array_unique($components);
+
         $packages = $this->getPackagesByClasses($allDependencies);
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
         $moduleInfo = $this->module->getModuleInfo($this->moduleName);
@@ -227,7 +230,26 @@ class Scan
             $components[] = $component;
         }
 
-        return array_unique($components);
+        return $components;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getComponentsByGuess(): array
+    {
+        $components = [];
+        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
+
+        if (is_dir($moduleFolder . '/Setup')) {
+            $components[] = 'Magento_Store';
+        }
+
+        if (is_dir($moduleFolder . '/etc/adminhtml')) {
+            $components[] = 'Magento_Backend';
+        }
+
+        return $components;
     }
 
     /**
