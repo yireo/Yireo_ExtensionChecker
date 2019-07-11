@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use InvalidArgumentException;
-use Magento\Setup\Exception;
 use ReflectionException;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,6 +29,11 @@ class Scan
      * @var bool
      */
     private $hideDeprecated = false;
+
+    /**
+     * @var bool
+     */
+    private $hasWarnings = false;
 
     /**
      * @var Module
@@ -109,9 +113,10 @@ class Scan
     }
 
     /**
+     * @return bool
      * @throws ReflectionException
      */
-    public function scan()
+    public function scan(): bool
     {
         $moduleFolder = $this->module->getModuleFolder($this->moduleName);
         $classes = $this->classCollector->getClassesFromFolder($moduleFolder);
@@ -128,6 +133,7 @@ class Scan
         $this->scanClassesForPhpExtensions($classes);
         $this->scanModuleDependencies($allDependencies);
         $this->scanComposerDependencies($allDependencies);
+        return $this->hasWarnings;
     }
 
     /**
@@ -148,6 +154,7 @@ class Scan
             if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
                 $msg = sprintf('Dependency "%s" not found module.xml', $component);
                 $this->output->writeln($msg);
+                $this->hasWarnings = true;
                 continue;
             }
         }
@@ -175,6 +182,7 @@ class Scan
                 $msg .= ' ';
                 $msg .= sprintf('Current version is %s', $package['version']);
                 $this->output->writeln($msg);
+                $this->hasWarnings = true;
             }
         }
     }
@@ -193,6 +201,7 @@ class Scan
         if ($this->classInspector->isDeprecated()) {
             $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $className, $originalClassName);
             $this->output->writeln($msg);
+            $this->hasWarnings = true;
         }
     }
 
@@ -231,6 +240,7 @@ class Scan
 
                 $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction, $phpExtension);
                 $this->output->writeln($msg);
+                $this->hasWarnings = true;
                 break;
             }
         }
@@ -312,7 +322,7 @@ class Scan
     private function hasComposerFile(): bool
     {
         $moduleFolder = $this->module->getModuleFolder($this->moduleName);
-        if (!is_file($moduleFolder.'/composer.json')) {
+        if (!is_file($moduleFolder . '/composer.json')) {
             return false;
         }
 

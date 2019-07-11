@@ -70,13 +70,13 @@ class ScanCommand extends Command
     }
 
     /**
-     * @param Input  $input
+     * @param Input $input
      * @param Output $output
      *
-     * @return void
+     * @return int
      * @throws ReflectionException
      */
-    protected function execute(Input $input, Output $output)
+    protected function execute(Input $input, Output $output): int
     {
         try {
             $moduleName = (string)$input->getArgument('module');
@@ -93,6 +93,8 @@ class ScanCommand extends Command
         $this->scan->setOutput($output);
         $this->scan->setModuleName($moduleName);
         $this->scan->setHideDeprecated($hideDeprecated);
-        $this->scan->scan();
+
+        $hasWarnings = $this->scan->scan();
+        return ($hasWarnings === true) ? 1 : 0;
     }
 }

@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2019-07-11
+### Added
+- Add an exit code 1 if warnings are found
+
 ## [1.1.0] - 2019-06-28
 ### Added
 - This CHANGELOG
