@@ -10,7 +10,7 @@
 
     <type name="Yireo\ExtensionChecker\Console\Command\ScanCommand">
         <arguments>
-            <argument name="scan" xsi:type="object">\Yireo\ExtensionChecker\Scan\Scan</argument>
+            <argument name="scan" xsi:type="object">\Yireo\ExtensionChecker\Scan\Scan\Proxy</argument>
         </arguments>
     </type>
 </config>
