@@ -8,7 +8,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 /**
  * Class Composer
  *
- * @package Jola\ExtensionChecker\Scan
+ * @package Yireo\ExtensionChecker\Scan
  */
 class Composer
 {

@@ -1,10 +1,10 @@
 <?php
 /**
- * Jola ExtensionChecker for Magento
+ * Yireo ExtensionChecker for Magento
  *
  * @package     Yireo_ExtensionChecker
- * @author      Jola (https://www.yireo.com/)
- * @copyright   Copyright 2018 Jola (https://www.yireo.com/)
+ * @author      Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2018 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 

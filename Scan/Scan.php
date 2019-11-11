@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class Scan
  *
- * @package Jola\ExtensionChecker\Scan
+ * @package Yireo\ExtensionChecker\Scan
  */
 class Scan
 {

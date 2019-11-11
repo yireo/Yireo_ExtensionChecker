@@ -8,7 +8,7 @@ use RuntimeException;
 /**
  * Class ClassCollector
  *
- * @package Jola\ExtensionChecker\Scan
+ * @package Yireo\ExtensionChecker\Scan
  */
 class ClassCollector
 {

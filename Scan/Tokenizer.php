@@ -8,7 +8,7 @@ use PHP_Token_Stream;
 
 /**
  * Class Tokenizer
- * @package Jola\ExtensionChecker\Scan
+ * @package Yireo\ExtensionChecker\Scan
  */
 class Tokenizer
 {

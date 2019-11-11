@@ -8,7 +8,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * Class FileCollector
  *
- * @package Jola\ExtensionChecker\Scan
+ * @package Yireo\ExtensionChecker\Scan
  */
 class FileCollector
 {
