@@ -3,8 +3,8 @@
  * ExtensionChecker module for Magento
  *
  * @package     Yireo_ExtensionChecker
- * @author      Yireo (https://www.yireo.com/)
- * @copyright   Copyright 2018 Yireo (https://www.yireo.com/)
+ * @author      Jola (https://www.yireo.com/)
+ * @copyright   Copyright 2018 Jola (https://www.yireo.com/)
  * @license     Open Source License
  */
 

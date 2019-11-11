@@ -12,7 +12,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 /**
  * Class Module
  *
- * @package Yireo\ExtensionChecker\Scan
+ * @package Jola\ExtensionChecker\Scan
  */
 class Module
 {

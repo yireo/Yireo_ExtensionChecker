@@ -12,7 +12,7 @@ use Throwable;
 /**
  * Class ClassInspector
  *
- * @package Yireo\ExtensionChecker\Scan
+ * @package Jola\ExtensionChecker\Scan
  */
 class ClassInspector
 {
