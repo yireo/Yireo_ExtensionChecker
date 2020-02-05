@@ -127,27 +127,19 @@ class Module
         $dependencies = [];
         $composerData = $this->getComposerJsonData();
 
-        if (!empty($composerData['require'])) {
-            foreach ($composerData['require'] as $dependency => $version) {
-                if (!$dependency) {
-                    continue;
-                }
+        $sources = [
+            'require',
+            'require-dev',
+            'suggest'
+        ];
 
-                $dependencies[] = $dependency;
+        foreach ($sources as $source) {
+            if (!empty($composerData[$source])) {
+                $dependencies[] = array_filter(array_keys($composerData[$source]));
             }
         }
 
-        if (!empty($composerData['require-dev'])) {
-            foreach ($composerData['require-dev'] as $dependency => $version) {
-                if (!$dependency) {
-                    continue;
-                }
-
-                $dependencies[] = $dependency;
-            }
-        }
-
-        return $dependencies;
+        return array_unique(array_merge(...$dependencies));
     }
 
     /**
