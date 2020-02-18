@@ -85,7 +85,7 @@ class ScanCommand extends Command
         }
 
         if (empty($moduleName)) {
-            throw new InvalidArgumentException('Argument "Foo_Bar" is missing');
+            throw new InvalidArgumentException('Module argument "Vendor_Module" is missing');
         }
 
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
