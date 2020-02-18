@@ -139,6 +139,10 @@ class Module
             }
         }
 
+        if (!$dependencies) {
+            return [];
+        }
+
         return array_unique(array_merge(...$dependencies));
     }
 
