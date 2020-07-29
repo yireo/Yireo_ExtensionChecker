@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2020-07-29
+### Added
+- Magento 2.4 compat
+
+## [1.1.2] - 2020-02-29
+### Added
+- PHPCS compliance
+
 ## [1.1.1] - 2019-07-11
 ### Added
 - Add an exit code 1 if warnings are found
