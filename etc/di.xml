@@ -4,13 +4,14 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="yireo_extensionchecker_scan" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ScanCommand</item>
+                <item name="yireo_extensionchecker_version_match" xsi:type="object">Yireo\ExtensionChecker\Console\Command\VersionMatchCommand</item>
             </argument>
         </arguments>
     </type>
 
     <type name="Yireo\ExtensionChecker\Console\Command\ScanCommand">
         <arguments>
-            <argument name="scan" xsi:type="object">\Yireo\ExtensionChecker\Scan\Scan\Proxy</argument>
+            <argument name="scan" xsi:type="object">Yireo\ExtensionChecker\Scan\Scan\Proxy</argument>
         </arguments>
     </type>
 </config>

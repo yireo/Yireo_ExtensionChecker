@@ -6,10 +6,6 @@ namespace Yireo\ExtensionChecker\Scan;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use PHP_Token_Stream;
 
-/**
- * Class Tokenizer
- * @package Yireo\ExtensionChecker\Scan
- */
 class Tokenizer
 {
     /**

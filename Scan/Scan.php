@@ -8,11 +8,6 @@ use ReflectionException;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class Scan
- *
- * @package Yireo\ExtensionChecker\Scan
- */
 class Scan
 {
     /**

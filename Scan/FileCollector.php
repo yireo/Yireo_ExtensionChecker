@@ -5,11 +5,6 @@ namespace Yireo\ExtensionChecker\Scan;
 
 use Symfony\Component\Finder\Finder;
 
-/**
- * Class FileCollector
- *
- * @package Yireo\ExtensionChecker\Scan
- */
 class FileCollector
 {
     /**

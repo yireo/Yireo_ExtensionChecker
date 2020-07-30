@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.0] - 29 July 2020
+### Added
+- New CLI to check versioning of composer.json file
+
 ## [1.1.3] - 2020-07-29
 ### Added
 - Magento 2.4 compat

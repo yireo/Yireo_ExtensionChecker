@@ -21,9 +21,6 @@ use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
 use Yireo\ExtensionChecker\Scan\Scan;
 
-/**
- * Class ScanCommand
- */
 class ScanCommand extends Command
 {
     /**

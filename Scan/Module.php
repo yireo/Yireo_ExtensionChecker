@@ -9,11 +9,6 @@ use Magento\Framework\Module\ModuleList;
 use Magento\Framework\Module\PackageInfo;
 use Magento\Framework\Serialize\Serializer\Json;
 
-/**
- * Class Module
- *
- * @package Yireo\ExtensionChecker\Scan
- */
 class Module
 {
     /**

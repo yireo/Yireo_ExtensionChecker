@@ -5,11 +5,6 @@ namespace Yireo\ExtensionChecker\Scan;
 
 use RuntimeException;
 
-/**
- * Class ClassCollector
- *
- * @package Yireo\ExtensionChecker\Scan
- */
 class ClassCollector
 {
     /**

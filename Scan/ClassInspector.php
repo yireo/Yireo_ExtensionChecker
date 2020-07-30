@@ -4,16 +4,13 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManager\ConfigInterface;
+use Magento\Framework\ObjectManager\Factory\Dynamic\Developer;
 use Magento\Framework\ObjectManagerInterface;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
 
-/**
- * Class ClassInspector
- *
- * @package Yireo\ExtensionChecker\Scan
- */
 class ClassInspector
 {
     /**
@@ -30,31 +27,34 @@ class ClassInspector
      * @var Tokenizer
      */
     private $tokenizer;
+
     /**
-     * @var \Magento\Framework\ObjectManager\Factory\Dynamic\Developer
+     * @var Developer
      */
     private $developerFactory;
+
     /**
      * @var ObjectManagerInterface
      */
     private $objectManager;
+
     /**
-     * @var \Magento\Framework\ObjectManager\ConfigInterface
+     * @var ConfigInterface
      */
     private $objectManagerConfig;
 
     /**
      * ClassInspector constructor.
      * @param Tokenizer $tokenizer
-     * @param \Magento\Framework\ObjectManager\Factory\Dynamic\Developer $developerFactory
+     * @param Developer $developerFactory
      * @param ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\ObjectManager\ConfigInterface $objectManagerConfig
+     * @param ConfigInterface $objectManagerConfig
      */
     public function __construct(
         Tokenizer $tokenizer,
-        \Magento\Framework\ObjectManager\Factory\Dynamic\Developer $developerFactory,
+        Developer $developerFactory,
         ObjectManagerInterface $objectManager,
-        \Magento\Framework\ObjectManager\ConfigInterface $objectManagerConfig
+        ConfigInterface $objectManagerConfig
     ) {
         $this->tokenizer = $tokenizer;
         $this->developerFactory = $developerFactory;
