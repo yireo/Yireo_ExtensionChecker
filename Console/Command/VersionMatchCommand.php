@@ -27,7 +27,6 @@ class VersionMatchCommand extends Command
      */
     private $versionParser;
 
-
     /**
      * @var Composer
      */
@@ -74,7 +73,7 @@ class VersionMatchCommand extends Command
         try {
             $composerRequirements = $this->composer->getRequirementsFromFile($composerFile);
         } catch (Exception $e) {
-            $output->writeln('ERROR: '.$e->getMessage());
+            $output->writeln('ERROR: ' . $e->getMessage());
             return;
         }
 
@@ -108,7 +107,12 @@ class VersionMatchCommand extends Command
             }
 
             $output->writeln(
-                'ERROR: "' . $composerRequirement . ':' . $installedVersion . '" does not match required version "' . $composerRequiredVersion . '"'
+                sprintf(
+                    'ERROR: "%s:%s" does not match required version "%s"',
+                    $composerRequirement,
+                    $installedVersion,
+                    $composerRequiredVersion
+                )
             );
         }
     }

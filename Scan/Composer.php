@@ -4,11 +4,19 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Composer\Config;
+use Composer\IO\ConsoleIO;
+use Composer\IO\NullIO;
+use Composer\Plugin\PluginManager;
+use Composer\Repository\RepositoryManager;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Serialize\SerializerInterface;
 use RuntimeException;
+use Symfony\Component\Console\Input\Input;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\Output;
 
 class Composer
 {
@@ -26,6 +34,14 @@ class Composer
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var Input
+     */
+    private $input;
+    /**
+     * @var Output
+     */
+    private $output;
 
     /**
      * Composer constructor.
@@ -50,7 +66,7 @@ class Composer
      */
     public function getDataFromFile(string $composerFile): array
     {
-        if (empty($composerFile) || !file_exists($composerFile)) {
+        if (empty($composerFile)) {
             throw new NotFoundException(__('Composer file "' . $composerFile . '" does not exists'));
         }
 
@@ -72,10 +88,6 @@ class Composer
      */
     public function getRequirementsFromFile(string $composerFile): array
     {
-        if (empty($composerFile) || !file_exists($composerFile)) {
-            throw new NotFoundException(__('Composer file "' . $composerFile . '" does not exists'));
-        }
-
         $extensionData = $this->getDataFromFile($composerFile);
         if (!isset($extensionData['require'])) {
             throw new RuntimeException('File "' . $composerFile . '" does not have a "require" section');
@@ -115,7 +127,7 @@ class Composer
 
         chdir($this->directoryList->getRoot());
         exec('composer show --format=json', $output);
-        $packages = json_decode(implode('', $output), true);
+        $packages = $this->serializer->unserialize(implode('', $output));
         $installedPackages = $packages['installed'];
         return $installedPackages;
     }

@@ -87,6 +87,7 @@ class ScanCommand extends Command
 
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
 
+        $this->scan->setInput($input);
         $this->scan->setOutput($output);
         $this->scan->setModuleName($moduleName);
         $this->scan->setHideDeprecated($hideDeprecated);

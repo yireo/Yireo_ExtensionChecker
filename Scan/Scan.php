@@ -6,12 +6,18 @@ namespace Yireo\ExtensionChecker\Scan;
 use InvalidArgumentException;
 use ReflectionException;
 use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Scan
 {
     /**
-     * @var Output
+     * @var InputInterface
+     */
+    private $input;
+
+    /**
+     * @var OutputInterface
      */
     private $output;
 
@@ -89,6 +95,14 @@ class Scan
         }
 
         $this->moduleName = $moduleName;
+    }
+
+    /**
+     * @param InputInterface $input
+     */
+    public function setInput(InputInterface $input)
+    {
+        $this->input = $input;
     }
 
     /**
