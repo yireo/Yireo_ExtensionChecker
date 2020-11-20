@@ -237,6 +237,11 @@ class Scan
                 $this->hasWarnings = true;
             }
         }
+
+        if (isset($composerData['repositories'])) {
+            $this->output->writeln('A composer package should not have a "repositories" section');
+            $this->hasWarnings = true;
+        }
     }
 
     /**
@@ -283,11 +288,10 @@ class Scan
     /**
      * @return string[]
      */
-    private function getComponentsByClasses(array $classes): array
+    private function getComponentsByClasses(array $classNames): array
     {
         $components = [];
-        foreach ($classes as $class) {
-            $className = is_object($class) ? get_class($class) : (string)$class;
+        foreach ($classNames as $className) {
             $component = $this->classInspector->setClassName($className)->getComponentByClass();
             if ($component === $this->moduleName) {
                 continue;
@@ -319,15 +323,14 @@ class Scan
     }
 
     /**
-     * @param array $classes
+     * @param string[] $classes
      *
      * @return string[]
      */
-    private function getPackagesByClasses(array $classes): array
+    private function getPackagesByClasses(array $classNames): array
     {
         $packages = [];
-        foreach ($classes as $class) {
-            $className = is_object($class) ? get_class($class) : (string)$class;
+        foreach ($classNames as $className) {
             $package = $this->classInspector->setClassName($className)->getPackageByClass();
             if (!$package) {
                 continue;
