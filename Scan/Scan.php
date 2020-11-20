@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
@@ -132,16 +133,19 @@ class Scan
         $allDependencies = [];
 
         foreach ($classes as $class) {
-            $dependencies = $this->classInspector->setClassName($class)->getDependencies();
+            $className = is_object($class) ? get_class($class) : (string)$class;
+            $dependencies = $this->classInspector->setClassName($className)->getDependencies();
             $allDependencies = array_merge($allDependencies, $dependencies);
             foreach ($dependencies as $dependency) {
-                $this->reportDeprecatedClass((string)$dependency, $class);
+                $dependencyName = is_object($dependency) ? get_class($dependency) : (string)$dependency;
+                $this->reportDeprecatedClass($dependencyName, $class);
             }
         }
 
         $this->scanClassesForPhpExtensions($classes);
         $this->scanModuleDependencies($allDependencies);
         $this->scanComposerDependencies($allDependencies);
+        $this->scanComposerRequirements();
         return $this->hasWarnings;
     }
 
@@ -214,6 +218,27 @@ class Scan
         }
     }
 
+    private function scanComposerRequirements()
+    {
+        if ($this->hasComposerFile() === false) {
+            return;
+        }
+
+        $composerData = $this->getComposerData();
+        if (empty($composerData['require'])) {
+            return;
+        }
+
+        $requirements = $composerData['require'];
+        foreach ($requirements as $requirement => $requirementVersion) {
+            if ($requirementVersion === '*') {
+                $msg = 'Composer dependency "' . $requirement . '" is set to version "' . $requirementVersion . '"';
+                $this->output->writeln($msg);
+                $this->hasWarnings = true;
+            }
+        }
+    }
+
     /**
      * @param array $classes
      *
@@ -262,7 +287,8 @@ class Scan
     {
         $components = [];
         foreach ($classes as $class) {
-            $component = $this->classInspector->setClassName((string)$class)->getComponentByClass();
+            $className = is_object($class) ? get_class($class) : (string)$class;
+            $component = $this->classInspector->setClassName($className)->getComponentByClass();
             if ($component === $this->moduleName) {
                 continue;
             }
@@ -301,7 +327,8 @@ class Scan
     {
         $packages = [];
         foreach ($classes as $class) {
-            $package = $this->classInspector->setClassName((string)$class)->getPackageByClass();
+            $className = is_object($class) ? get_class($class) : (string)$class;
+            $package = $this->classInspector->setClassName($className)->getPackageByClass();
             if (!$package) {
                 continue;
             }
@@ -330,11 +357,27 @@ class Scan
      */
     private function hasComposerFile(): bool
     {
-        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
-        if (!is_file($moduleFolder . '/composer.json')) {
-            return false;
+        return is_file($this->getComposerFile());
+    }
+
+    /**
+     * @return bool
+     */
+    private function getComposerData(): array
+    {
+        if (!$this->hasComposerFile()) {
+            return [];
         }
 
-        return true;
+        $composerData = file_get_contents($this->getComposerFile());
+        return json_decode($composerData, true);
+    }
+
+    /**
+     * @return string
+     */
+    private function getComposerFile(): string
+    {
+        return $this->module->getModuleFolder($this->moduleName) . '/composer.json';
     }
 }
