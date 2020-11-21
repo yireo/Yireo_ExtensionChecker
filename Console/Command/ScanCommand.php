@@ -52,9 +52,17 @@ class ScanCommand extends Command
         $this->setName('yireo_extensionchecker:scan');
         $this->setDescription('Scan a specific Magento module');
 
-        $this->addArgument(
+        $this->addOption(
+            'path',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Module path'
+        );
+
+        $this->addOption(
             'module',
-            InputOption::VALUE_REQUIRED,
+            null,
+            InputOption::VALUE_OPTIONAL,
             'Module name'
         );
 
@@ -75,14 +83,11 @@ class ScanCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
-        try {
-            $moduleName = (string)$input->getArgument('module');
-        } catch (Exception $e) {
-            throw new InvalidArgumentException('Unable to initialize arguments');
-        }
+        $moduleName = (string)$input->getOption('module');
+        $modulePath = (string)$input->getOption('path');
 
-        if (empty($moduleName)) {
-            throw new InvalidArgumentException('Module argument "Vendor_Module" is missing');
+        if (empty($moduleName) && empty($modulePath)) {
+            throw new InvalidArgumentException('Either module name or module path is required');
         }
 
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
