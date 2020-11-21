@@ -78,27 +78,26 @@ class ClassInspector
      */
     public function getDependencies(): array
     {
-        $dependencies = [];
-
         try {
             $object = $this->getReflectionObject();
         } catch (ReflectionException $exception) {
-            return $dependencies;
+            return [];
         }
 
         $constructor = $object->getConstructor();
         if (!$constructor) {
-            return $dependencies;
+            return [];
         }
 
         $parameters = $constructor->getParameters();
+        $dependencies = [];
 
         foreach ($parameters as $parameter) {
             if (!$parameter->getClass()) {
                 continue;
             }
 
-            $dependencies[] = $parameter->getType();
+            $dependencies[] = $parameter->getClass()->getName();
         }
 
         return $dependencies;

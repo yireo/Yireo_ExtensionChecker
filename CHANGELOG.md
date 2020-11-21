@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.1] - 20 November 2020
+### Fixed
+- Fix class name detection
+- Scan for deps with version set to wildcard
+
+
 # [1.2.0] - 29 July 2020
 ### Added
 - New CLI to check versioning of composer.json file

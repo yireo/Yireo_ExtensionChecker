@@ -35,7 +35,7 @@ class ClassCollector
         foreach ($files as $file) {
             try {
                 $className = $this->getClassNameFromFile($file);
-            } catch (RuntimeException $e) {
+            } catch (\Throwable $e) {
                 continue;
             }
 

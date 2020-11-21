@@ -34,10 +34,12 @@ class Composer
      * @var SerializerInterface
      */
     private $serializer;
+
     /**
      * @var Input
      */
     private $input;
+
     /**
      * @var Output
      */
