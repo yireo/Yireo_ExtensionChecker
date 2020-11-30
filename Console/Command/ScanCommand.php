@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Yireo ExtensionChecker for Magento
  *
@@ -8,11 +8,8 @@
  * @license     Open Source License (OSL v3)
  */
 
-declare(strict_types=1);
-
 namespace Yireo\ExtensionChecker\Console\Command;
 
-use Exception;
 use InvalidArgumentException;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;

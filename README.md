@@ -25,6 +25,11 @@ The output should be empty to be successful. When unmatched versions are found, 
 
     ERROR: "magento/framework:103.0.0" does not match required version "^100.1|^101.0|^102.0"
 
+## Example 3: Creating unit tests (@todo: Move this to another module
+```bash
+bin/magento yireo_extensionchecker:generate-unit-test --module Yireo_Webp2 --class '\Yireo\Webp2\Convertor\Convertor'
+```
+
 ## Installation
 Install the module as a composer requirement for developer environments:
 
