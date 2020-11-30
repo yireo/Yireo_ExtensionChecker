@@ -231,7 +231,7 @@ class Scan
 
         $requirements = $composerData['require'];
         foreach ($requirements as $requirement => $requirementVersion) {
-            if ($requirementVersion === '*') {
+            if (!preg_match('/^ext-/', $requirement) && $requirementVersion === '*') {
                 $msg = 'Composer dependency "' . $requirement . '" is set to version "' . $requirementVersion . '"';
                 $this->output->writeln($msg);
                 $this->hasWarnings = true;

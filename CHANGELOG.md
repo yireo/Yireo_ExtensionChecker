@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.2] = 30 November 2020
+### Fixed
+- Do not disallow wildcard for PHP extensions
+
 # [1.2.1] - 20 November 2020
 ### Fixed
 - Fix class name detection
