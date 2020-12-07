@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 /**
  * Yireo ExtensionChecker for Magento
  *
@@ -8,8 +8,11 @@
  * @license     Open Source License (OSL v3)
  */
 
+declare(strict_types=1);
+
 namespace Yireo\ExtensionChecker\Console\Command;
 
+use Exception;
 use InvalidArgumentException;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
@@ -69,6 +72,13 @@ class ScanCommand extends Command
             InputOption::VALUE_OPTIONAL,
             'Hide deprecated dependency notices'
         );
+
+        $this->addOption(
+            'hide-needless',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Hide needless dependency notices'
+        );
     }
 
     /**
@@ -88,11 +98,13 @@ class ScanCommand extends Command
         }
 
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
+        $hideNeedless = (bool)$input->getOption('hide-needless');
 
         $this->scan->setInput($input);
         $this->scan->setOutput($output);
         $this->scan->setModuleName($moduleName);
         $this->scan->setHideDeprecated($hideDeprecated);
+        $this->scan->setHideNeedless($hideNeedless);
 
         $hasWarnings = $this->scan->scan();
         return ($hasWarnings === true) ? 1 : 0;
