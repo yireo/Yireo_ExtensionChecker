@@ -35,6 +35,11 @@ class Scan
     /**
      * @var bool
      */
+    private $hideNeedless = false;
+
+    /**
+     * @var bool
+     */
     private $hasWarnings = false;
 
     /**
@@ -56,6 +61,14 @@ class Scan
      * @var Composer
      */
     private $composer;
+
+    /**
+     * @var string[]
+     */
+    private $validDependencies = [
+        'php',
+        'magento/magento-composer-installer'
+    ];
 
     /**
      * Scan constructor.
@@ -123,6 +136,14 @@ class Scan
     }
 
     /**
+     * @param bool $hideNeedless
+     */
+    public function setHideNeedless(bool $hideNeedless)
+    {
+        $this->hideNeedless = $hideNeedless;
+    }
+
+    /**
      * @return bool
      * @throws ReflectionException
      */
@@ -171,6 +192,19 @@ class Scan
                 continue;
             }
         }
+
+        if ($this->hideNeedless === true) {
+            return;
+        }
+
+        foreach($moduleInfo['sequence'] as $module)
+        {
+            if (!in_array($module, $components)) {
+                $msg = sprintf('Dependency "%s" from module.xml possibly not needed.', $module);
+                $this->output->writeln($msg);
+                $this->hasWarnings = true;
+            }
+        }
     }
 
     /**
@@ -185,15 +219,34 @@ class Scan
         $packages = $this->getPackagesByClasses($allDependencies);
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
 
+        $packageNames = [];
+
         foreach ($packages as $package) {
             if ($package['name'] === $packageInfo['name']) {
                 continue;
             }
 
+            $packageNames[] = $package['name'];
+
             if (!in_array($package['name'], $packageInfo['dependencies'])) {
                 $msg = sprintf('Dependency "%s" not found composer.json.', $package['name']);
                 $msg .= ' ';
                 $msg .= sprintf('Current version is %s', $package['version']);
+                $this->output->writeln($msg);
+                $this->hasWarnings = true;
+            }
+        }
+
+        if ($this->hideNeedless === true) {
+            return;
+        }
+
+        foreach($packageInfo['dependencies'] as $packageInfo) {
+            if (!in_array($packageInfo, $packageNames)
+                && !in_array($packageInfo, $this->validDependencies)
+                && !preg_match('/^ext-/', $packageInfo))
+            {
+                $msg = sprintf('Dependency "%s" from composer.json possibly not needed.', $packageInfo);
                 $this->output->writeln($msg);
                 $this->hasWarnings = true;
             }
@@ -232,7 +285,9 @@ class Scan
         $requirements = $composerData['require'];
         foreach ($requirements as $requirement => $requirementVersion) {
             if (!preg_match('/^ext-/', $requirement) && $requirementVersion === '*') {
-                $msg = 'Composer dependency "' . $requirement . '" is set to version "' . $requirementVersion . '"';
+                $msg = 'Composer dependency "' . $requirement . '" is set to version *.';
+                $msg .= ' ';
+                $msg .= sprintf('Current version is %s', $this->getVersionByPackage($requirement));
                 $this->output->writeln($msg);
                 $this->hasWarnings = true;
             }
@@ -267,17 +322,25 @@ class Scan
 
         $phpExtensions = ['json', 'xml', 'pcre', 'gd', 'bcmath'];
         foreach ($phpExtensions as $phpExtension) {
-            if (in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
-                continue;
-            }
-
+            $isNeeded = false;
             $phpExtensionFunctions = get_extension_funcs($phpExtension);
             foreach ($phpExtensionFunctions as $phpExtensionFunction) {
-                if (!in_array($phpExtensionFunction, $stringTokens)) {
-                    continue;
+
+                if (in_array($phpExtensionFunction, $stringTokens)) {
+                    $isNeeded = true;
                 }
 
-                $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction, $phpExtension);
+                if ($isNeeded && !in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
+                    $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction, $phpExtension);
+                    $this->output->writeln($msg);
+                    $this->hasWarnings = true;
+                    break;
+                }
+
+            }
+
+            if (!$this->hideNeedless && !$isNeeded && in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
+                $msg = sprintf('PHP extension "ext-%s" from composer.json possibly not needed.', $phpExtension);
                 $this->output->writeln($msg);
                 $this->hasWarnings = true;
                 break;
