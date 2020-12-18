@@ -68,5 +68,5 @@ You can quickly check upon multiple modules with a command like this:
 
     bin/magento mod:st --enabled | grep Yireo_ | while read MODULE ; do 
         echo "Checking $MODULE"
-        bin/magento yireo_extensionchecker:scan $MODULE --hide-deprecated 1
+        bin/magento yireo_extensionchecker:scan --module $MODULE --hide-deprecated 1
     done
