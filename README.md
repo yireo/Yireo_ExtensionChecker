@@ -60,10 +60,13 @@ If another method than the constructor contains type hints for imported namespac
 ## @todo: Check for XML files
 Some XML files lead to the requirement (or suggestion?) for other modules. For instance, the existence of a folder `etc/adminhtml/` would require the `Magento_Adminhtml` module.
 
+## @todo: Scan for `@since`
+Scan class dependencies for `@since` and double-check if this minimum version matches with the composer requirements.
+
 ## Tip: Check multiple modules 
 You can quickly check upon multiple modules with a command like this:
 
     bin/magento mod:st --enabled | grep Yireo_ | while read MODULE ; do 
         echo "Checking $MODULE"
-        bin/magento yireo_extensionchecker:scan $MODULE --hide-deprecated 1
+        bin/magento yireo_extensionchecker:scan --module $MODULE --hide-deprecated 1
     done
