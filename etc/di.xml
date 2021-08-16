@@ -6,6 +6,9 @@
                 <item name="yireo_extensionchecker_scan" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ScanCommand</item>
                 <item name="yireo_extensionchecker_version_match" xsi:type="object">Yireo\ExtensionChecker\Console\Command\VersionMatchCommand</item>
                 <item name="yireo_extensionchecker_generate_unit_test" xsi:type="object">Yireo\ExtensionChecker\Console\Command\GenerateUnitTestCommand</item>
+                <item name="yireo_extensionchecker_run_phpcs" xsi:type="object">Yireo\ExtensionChecker\Console\Command\RunCodingStandardCommand</item>
+                <item name="yireo_extensionchecker_run_phpstan" xsi:type="object">Yireo\ExtensionChecker\Console\Command\RunPhpStanCommand</item>
+                <item name="yireo_extensionchecker_run_unit_test" xsi:type="object">Yireo\ExtensionChecker\Console\Command\RunUnitTestCommand</item>
             </argument>
         </arguments>
     </type>
