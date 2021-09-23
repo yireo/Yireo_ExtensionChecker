@@ -11,6 +11,7 @@
 namespace Yireo\ExtensionChecker\Console\Command;
 
 use Magento\Framework\Component\ComponentRegistrar;
+use Magento\Framework\Filesystem\DirectoryList;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface as Input;
@@ -22,6 +23,10 @@ class RunPhpStanCommand extends Command
      * @var ComponentRegistrar
      */
     private $componentRegistrar;
+    /**
+     * @var DirectoryList
+     */
+    private $directoryList;
 
     /**
      * @param ComponentRegistrar $componentRegistrar
@@ -29,10 +34,12 @@ class RunPhpStanCommand extends Command
      */
     public function __construct(
         ComponentRegistrar $componentRegistrar,
+        DirectoryList $directoryList,
         string $name = null
     ) {
         parent::__construct($name);
         $this->componentRegistrar = $componentRegistrar;
+        $this->directoryList = $directoryList;
     }
 
     protected function configure()
@@ -52,7 +59,26 @@ class RunPhpStanCommand extends Command
     {
         $moduleName = $input->getArgument('module');
         $level = $input->getArgument('level');
+
+        $this->generatePhpStanConfigurationIfMissing();
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
         return passthru('vendor/bin/phpstan analyse --configuration=./phpstan.neon --level='.$level.' --no-progress ' . $modulePath);
+    }
+
+    private function generatePhpStanConfigurationIfMissing()
+    {
+        $configFile = $this->directoryList->getRoot().'/phpstan.neon';
+        if (file_exists($configFile)) {
+            return;
+        }
+
+        file_put_contents($configFile, <<<HEREDOC
+parameters:
+    excludes_analyse:
+        - */Test/*/*
+
+HEREDOC
+        );
+
     }
 }
