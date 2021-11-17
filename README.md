@@ -3,7 +3,7 @@ This extension validates the code of other extensions and is complementary to st
 
 ## Example 1: Scanning extension code
 
-    bin/magento yireo_extensionchecker:scan Yireo_ExampleAdminhtml
+    bin/magento yireo_extensionchecker:scan --module Yireo_ExampleAdminhtml
 
 Running this command might give the following output:
 
@@ -41,7 +41,7 @@ Note that if you want to scan a module, this module also needs to be enabled. Pe
 ## Deprecated dependencies
 Class dependencies (injected via the constructor) are inspected to see if they are deprecated, for the used Magento version. You can skip this behaviour by adding a flag `--hide-deprecated` to the command:
 
-    bin/magento yireo_extensionchecker:scan Yireo_Example --hide-deprecated=1
+    bin/magento yireo_extensionchecker:scan --module Yireo_Example --hide-deprecated=1
 
 ## Undeclared dependencies
 Class dependencies (injected via the constructor) are traced back to their corresponding module (or the framework or something else), which should be reflected upon in the `composer.json` file and the `module.xml` file. Of each composer dependencies, the current version is also reported.
