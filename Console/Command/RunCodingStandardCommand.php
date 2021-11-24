@@ -53,6 +53,7 @@ class RunCodingStandardCommand extends Command
         $moduleName = $input->getArgument('module');
         $severity = $input->getArgument('severity');
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
+        passthru('vendor/bin/phpcs --config-set installed_paths vendor/magento/magento-coding-standard/');
         return passthru('vendor/bin/phpcs --standard=Magento2 --colors --severity=' . $severity . ' ' . $modulePath);
     }
 }
