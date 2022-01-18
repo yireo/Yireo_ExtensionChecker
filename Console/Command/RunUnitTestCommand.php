@@ -59,11 +59,7 @@ class RunUnitTestCommand extends Command
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
 
         if (is_dir($modulePath . '/Test/Unit')) {
-<<<<<<< HEAD
             return passthru($_SERVER['_'] . ' ./vendor/bin/phpunit --colors=always ' . $modulePath . '/Test/Unit/');
-=======
-            return passthru('php ./vendor/bin/phpunit --colors=always ' . $modulePath . '/Test/Unit/');
->>>>>>> 375ecdaab8caf2e3eec63ea9b923b8bffa49e8d8
         }
 
         return 0;
