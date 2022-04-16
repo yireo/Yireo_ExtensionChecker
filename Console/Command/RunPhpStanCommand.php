@@ -23,6 +23,7 @@ class RunPhpStanCommand extends Command
      * @var ComponentRegistrar
      */
     private $componentRegistrar;
+
     /**
      * @var DirectoryList
      */

@@ -18,4 +18,10 @@
             <argument name="scan" xsi:type="object">Yireo\ExtensionChecker\Scan\Scan\Proxy</argument>
         </arguments>
     </type>
+
+    <type name="Yireo\ExtensionChecker\Console\Command\RunPhpStanCommand">
+        <arguments>
+            <argument name="directoryList" xsi:type="object">\Magento\Framework\Filesystem\DirectoryList\Proxy</argument>
+        </arguments>
+    </type>
 </config>
