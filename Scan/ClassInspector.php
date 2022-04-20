@@ -1,9 +1,7 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\ObjectManager\ConfigInterface;
 use Magento\Framework\ObjectManager\Factory\Dynamic\Developer;
 use Magento\Framework\ObjectManagerInterface;
@@ -84,21 +82,18 @@ class ClassInspector
             return [];
         }
 
-        $constructor = $object->getConstructor();
-        if (!$constructor) {
-            return [];
-        }
-
-        $parameters = $constructor->getParameters();
         $dependencies = [];
-
-        foreach ($parameters as $parameter) {
-            if (!$parameter->getClass()) {
-                continue;
+        $constructor = $object->getConstructor();
+        if ($constructor) {
+            $parameters = $constructor->getParameters();
+            foreach ($parameters as $parameter) {
+                if ($parameter->getType()) {
+                    $dependencies[] = $parameter->getType()->getName();
+                }
             }
-
-            $dependencies[] = $parameter->getClass()->getName();
         }
+
+        $dependencies = array_merge($dependencies, $object->getInterfaceNames());
 
         return $dependencies;
     }
