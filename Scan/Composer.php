@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
@@ -34,16 +32,6 @@ class Composer
      * @var SerializerInterface
      */
     private $serializer;
-
-    /**
-     * @var Input
-     */
-    private $input;
-
-    /**
-     * @var Output
-     */
-    private $output;
 
     /**
      * Composer constructor.
