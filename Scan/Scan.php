@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Scan;
 
@@ -189,7 +187,6 @@ class Scan
                 $msg = sprintf('Dependency "%s" not found module.xml', $component);
                 $this->output->writeln($msg);
                 $this->hasWarnings = true;
-                continue;
             }
         }
 
@@ -374,7 +371,19 @@ class Scan
         $components = [];
         $moduleFolder = $this->module->getModuleFolder($this->moduleName);
 
-        if (is_dir($moduleFolder . '/Setup')) {
+        if (is_dir($moduleFolder . '/Setup') || is_dir($moduleFolder . '/Block')) {
+            $components[] = 'Magento_Store';
+        }
+
+        if (is_file($moduleFolder . '/etc/schema.graphqls')) {
+            $components[] = 'Magento_GraphQl';
+        }
+
+        if (is_dir($moduleFolder . '/etc/graphql')) {
+            $components[] = 'Magento_GraphQl';
+        }
+
+        if (is_dir($moduleFolder . '/etc/frontend')) {
             $components[] = 'Magento_Store';
         }
 
@@ -388,7 +397,7 @@ class Scan
     /**
      * @param string[] $classes
      *
-     * @return string[]
+     * @return array[]
      */
     private function getPackagesByClasses(array $classNames): array
     {
