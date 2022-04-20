@@ -169,11 +169,11 @@ class Scan
     }
 
     /**
-     * @param array $allDependencies
+     * @param array $classDependencies
      */
-    private function scanModuleDependencies(array $allDependencies)
+    private function scanModuleDependencies(array $classDependencies)
     {
-        $components = $this->getComponentsByClasses($allDependencies);
+        $components = $this->getComponentsByClasses($classDependencies);
         $components = array_merge($components, $this->getComponentsByGuess());
         $components = array_unique($components);
 
@@ -205,15 +205,15 @@ class Scan
     }
 
     /**
-     * @param array $allDependencies
+     * @param array $classDependencies
      */
-    private function scanComposerDependencies(array $allDependencies)
+    private function scanComposerDependencies(array $classDependencies)
     {
         if ($this->hasComposerFile() === false) {
             return;
         }
 
-        $packages = $this->getPackagesByClasses($allDependencies);
+        $packages = $this->getPackagesByClasses($classDependencies);
         $packageInfo = $this->module->getPackageInfo($this->moduleName);
 
         $packageNames = [];

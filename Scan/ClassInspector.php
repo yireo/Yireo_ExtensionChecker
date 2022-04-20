@@ -3,7 +3,7 @@
 namespace Yireo\ExtensionChecker\Scan;
 
 use Magento\Framework\ObjectManager\ConfigInterface;
-use Magento\Framework\ObjectManager\Factory\Dynamic\Developer;
+use Magento\Framework\ObjectManager\Factory\Dynamic\Developer as DeveloperFactory;
 use Magento\Framework\ObjectManagerInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -27,16 +27,6 @@ class ClassInspector
     private $tokenizer;
 
     /**
-     * @var Developer
-     */
-    private $developerFactory;
-
-    /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
-    /**
      * @var ConfigInterface
      */
     private $objectManagerConfig;
@@ -44,19 +34,15 @@ class ClassInspector
     /**
      * ClassInspector constructor.
      * @param Tokenizer $tokenizer
-     * @param Developer $developerFactory
+     * @param DeveloperFactory $developerFactory
      * @param ObjectManagerInterface $objectManager
      * @param ConfigInterface $objectManagerConfig
      */
     public function __construct(
         Tokenizer $tokenizer,
-        Developer $developerFactory,
-        ObjectManagerInterface $objectManager,
         ConfigInterface $objectManagerConfig
     ) {
         $this->tokenizer = $tokenizer;
-        $this->developerFactory = $developerFactory;
-        $this->objectManager = $objectManager;
         $this->objectManagerConfig = $objectManagerConfig;
     }
 
@@ -160,7 +146,6 @@ class ClassInspector
 
     /**
      * @return string[]
-     * @throws ReflectionException
      */
     public function getStringTokensFromFilename(): array
     {
@@ -174,12 +159,16 @@ class ClassInspector
     }
 
     /**
+     * @param $className
      * @return bool
-     * @throws ReflectionException
      */
     private function isInstantiable($className): bool
     {
         $instanceType = $this->objectManagerConfig->getPreference($className);
+        if (empty($instanceType)) {
+            return class_exists($className) || interface_exists($className);
+        }
+
         if (!class_exists($instanceType)) {
             return false;
         }
