@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Yireo ExtensionChecker for Magento
  *
@@ -7,8 +7,6 @@
  * @copyright   Copyright 2018 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
-
-declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Console\Command;
 
