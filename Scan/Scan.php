@@ -77,11 +77,12 @@ class Scan
      * @param Composer $composer
      */
     public function __construct(
-        Module $module,
+        Module         $module,
         ClassCollector $classCollector,
         ClassInspector $classInspector,
-        Composer $composer
-    ) {
+        Composer       $composer
+    )
+    {
         $this->classCollector = $classCollector;
         $this->classInspector = $classInspector;
         $this->module = $module;
@@ -194,8 +195,7 @@ class Scan
             return;
         }
 
-        foreach($moduleInfo['sequence'] as $module)
-        {
+        foreach ($moduleInfo['sequence'] as $module) {
             if (!in_array($module, $components)) {
                 $msg = sprintf('Dependency "%s" from module.xml possibly not needed.', $module);
                 $this->output->writeln($msg);
@@ -238,16 +238,51 @@ class Scan
             return;
         }
 
-        foreach($packageInfo['dependencies'] as $packageInfo) {
-            if (!in_array($packageInfo, $packageNames)
-                && !in_array($packageInfo, $this->validDependencies)
-                && !preg_match('/^ext-/', $packageInfo))
-            {
-                $msg = sprintf('Dependency "%s" from composer.json possibly not needed.', $packageInfo);
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+        $this->reportUnneededDependency($packageInfo['dependencies'], $packageNames);
+    }
+
+    /**
+     * @param string[] $currentDependencies
+     * @param string[] $packageNames
+     * @return void
+     */
+    private function reportUnneededDependency(array $currentDependencies, array $packageNames)
+    {
+        foreach ($currentDependencies as $currentDependency) {
+            if ($this->isDependencyNeeded($currentDependency, $packageNames)) {
+                continue;
             }
+
+            $msg = sprintf('Dependency "%s" from composer.json possibly not needed.', $currentDependency);
+            $this->output->writeln($msg);
+            $this->hasWarnings = true;
         }
+    }
+
+    /**
+     * @param string $dependency
+     * @param array $packageNames
+     * @return bool
+     */
+    private function isDependencyNeeded(string $dependency, array $packageNames): bool
+    {
+        if (in_array($dependency, $packageNames)) {
+            return true;
+        }
+
+        if (in_array($dependency, $this->validDependencies)) {
+            return true;
+        }
+
+        if ($dependency === 'magento/framework') {
+            return true;
+        }
+
+        if (preg_match('/^ext-/', $dependency)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
