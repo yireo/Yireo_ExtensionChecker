@@ -3,8 +3,6 @@
 namespace Yireo\ExtensionChecker\Scan;
 
 use Magento\Framework\ObjectManager\ConfigInterface;
-use Magento\Framework\ObjectManager\Factory\Dynamic\Developer as DeveloperFactory;
-use Magento\Framework\ObjectManagerInterface;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -34,8 +32,6 @@ class ClassInspector
     /**
      * ClassInspector constructor.
      * @param Tokenizer $tokenizer
-     * @param DeveloperFactory $developerFactory
-     * @param ObjectManagerInterface $objectManager
      * @param ConfigInterface $objectManagerConfig
      */
     public function __construct(
@@ -74,7 +70,7 @@ class ClassInspector
             $parameters = $constructor->getParameters();
             foreach ($parameters as $parameter) {
                 if ($parameter->getType()) {
-                    $dependencies[] = $parameter->getType()->getName();
+                    $dependencies[] = $this->normalizeClassName($parameter->getType()->getName());
                 }
             }
         }
@@ -82,6 +78,15 @@ class ClassInspector
         $dependencies = array_merge($dependencies, $object->getInterfaceNames());
 
         return $dependencies;
+    }
+
+    /**
+     * @param $class
+     * @return string
+     */
+    private function normalizeClassName($class): string
+    {
+        return is_object($class) ? get_class($class) : (string)$class;
     }
 
     /**

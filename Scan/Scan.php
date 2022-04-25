@@ -155,14 +155,12 @@ class Scan
         }
 
         $allDependencies = [];
-
         foreach ($classNames as $className) {
             $this->debug('PHP class detected: ' . $className);
-
             $dependencies = $this->classInspector->setClassName($className)->getDependencies();
             $allDependencies = array_merge($allDependencies, $dependencies);
             foreach ($dependencies as $dependency) {
-                $dependencyName = is_object($dependency) ? get_class($dependency) : (string)$dependency;
+                $dependencyName = is_object($dependency) ? get_class($dependency) : $dependency;
                 $this->reportDeprecatedClass($dependencyName, $className);
             }
         }
