@@ -120,15 +120,11 @@ class ClassInspector
 
     /**
      * @return string
+     * @throws ReflectionException
      */
     public function getPackageByClass(): string
     {
-        try {
-            $object = $this->getReflectionObject();
-        } catch (ReflectionException $exception) {
-            return '';
-        }
-
+        $object = $this->getReflectionObject();
         $filename = $object->getFileName();
         if (empty($filename)) {
             return '';
@@ -166,11 +162,10 @@ class ClassInspector
             return class_exists($className) || interface_exists($className);
         }
 
-        if (!class_exists($instanceType)) {
-            return false;
-        }
-
         $reflectionClass = new ReflectionClass($instanceType);
+        if ($reflectionClass->isInterface()) {
+            return true;
+        }
 
         if (!$reflectionClass->isInstantiable()) {
             return false;

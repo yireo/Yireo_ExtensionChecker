@@ -445,8 +445,15 @@ class Scan
     {
         $packages = [];
         foreach ($classNames as $className) {
-            $package = $this->classInspector->setClassName($className)->getPackageByClass();
+            try {
+                $package = $this->classInspector->setClassName($className)->getPackageByClass();
+            } catch (ReflectionException $e) {
+                $this->debug('Reflection exception in class inspector [' . $className . ']: ' . $e->getMessage());
+                continue;
+            }
+
             if (!$package) {
+                $this->debug('Failed to get load class: ' . $className);
                 continue;
             }
 

@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+# [1.2.6] = 25 April 2022
+### Fixed
+- Make sure packages are properly detected from class names
+
 # [1.2.5] = 25 April 2022
 ### Fixed 
 - Fix bug with namespace (check T_NAME_QUALIFIED)
