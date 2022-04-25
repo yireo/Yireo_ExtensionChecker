@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make sure to import FQDN to avoid bugs
 - Add GraphQL detection
 - Add simple unit tests to safeguard refactoring
+- Verbose flag (`-v`) for better debugging
 
 # [1.2.3] = 16 April 2022
 ### Added

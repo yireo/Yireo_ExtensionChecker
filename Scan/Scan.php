@@ -157,11 +157,17 @@ class Scan
         $allDependencies = [];
         foreach ($classNames as $className) {
             $this->debug('PHP class detected: ' . $className);
-            $dependencies = $this->classInspector->setClassName($className)->getDependencies();
+            try {
+                $dependencies = $this->classInspector->setClassName($className)->getDependencies();
+            } catch (ReflectionException $exception) {
+                $this->debug('Reflection exception: ' . $exception->getMessage());
+                continue;
+            }
+
             $allDependencies = array_merge($allDependencies, $dependencies);
             foreach ($dependencies as $dependency) {
-                $dependencyName = is_object($dependency) ? get_class($dependency) : $dependency;
-                $this->reportDeprecatedClass($dependencyName, $className);
+                $this->debug('PHP dependency detected: ' . $dependency);
+                $this->reportDeprecatedClass($dependency, $className);
             }
         }
 

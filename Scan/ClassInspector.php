@@ -55,15 +55,11 @@ class ClassInspector
 
     /**
      * @return string[]
+     * @throws ReflectionException
      */
     public function getDependencies(): array
     {
-        try {
-            $object = $this->getReflectionObject();
-        } catch (ReflectionException $exception) {
-            return [];
-        }
-
+        $object = $this->getReflectionObject();
         $dependencies = [];
         $constructor = $object->getConstructor();
         if ($constructor) {
@@ -75,9 +71,7 @@ class ClassInspector
             }
         }
 
-        $dependencies = array_merge($dependencies, $object->getInterfaceNames());
-
-        return $dependencies;
+        return array_merge($dependencies, $object->getInterfaceNames());
     }
 
     /**
@@ -96,9 +90,7 @@ class ClassInspector
     {
         try {
             $object = $this->getReflectionObject();
-        } catch (ReflectionException $exception) {
-            return false;
-        } catch (Throwable $throwable) {
+        } catch (ReflectionException|Throwable $exception) {
             return false;
         }
 
