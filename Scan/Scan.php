@@ -149,20 +149,25 @@ class Scan
     public function scan(): bool
     {
         $moduleFolder = $this->module->getModuleFolder($this->moduleName);
-        $classes = $this->classCollector->getClassesFromFolder($moduleFolder);
+        $classNames = $this->classCollector->getClassesFromFolder($moduleFolder);
+        if (!count($classNames)) {
+            $this->debug('No PHP classes detected');
+        }
+
         $allDependencies = [];
 
-        foreach ($classes as $class) {
-            $className = is_object($class) ? get_class($class) : (string)$class;
+        foreach ($classNames as $className) {
+            $this->debug('PHP class detected: ' . $className);
+
             $dependencies = $this->classInspector->setClassName($className)->getDependencies();
             $allDependencies = array_merge($allDependencies, $dependencies);
             foreach ($dependencies as $dependency) {
                 $dependencyName = is_object($dependency) ? get_class($dependency) : (string)$dependency;
-                $this->reportDeprecatedClass($dependencyName, $class);
+                $this->reportDeprecatedClass($dependencyName, $className);
             }
         }
 
-        $this->scanClassesForPhpExtensions($classes);
+        $this->scanClassesForPhpExtensions($classNames);
         $this->scanModuleDependencies($allDependencies);
         $this->scanComposerDependencies($allDependencies);
         $this->scanComposerRequirements();
@@ -489,5 +494,26 @@ class Scan
     private function getComposerFile(): string
     {
         return $this->module->getModuleFolder($this->moduleName) . '/composer.json';
+    }
+
+    /**
+     * @return bool
+     */
+    private function isVerbose(): bool
+    {
+        return (bool)$this->input->getOption('verbose');
+    }
+
+    /**
+     * @param string $text
+     * @return void
+     */
+    private function debug(string $text)
+    {
+        if (!$this->isVerbose()) {
+            return;
+        }
+
+        $this->output->writeln('* ' . $text);
     }
 }

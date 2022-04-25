@@ -40,10 +40,19 @@ class ClassCollector
                 continue;
             }
 
-            $classNames[] = $className;
+            $classNames[] = $this->normalizeClassName($className);
         }
 
         return $classNames;
+    }
+
+    /**
+     * @param $class
+     * @return string
+     */
+    private function normalizeClassName($class): string
+    {
+        return is_object($class) ? get_class($class) : (string)$class;
     }
 
     /**
