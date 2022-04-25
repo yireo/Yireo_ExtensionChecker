@@ -77,12 +77,11 @@ class Scan
      * @param Composer $composer
      */
     public function __construct(
-        Module         $module,
+        Module $module,
         ClassCollector $classCollector,
         ClassInspector $classInspector,
-        Composer       $composer
-    )
-    {
+        Composer $composer
+    ) {
         $this->classCollector = $classCollector;
         $this->classInspector = $classInspector;
         $this->module = $module;
@@ -160,7 +159,7 @@ class Scan
             try {
                 $dependencies = $this->classInspector->setClassName($className)->getDependencies();
             } catch (ReflectionException $exception) {
-                $this->debug('Reflection exception: ' . $exception->getMessage());
+                $this->debug('Reflection exception from class inspector [' . $className . ']: ' . $exception->getMessage());
                 continue;
             }
 
@@ -366,18 +365,17 @@ class Scan
             $isNeeded = false;
             $phpExtensionFunctions = get_extension_funcs($phpExtension);
             foreach ($phpExtensionFunctions as $phpExtensionFunction) {
-
                 if (in_array($phpExtensionFunction, $stringTokens)) {
                     $isNeeded = true;
                 }
 
                 if ($isNeeded && !in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
-                    $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction, $phpExtension);
+                    $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction,
+                        $phpExtension);
                     $this->output->writeln($msg);
                     $this->hasWarnings = true;
                     break;
                 }
-
             }
 
             if (!$this->hideNeedless && !$isNeeded && in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
