@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.7] = 28 May 2022
+### Fixed
+- Bump version
+
 # [1.2.6] = 25 April 2022
 ### Fixed
 - Make sure packages are properly detected from class names
