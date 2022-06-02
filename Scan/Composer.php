@@ -119,7 +119,6 @@ class Composer
         
         chdir($this->directoryList->getRoot());
         $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
-        file_put_contents(__DIR__.'/tmp.json', $output);
         $packages = $this->serializer->unserialize($output);
         $installedPackages = $packages['installed'];
         
