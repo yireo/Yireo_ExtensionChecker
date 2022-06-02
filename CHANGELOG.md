@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Additional exceptions and debug statements for analysing errors
+- Hide warning about missing constants with different PHP versions
 
 # [1.2.7] = 28 May 2022
 ### Fixed
