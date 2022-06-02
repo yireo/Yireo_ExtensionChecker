@@ -2,19 +2,13 @@
 
 namespace Yireo\ExtensionChecker\Scan;
 
-use Composer\Config;
-use Composer\IO\ConsoleIO;
-use Composer\IO\NullIO;
-use Composer\Plugin\PluginManager;
-use Composer\Repository\RepositoryManager;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Shell;
 use RuntimeException;
-use Symfony\Component\Console\Input\Input;
-use Symfony\Component\Console\Input\StringInput;
-use Symfony\Component\Console\Output\Output;
+use Yireo\ExtensionChecker\Exception\ComposerException;
 
 class Composer
 {
@@ -32,21 +26,29 @@ class Composer
      * @var SerializerInterface
      */
     private $serializer;
-
+    
+    /**
+     * @var Shell
+     */
+    private $shell;
+    
     /**
      * Composer constructor.
      * @param DirectoryList $directoryList
      * @param ReadFactory $readFactory
      * @param SerializerInterface $serializer
+     * @param Shell $shell
      */
     public function __construct(
         DirectoryList $directoryList,
         ReadFactory $readFactory,
-        SerializerInterface $serializer
+        SerializerInterface $serializer,
+        Shell $shell
     ) {
         $this->directoryList = $directoryList;
         $this->readFactory = $readFactory;
         $this->serializer = $serializer;
+        $this->shell = $shell;
     }
 
     /**
@@ -114,11 +116,17 @@ class Composer
         if (!empty($installedPackages)) {
             return $installedPackages;
         }
-
+        
         chdir($this->directoryList->getRoot());
-        exec('composer show --format=json', $output);
-        $packages = $this->serializer->unserialize(implode('', $output));
+        $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
+        file_put_contents(__DIR__.'/tmp.json', $output);
+        $packages = $this->serializer->unserialize($output);
         $installedPackages = $packages['installed'];
+        
+        if (empty($installedPackages)) {
+            throw new ComposerException('No installed packages found');
+        }
+        
         return $installedPackages;
     }
 }

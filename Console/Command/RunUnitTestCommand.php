@@ -14,6 +14,7 @@ use Exception;
 use InvalidArgumentException;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Component\ComponentRegistrar;
+use Magento\Framework\Shell;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,17 +29,24 @@ class RunUnitTestCommand extends Command
      * @var ComponentRegistrar
      */
     private $componentRegistrar;
-
+    
+    /**
+     * @var Shell
+     */
+    private $shell;
+    
     /**
      * @param ComponentRegistrar $componentRegistrar
      * @param string|null $name
      */
     public function __construct(
         ComponentRegistrar $componentRegistrar,
+        Shell $shell,
         string $name = null
     ) {
         parent::__construct($name);
         $this->componentRegistrar = $componentRegistrar;
+        $this->shell = $shell;
     }
 
     protected function configure()
@@ -59,7 +67,8 @@ class RunUnitTestCommand extends Command
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
 
         if (is_dir($modulePath . '/Test/Unit')) {
-            return passthru($_SERVER['_'] . ' ./vendor/bin/phpunit --colors=always ' . $modulePath . '/Test/Unit/');
+            $this->shell->execute($_SERVER['_'] . ' ./vendor/bin/phpunit --colors=always ' . $modulePath . '/Test/Unit/');
+            return 1;
         }
 
         return 0;
