@@ -8,6 +8,7 @@ use Magento\Framework\Filesystem\Io\File;
 use Magento\Framework\Module\ModuleList;
 use Magento\Framework\Module\PackageInfo;
 use Magento\Framework\Serialize\Serializer\Json;
+use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 
 class Module
 {
@@ -15,32 +16,32 @@ class Module
      * @var string
      */
     private $moduleName;
-
+    
     /**
      * @var ModuleList
      */
     private $moduleList;
-
+    
     /**
      * @var ComponentRegistrar
      */
     private $componentRegistrar;
-
+    
     /**
      * @var PackageInfo
      */
     private $packageInfo;
-
+    
     /**
      * @var File
      */
     private $fileReader;
-
+    
     /**
      * @var Json
      */
     private $jsonSerializer;
-
+    
     /**
      * Module constructor.
      * @param ModuleList $moduleList
@@ -62,7 +63,7 @@ class Module
         $this->fileReader = $fileReader;
         $this->jsonSerializer = $jsonSerializer;
     }
-
+    
     /**
      * @param string $moduleName
      * @return bool
@@ -72,19 +73,25 @@ class Module
         if (!in_array($moduleName, $this->moduleList->getNames())) {
             return false;
         }
-
+        
         return true;
     }
-
+    
     /**
      * @param string $moduleName
      * @return string
      */
     public function getModuleFolder(string $moduleName): string
     {
-        return $this->componentRegistrar->getPath('module', $moduleName);
+        $moduleFolder = $this->componentRegistrar->getPath('module', $moduleName);
+        if (!$this->fileReader->fileExists($moduleFolder . '/registration.php')) {
+            $msg = (string)__('Module folder "' . $moduleFolder . '" for module "'.$moduleName.'" is empty');
+            throw new ModuleNotFoundException($msg);
+        }
+        
+        return $moduleFolder;
     }
-
+    
     /**
      * @param string $moduleName
      * @return array
@@ -93,10 +100,10 @@ class Module
     {
         $this->moduleName = $moduleName;
         $info = $this->moduleList->getOne($moduleName);
-
+        
         return $info;
     }
-
+    
     /**
      * @param $moduleName
      * @return array
@@ -104,16 +111,16 @@ class Module
     public function getPackageInfo(string $moduleName): array
     {
         $this->moduleName = $moduleName;
-
+        
         $info = [];
         $info['name'] = $this->packageInfo->getPackageName($moduleName);
         $info['version'] = $this->packageInfo->getVersion($moduleName);
         $info['requirements'] = $this->getRequirements();
         $info['dependencies'] = $this->getDependencies();
-
+        
         return $info;
     }
-
+    
     /**
      * @return array
      */
@@ -121,26 +128,26 @@ class Module
     {
         $dependencies = [];
         $composerData = $this->getComposerJsonData();
-
+        
         $sources = [
             'require',
             'require-dev',
             'suggest'
         ];
-
+        
         foreach ($sources as $source) {
             if (!empty($composerData[$source])) {
                 $dependencies[] = array_filter(array_keys($composerData[$source]));
             }
         }
-
+        
         if (!$dependencies) {
             return [];
         }
-
+        
         return array_unique(array_merge(...$dependencies));
     }
-
+    
     /**
      * @return string[]
      */
@@ -148,20 +155,20 @@ class Module
     {
         $requirements = [];
         $moduleRequirements = $this->packageInfo->getRequire($this->moduleName);
-
+        
         foreach ($moduleRequirements as $moduleRequirement) {
             if (!$moduleRequirement) {
                 continue;
             }
-
+            
             $requirements[] = trim($moduleRequirement);
         }
-
+        
         $requirements = array_merge($requirements, $this->getAdditionalRequirements());
-
+        
         return $requirements;
     }
-
+    
     /**
      * @return array
      */
@@ -169,14 +176,14 @@ class Module
     {
         $requirements = [];
         $composerData = $this->getComposerJsonData();
-
+        
         if (!empty($composerData['require']['magento/framework'])) {
             $requirements[] = 'Magento_Framework';
         }
-
+        
         return $requirements;
     }
-
+    
     /**
      * @return array
      */
@@ -186,10 +193,10 @@ class Module
         if (!file_exists($composerFile)) {
             return [];
         }
-
+        
         $contents = $this->fileReader->read($composerFile);
         $data = $this->jsonSerializer->unserialize($contents);
-
+        
         return $data;
     }
 }
