@@ -26,7 +26,7 @@ class ScanCommand extends Command
      * @var Scan
      */
     private $scan;
-
+    
     /**
      * DeleteRuleCommand constructor.
      *
@@ -37,12 +37,12 @@ class ScanCommand extends Command
         Scan $scan,
         $name = null
     ) {
-
+        
         $rt = parent::__construct($name);
         $this->scan = $scan;
         return $rt;
     }
-
+    
     /**
      * Configure this command
      */
@@ -50,28 +50,28 @@ class ScanCommand extends Command
     {
         $this->setName('yireo_extensionchecker:scan');
         $this->setDescription('Scan a specific Magento module');
-
+        
         $this->addOption(
             'path',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module path'
         );
-
+        
         $this->addOption(
             'module',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module name'
         );
-
+        
         $this->addOption(
             'hide-deprecated',
             null,
             InputOption::VALUE_OPTIONAL,
             'Hide deprecated dependency notices'
         );
-
+        
         $this->addOption(
             'hide-needless',
             null,
@@ -79,7 +79,7 @@ class ScanCommand extends Command
             'Hide needless dependency notices'
         );
     }
-
+    
     /**
      * @param Input $input
      * @param Output $output
@@ -91,21 +91,35 @@ class ScanCommand extends Command
     {
         $moduleName = (string)$input->getOption('module');
         $modulePath = (string)$input->getOption('path');
-
+        
         if (empty($moduleName) && empty($modulePath)) {
             throw new InvalidArgumentException('Either module name or module path is required');
         }
-
+        
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
         $hideNeedless = (bool)$input->getOption('hide-needless');
-
-        $this->scan->setInput($input);
-        $this->scan->setOutput($output);
+        $verbose = (bool)$input->getOption('verbose');
+        
         $this->scan->setModuleName($moduleName);
         $this->scan->setHideDeprecated($hideDeprecated);
         $this->scan->setHideNeedless($hideNeedless);
-
-        $hasWarnings = $this->scan->scan();
-        return ($hasWarnings === true) ? 1 : 0;
+        
+        $this->scan->scan();
+        $messages = $this->scan->getMessages();
+        
+        $hasWarnings = false;
+        foreach ($messages as $message) {
+            if (!$verbose && $message->isDebug()) {
+                continue;
+            }
+            
+            $output->writeln($message->getText());
+            
+            if ($message->isWarning()) {
+                $hasWarnings = true;
+            }
+        }
+        
+        return (int)$hasWarnings;
     }
 }

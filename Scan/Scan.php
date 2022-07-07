@@ -8,19 +8,20 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
+use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
+use Yireo\ExtensionChecker\Report\Message;
+use Yireo\ExtensionChecker\Report\MessageFactory;
+use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class Scan
 {
     /**
-     * @var InputInterface
+     * @var Message[]
      */
-    private $input;
-    
-    /**
-     * @var OutputInterface
-     */
-    private $output;
+    private $messages = [];
     
     /**
      * @var string
@@ -38,14 +39,9 @@ class Scan
     private $hideNeedless = false;
     
     /**
-     * @var bool
+     * @var ModuleInfo
      */
-    private $hasWarnings = false;
-    
-    /**
-     * @var Module
-     */
-    private $module;
+    private $moduleInfo;
     
     /**
      * @var FileCollector
@@ -76,26 +72,42 @@ class Scan
     ];
     
     /**
+     * @var ComponentFactory
+     */
+    private $componentFactory;
+    
+    /**
+     * @var MessageFactory
+     */
+    private $messageFactory;
+    
+    /**
      * Scan constructor.
      *
-     * @param Module $module
+     * @param ModuleInfo $moduleInfo
      * @param FileCollector $fileCollector
      * @param ClassCollector $classCollector
      * @param ClassInspector $classInspector
      * @param Composer $composer
+     * @param ComponentFactory $componentFactory
+     * @param MessageFactory $messageFactory
      */
     public function __construct(
-        Module $module,
+        ModuleInfo $moduleInfo,
         FileCollector $fileCollector,
         ClassCollector $classCollector,
         ClassInspector $classInspector,
-        Composer $composer
+        Composer $composer,
+        ComponentFactory $componentFactory,
+        MessageFactory $messageFactory
     ) {
-        $this->module = $module;
+        $this->moduleInfo = $moduleInfo;
         $this->fileCollector = $fileCollector;
         $this->classCollector = $classCollector;
         $this->classInspector = $classInspector;
         $this->composer = $composer;
+        $this->componentFactory = $componentFactory;
+        $this->messageFactory = $messageFactory;
     }
     
     /**
@@ -111,28 +123,12 @@ class Scan
      */
     public function setModuleName(string $moduleName): void
     {
-        if ($this->module->isKnown($moduleName) === false) {
+        if ($this->moduleInfo->isKnown($moduleName) === false) {
             $message = sprintf('Module "%s" is unknown', $moduleName);
             throw new InvalidArgumentException($message);
         }
         
         $this->moduleName = $moduleName;
-    }
-    
-    /**
-     * @param InputInterface $input
-     */
-    public function setInput(InputInterface $input)
-    {
-        $this->input = $input;
-    }
-    
-    /**
-     * @param Output $output
-     */
-    public function setOutput(OutputInterface $output)
-    {
-        $this->output = $output;
     }
     
     /**
@@ -152,117 +148,138 @@ class Scan
     }
     
     /**
-     * @return bool
      * @throws ReflectionException
      */
-    public function scan(): bool
+    public function scan()
     {
-        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
+        $moduleFolder = $this->moduleInfo->getModuleFolder($this->moduleName);
         $files = $this->fileCollector->getFilesFromFolder($moduleFolder);
-        if (empty($files)) {
-            throw new NoFilesFoundException('No files found in folder "' . $moduleFolder . '"');
-        }
-        
+        $classNames = $this->getClassesFromFiles($files);
+        $allClassDependencies = $this->getDependentClassesFromClasses($classNames);
+        $this->scanClassesForPhpExtensions($classNames);
+        $components = $this->scanClassDependenciesForComponents($allClassDependencies);
+        $this->scanComposerDependencies($components);
+        $this->scanComposerRequirements();
+    }
+    
+    /**
+     * @return Message[]
+     */
+    public function getMessages(): array
+    {
+        return $this->messages;
+    }
+    
+    /**
+     * @param string[] $files
+     * @return string[]
+     */
+    private function getClassesFromFiles(array $files): array
+    {
         $classNames = [];
         foreach ($files as $file) {
             try {
                 $classNames[] = $this->classCollector->getClassNameFromFile($file);
             } catch (Throwable $e) {
-                $this->debug($e->getMessage());
+                $this->addDebug($e->getMessage());
                 continue;
             }
         }
         
-        if (!count($classNames)) {
-            $this->debug('No PHP classes detected');
+        if (!count($classNames) > 0) {
+            $this->addDebug('No PHP classes detected');
         }
         
-        $allDependencies = [];
-        foreach ($classNames as $className) {
-            $this->debug('PHP class detected: ' . $className);
-            try {
-                $dependencies = $this->classInspector->setClassName($className)->getDependencies();
-            } catch (ReflectionException $exception) {
-                $this->debug('Reflection exception from class inspector [' . $className . ']: ' . $exception->getMessage());
-                continue;
-            }
-            
-            $allDependencies = array_merge($allDependencies, $dependencies);
-            foreach ($dependencies as $dependency) {
-                $this->debug('PHP dependency detected: ' . $dependency);
-                $this->reportDeprecatedClass($dependency, $className);
-            }
-        }
-        
-        $this->scanClassesForPhpExtensions($classNames);
-        $this->scanModuleDependencies($allDependencies);
-        $this->scanComposerDependencies($allDependencies);
-        $this->scanComposerRequirements();
-        return $this->hasWarnings;
+        return $classNames;
     }
     
     /**
-     * @param array $classDependencies
+     * @param string[] $classes
+     * @return string[]
      */
-    private function scanModuleDependencies(array $classDependencies)
+    private function getDependentClassesFromClasses(array $classes): array
+    {
+        $classDependencies = [];
+        foreach ($classes as $class) {
+            $this->addDebug('PHP class detected: ' . $class);
+            try {
+                $tmpClassDependencies = $this->classInspector->setClassName($class)->getDependencies();
+            } catch (ReflectionException $exception) {
+                $this->addDebug('Reflection exception from class inspector [' . $class . ']: ' . $exception->getMessage());
+                continue;
+            }
+            
+            $classDependencies = array_merge($classDependencies, $tmpClassDependencies);
+        }
+        
+        foreach ($classDependencies as $dependency) {
+            $this->addDebug('PHP dependency detected: ' . $dependency);
+            $this->reportDeprecatedClass($dependency, $class);
+        }
+        
+        return $classDependencies;
+    }
+    
+    /**
+     * @param string[] $classDependencies
+     * @return Component[]
+     */
+    private function scanClassDependenciesForComponents(array $classDependencies): array
     {
         $components = $this->getComponentsByClasses($classDependencies);
         $components = array_merge($components, $this->getComponentsByGuess());
         $components = array_unique($components);
         
-        $moduleInfo = $this->module->getModuleInfo($this->moduleName);
+        $moduleInfo = $this->moduleInfo->getModuleInfo($this->moduleName);
         foreach ($components as $component) {
-            if ($component === $this->moduleName) {
+            $componentName = $component->getComponentName();
+            if ($componentName === $this->moduleName) {
                 continue;
             }
             
-            if ($this->module->isKnown($component) && !in_array($component, $moduleInfo['sequence'])) {
-                $msg = sprintf('Dependency "%s" not found module.xml', $component);
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+            if ($this->moduleInfo->isKnown($componentName) && !in_array($componentName, $moduleInfo['sequence'])) {
+                $this->addWarning(sprintf('Dependency "%s" not found module.xml', $componentName));
             }
         }
         
         if ($this->hideNeedless === true) {
-            return;
+            return $components;
         }
         
         foreach ($moduleInfo['sequence'] as $module) {
             if (!in_array($module, $components)) {
-                $msg = sprintf('Dependency "%s" from module.xml possibly not needed.', $module);
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+                $this->addWarning(sprintf('Dependency "%s" from module.xml possibly not needed.', $module));
             }
         }
+        
+        return $components;
     }
     
     /**
-     * @param array $classDependencies
+     * @param Component[] $components
      */
-    private function scanComposerDependencies(array $classDependencies)
+    private function scanComposerDependencies(array $components)
     {
         if ($this->hasComposerFile() === false) {
             return;
         }
         
-        $packages = $this->getPackagesByClasses($classDependencies);
-        $packageInfo = $this->module->getPackageInfo($this->moduleName);
-        
+        $packageInfo = $this->moduleInfo->getPackageInfo($this->moduleName);
         $packageNames = [];
         
-        foreach ($packages as $package) {
-            if ($package['name'] === $packageInfo['name']) {
+        foreach ($components as $component) {
+            $packageName = $component->getPackageName();
+            if ($packageName === $packageInfo['name']) {
                 continue;
             }
             
-            $packageNames[] = $package['name'];
+            $packageNames[] = $packageName;
             
-            if (!in_array($package['name'], $packageInfo['dependencies'])) {
-                $msg = sprintf('Dependency "%s" not found composer.json.', $package['name']);
+            if (!in_array($packageName, $packageInfo['dependencies'])) {
+                $msg = sprintf('Dependency "%s" not found composer.json.', $packageName);
                 $msg .= ' ';
-                $msg .= sprintf('Current version is %s', $package['version']);
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+                $msg .= sprintf('Current version is %s', $component->getPackageVersion());
+                $this->addWarning($msg);
             }
         }
         
@@ -286,8 +303,7 @@ class Scan
             }
             
             $msg = sprintf('Dependency "%s" from composer.json possibly not needed.', $currentDependency);
-            $this->output->writeln($msg);
-            $this->hasWarnings = true;
+            $this->addWarning($msg);
         }
     }
     
@@ -330,8 +346,7 @@ class Scan
         $this->classInspector->setClassName($className);
         if ($this->classInspector->isDeprecated()) {
             $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $className, $originalClassName);
-            $this->output->writeln($msg);
-            $this->hasWarnings = true;
+            $this->addWarning($msg);
         }
     }
     
@@ -352,14 +367,12 @@ class Scan
                 $msg = 'Composer dependency "' . $requirement . '" is set to version *.';
                 $msg .= ' ';
                 $msg .= sprintf('Current version is %s', $this->getVersionByPackage($requirement));
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+                $this->addWarning($msg);
             }
         }
         
         if (isset($composerData['repositories'])) {
-            $this->output->writeln('A composer package should not have a "repositories" section');
-            $this->hasWarnings = true;
+            $this->addDebug('A composer package should not have a "repositories" section');
         }
     }
     
@@ -374,7 +387,7 @@ class Scan
             return;
         }
         
-        $packageInfo = $this->module->getPackageInfo($this->moduleName);
+        $packageInfo = $this->moduleInfo->getPackageInfo($this->moduleName);
         
         $stringTokens = [];
         foreach ($classes as $class) {
@@ -396,30 +409,28 @@ class Scan
                 if ($isNeeded && !in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
                     $msg = sprintf('Function "%s" requires PHP extension "ext-%s"', $phpExtensionFunction,
                         $phpExtension);
-                    $this->output->writeln($msg);
-                    $this->hasWarnings = true;
+                    $this->addWarning($msg);
                     break;
                 }
             }
             
             if (!$this->hideNeedless && !$isNeeded && in_array('ext-' . $phpExtension, $packageInfo['dependencies'])) {
                 $msg = sprintf('PHP extension "ext-%s" from composer.json possibly not needed.', $phpExtension);
-                $this->output->writeln($msg);
-                $this->hasWarnings = true;
+                $this->addWarning($msg);
                 break;
             }
         }
     }
     
     /**
-     * @return string[]
+     * @return Component[]
      */
     private function getComponentsByClasses(array $classNames): array
     {
         $components = [];
         foreach ($classNames as $className) {
             $component = $this->classInspector->setClassName($className)->getComponentByClass();
-            if ($component === $this->moduleName) {
+            if ($component->getComponentName() === $this->moduleName) {
                 continue;
             }
             
@@ -430,64 +441,53 @@ class Scan
     }
     
     /**
-     * @return string[]
+     * @param Component[] $components
+     * @return array
+     */
+    private function getPackagesByComponents(array $components): array
+    {
+        $packages = [];
+        foreach ($components as $component) {
+            $packages[] = $this->moduleInfo->getPackageInfo($component->getComponentName());
+        }
+        
+        return $packages;
+    }
+    
+    /**
+     * @return Component[]
      */
     private function getComponentsByGuess(): array
     {
         $components = [];
-        $moduleFolder = $this->module->getModuleFolder($this->moduleName);
+        
+        try {
+            $moduleFolder = $this->moduleInfo->getModuleFolder($this->moduleName);
+        } catch (ModuleNotFoundException $moduleNotFoundException) {
+            return $components;
+        }
         
         if (is_dir($moduleFolder . '/Setup') || is_dir($moduleFolder . '/Block')) {
-            $components[] = 'Magento_Store';
+            $components[] = $this->componentFactory->createByModuleName('Magento_Store');
         }
         
         if (is_file($moduleFolder . '/etc/schema.graphqls')) {
-            $components[] = 'Magento_GraphQl';
+            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl');
         }
         
         if (is_dir($moduleFolder . '/etc/graphql')) {
-            $components[] = 'Magento_GraphQl';
+            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl');
         }
         
         if (is_dir($moduleFolder . '/etc/frontend')) {
-            $components[] = 'Magento_Store';
+            $components[] = $this->componentFactory->createByModuleName('Magento_Store');
         }
         
         if (is_dir($moduleFolder . '/etc/adminhtml')) {
-            $components[] = 'Magento_Backend';
+            $components[] = $this->componentFactory->createByModuleName('Magento_Backend');
         }
         
         return $components;
-    }
-    
-    /**
-     * @param string[] $classes
-     *
-     * @return array[]
-     */
-    private function getPackagesByClasses(array $classNames): array
-    {
-        $packages = [];
-        foreach ($classNames as $className) {
-            try {
-                $package = $this->classInspector->setClassName($className)->getPackageByClass();
-            } catch (ReflectionException $e) {
-                $this->debug('Reflection exception in class inspector [' . $className . ']: ' . $e->getMessage());
-                continue;
-            }
-            
-            if (!$package) {
-                $this->debug('Failed to get load class: ' . $className);
-                continue;
-            }
-            
-            $packages[$package] = [
-                'name' => $package,
-                'version' => $this->getVersionByPackage($package),
-            ];
-        }
-        
-        return $packages;
     }
     
     /**
@@ -495,7 +495,7 @@ class Scan
      *
      * @return string
      */
-    private function getVersionByPackage(string $package): string
+    public function getVersionByPackage(string $package): string
     {
         return $this->composer->getVersionByPackage($package);
     }
@@ -526,15 +526,7 @@ class Scan
      */
     private function getComposerFile(): string
     {
-        return $this->module->getModuleFolder($this->moduleName) . '/composer.json';
-    }
-    
-    /**
-     * @return bool
-     */
-    private function isVerbose(): bool
-    {
-        return (bool)$this->input->getOption('verbose');
+        return $this->moduleInfo->getModuleFolder($this->moduleName) . '/composer.json';
     }
     
     /**
@@ -543,10 +535,33 @@ class Scan
      */
     private function debug(string $text)
     {
-        if (!$this->isVerbose()) {
-            return;
-        }
-        
-        $this->output->writeln('* ' . $text);
+        $this->messages[] = $this->messageFactory->createDebug($text);
+    }
+    
+    /**
+     * @param string $text
+     * @return void
+     */
+    private function addNotice(string $text)
+    {
+        $this->messages[] = $this->messageFactory->createNotice($text);
+    }
+    
+    /**
+     * @param string $text
+     * @return void
+     */
+    private function addWarning(string $text)
+    {
+        $this->messages[] = $this->messageFactory->createWarning($text);
+    }
+    
+    /**
+     * @param string $text
+     * @return void
+     */
+    private function addDebug(string $text)
+    {
+        $this->messages[] = $this->messageFactory->createDebug($text);
     }
 }
