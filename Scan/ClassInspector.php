@@ -6,6 +6,10 @@ use Magento\Framework\ObjectManager\ConfigInterface;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
+use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
+use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ClassInspector
 {
@@ -28,18 +32,33 @@ class ClassInspector
      * @var ConfigInterface
      */
     private $objectManagerConfig;
+    /**
+     * @var ComponentFactory
+     */
+    private $componentFactory;
+    
+    /**
+     * @var ModuleInfo
+     */
+    private $moduleInfo;
     
     /**
      * ClassInspector constructor.
      * @param Tokenizer $tokenizer
      * @param ConfigInterface $objectManagerConfig
+     * @param ComponentFactory $componentFactory
+     * @param ModuleInfo $moduleInfo
      */
     public function __construct(
         Tokenizer $tokenizer,
-        ConfigInterface $objectManagerConfig
+        ConfigInterface $objectManagerConfig,
+        ComponentFactory $componentFactory,
+        ModuleInfo $moduleInfo
     ) {
         $this->tokenizer = $tokenizer;
         $this->objectManagerConfig = $objectManagerConfig;
+        $this->componentFactory = $componentFactory;
+        $this->moduleInfo = $moduleInfo;
     }
     
     /**
@@ -117,20 +136,28 @@ class ClassInspector
     }
     
     /**
-     * @return string
+     * @return Component
+     * @throws ReflectionException
+     * @throws ComponentNotFoundException
      */
-    public function getComponentByClass(): string
+    public function getComponentByClass(): Component
     {
         $parts = explode('\\', $this->className);
-        if (empty($parts)) {
-            return '';
+        if (empty($parts) || count($parts) === 1) {
+            throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
+        }
+    
+        $moduleName = $parts[0] . '_' . $parts[1];
+        if ($this->moduleInfo->isKnown($moduleName)) {
+            return $this->componentFactory->createByModuleName($moduleName);
         }
         
-        if (count($parts) === 1) {
-            return $parts[0];
+        $package = $this->getPackageByClass();
+        if (!empty($package)) {
+            return $this->componentFactory->createByLibraryName($package);
         }
-        
-        return $parts[0] . '_' . $parts[1];
+    
+        throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
     }
     
     /**

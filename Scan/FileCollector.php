@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Yireo\ExtensionChecker\Scan;
 
 use Symfony\Component\Finder\Finder;
+use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
 
 class FileCollector
 {
@@ -24,8 +25,8 @@ class FileCollector
 
     /**
      * @param string $folder
-     *
      * @return array
+     * @throws NoFilesFoundException
      */
     public function getFilesFromFolder(string $folder): array
     {
@@ -42,6 +43,10 @@ class FileCollector
             }
 
             $files[] = $file->getRealPath();
+        }
+        
+        if (empty($files)) {
+            throw new NoFilesFoundException('No files found in folder "' . $folder . '"');
         }
 
         return $files;

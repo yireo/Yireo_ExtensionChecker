@@ -1,7 +1,6 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Scan;
+namespace Yireo\ExtensionChecker\Util;
 
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Filesystem\Io\File;
@@ -10,7 +9,7 @@ use Magento\Framework\Module\PackageInfo;
 use Magento\Framework\Serialize\Serializer\Json;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 
-class Module
+class ModuleInfo
 {
     /**
      * @var string
@@ -80,12 +79,13 @@ class Module
     /**
      * @param string $moduleName
      * @return string
+     * @throws ModuleNotFoundException
      */
     public function getModuleFolder(string $moduleName): string
     {
         $moduleFolder = $this->componentRegistrar->getPath('module', $moduleName);
         if (!$this->fileReader->fileExists($moduleFolder . '/registration.php')) {
-            $msg = (string)__('Module folder "' . $moduleFolder . '" for module "'.$moduleName.'" is empty');
+            $msg = (string)__('Module folder "' . $moduleFolder . '" for module "' . $moduleName . '" is empty');
             throw new ModuleNotFoundException($msg);
         }
         
@@ -105,7 +105,7 @@ class Module
     }
     
     /**
-     * @param $moduleName
+     * @param string $moduleName
      * @return array
      */
     public function getPackageInfo(string $moduleName): array
@@ -178,7 +178,7 @@ class Module
         $composerData = $this->getComposerJsonData();
         
         if (!empty($composerData['require']['magento/framework'])) {
-            $requirements[] = 'Magento_Framework';
+            $requirements[] = 'magento/framework';
         }
         
         return $requirements;

@@ -5,8 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Integration tests
+- Added new messages system for feedback from scan back to console
+- Added `Component` class for modules, libraries and other package types
+
 ### Fixed
 - Non-existing module for known module will now throw an error
+- Report composer missing for any component missing #16
+
+### Removed
+- Moved `Scan/Module` to `Util/ModuleInfo`
+- Removed output and input from main class, replaced with messages
 
 # [1.2.8] = 2 June 2022
 ### Added
