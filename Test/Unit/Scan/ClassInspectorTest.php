@@ -8,8 +8,10 @@ use Magento\Framework\ObjectManager\ConfigInterface;
 use Magento\Widget\Block\BlockInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\Scan\ClassInspector;
 use Yireo\ExtensionChecker\Scan\Tokenizer;
+use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ClassInspectorTest extends TestCase
 {
@@ -23,8 +25,10 @@ class ClassInspectorTest extends TestCase
     {
         $tokenizer = $this->getMockBuilder(Tokenizer::class)->disableOriginalConstructor()->getMock();
         $config = $this->getMockBuilder(ConfigInterface::class)->disableOriginalConstructor()->getMock();
+        $componentFactory = $this->getMockBuilder(ComponentFactory::class)->disableOriginalConstructor()->getMock();
+        $moduleInfo = $this->getMockBuilder(ModuleInfo::class)->disableOriginalConstructor()->getMock();
 
-        $classInspector = new ClassInspector($tokenizer, $config);
+        $classInspector = new ClassInspector($tokenizer, $config, $componentFactory, $moduleInfo);
         $this->assertEquals($package, $classInspector->setClassName($className)->getPackageByClass());
     }
 
