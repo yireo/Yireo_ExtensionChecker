@@ -113,5 +113,7 @@ class VersionMatchCommand extends Command
                 )
             );
         }
+        
+        return 1;
     }
 }

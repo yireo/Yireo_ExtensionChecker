@@ -199,6 +199,7 @@ class Scan
      */
     private function getDependentClassesFromClasses(array $classes): array
     {
+        $class = '';
         $classDependencies = [];
         foreach ($classes as $class) {
             $this->addDebug('PHP class detected: ' . $class);

@@ -143,7 +143,7 @@ class ClassInspector
     public function getComponentByClass(): Component
     {
         $parts = explode('\\', $this->className);
-        if (empty($parts) || count($parts) === 1) {
+        if (count($parts) < 2) {
             throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
         }
     

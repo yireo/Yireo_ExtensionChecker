@@ -37,10 +37,8 @@ class ScanCommand extends Command
         Scan $scan,
         $name = null
     ) {
-        
-        $rt = parent::__construct($name);
+        parent::__construct($name);
         $this->scan = $scan;
-        return $rt;
     }
     
     /**
