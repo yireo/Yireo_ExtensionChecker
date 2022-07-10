@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.10] = 10 July 2022
+### Removed
+- Moved all non-scan related CLI to Yireo_ExtensionValidationTools
+- Removed dep with Magento_Store
+- Removed `setup_version`
+- Dropped support for PHP version 7.3 or lower
+
 # [1.2.9] = 7 July 2022
 ### Added
 - Integration tests

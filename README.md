@@ -1,7 +1,7 @@
 # Yireo ExtensionChecker
 This extension validates the code of other extensions and is complementary to static code analysis tools like PHPCS.
 
-## Example 1: Scanning extension code
+## Example usage
 
     bin/magento yireo_extensionchecker:scan --module Yireo_ExampleAdminhtml
 
@@ -14,21 +14,6 @@ Running this command might give the following output:
     Dependency "psr/log" not found composer.json. Current version is 1.1.0
 
 The output gives a hint to what to add to `composer.json`. For instance, a composer requirement `magento/module-ui` should be added and this could have a version constraint `^101.1` to match semantic versioning. Theoretically, this could also be `^101.0` or even `^100.0|^101.0`, but for this, deep-code analysis (by you) would be needed.
-
-## Example 2: Comparing composer versions
-
-    bin/magento yireo_extensionchecker:version_match /path/to/your/extension/composer.json
-
-This command allows you to scan a given `composer.json` of some extension, without that extension being installed. This allows you to modify the dependencies of that extension, before trying to install the extension (which could save valuable time).
-
-The output should be empty to be successful. When unmatched versions are found, it might look like the following:  
-
-    ERROR: "magento/framework:103.0.0" does not match required version "^100.1|^101.0|^102.0"
-
-## Example 3: Creating unit tests (@todo: Move this to another module
-```bash
-bin/magento yireo_extensionchecker:generate-unit-test --module Yireo_Webp2 --class '\Yireo\Webp2\Convertor\Convertor'
-```
 
 ## Installation
 Install the module as a composer requirement for developer environments:
