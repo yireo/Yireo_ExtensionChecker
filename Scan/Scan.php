@@ -10,6 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
 use Yireo\ExtensionChecker\Report\Message;
@@ -288,18 +289,18 @@ class Scan
             return;
         }
         
-        $this->reportUnneededDependency($packageInfo['dependencies'], $packageNames);
+        $this->reportUnneededDependency($packageInfo['dependencies'], $components);
     }
     
     /**
      * @param string[] $currentDependencies
-     * @param string[] $packageNames
+     * @param Component[] $components
      * @return void
      */
-    private function reportUnneededDependency(array $currentDependencies, array $packageNames)
+    private function reportUnneededDependency(array $currentDependencies, array $components)
     {
         foreach ($currentDependencies as $currentDependency) {
-            if ($this->isDependencyNeeded($currentDependency, $packageNames)) {
+            if ($this->isDependencyNeeded($currentDependency, $components)) {
                 continue;
             }
             
@@ -310,13 +311,15 @@ class Scan
     
     /**
      * @param string $dependency
-     * @param array $packageNames
+     * @param Component[] $components
      * @return bool
      */
-    private function isDependencyNeeded(string $dependency, array $packageNames): bool
+    private function isDependencyNeeded(string $dependency, array $components): bool
     {
-        if (in_array($dependency, $packageNames)) {
-            return true;
+        foreach ($components as $component) {
+            if ($component->getPackageName() === $dependency) {
+                return true;
+            }
         }
         
         if (in_array($dependency, $this->validDependencies)) {
@@ -345,6 +348,7 @@ class Scan
         }
         
         $this->classInspector->setClassName($className);
+        
         if ($this->classInspector->isDeprecated()) {
             $msg = sprintf('Use of deprecated dependency "%s" in "%s"', $className, $originalClassName);
             $this->addWarning($msg);
@@ -430,7 +434,12 @@ class Scan
     {
         $components = [];
         foreach ($classNames as $className) {
-            $component = $this->classInspector->setClassName($className)->getComponentByClass();
+            try {
+                $component = $this->classInspector->setClassName($className)->getComponentByClass();
+            } catch (ReflectionException|ComponentNotFoundException $e) {
+                continue;
+            }
+            
             if ($component->getComponentName() === $this->moduleName) {
                 continue;
             }
@@ -439,20 +448,6 @@ class Scan
         }
         
         return $components;
-    }
-    
-    /**
-     * @param Component[] $components
-     * @return array
-     */
-    private function getPackagesByComponents(array $components): array
-    {
-        $packages = [];
-        foreach ($components as $component) {
-            $packages[] = $this->moduleInfo->getPackageInfo($component->getComponentName());
-        }
-        
-        return $packages;
     }
     
     /**
@@ -465,6 +460,7 @@ class Scan
         try {
             $moduleFolder = $this->moduleInfo->getModuleFolder($this->moduleName);
         } catch (ModuleNotFoundException $moduleNotFoundException) {
+            $this->addDebug('ModuleNotFoundException: ' . $moduleNotFoundException->getMessage());
             return $components;
         }
         
@@ -528,24 +524,6 @@ class Scan
     private function getComposerFile(): string
     {
         return $this->moduleInfo->getModuleFolder($this->moduleName) . '/composer.json';
-    }
-    
-    /**
-     * @param string $text
-     * @return void
-     */
-    private function debug(string $text)
-    {
-        $this->messages[] = $this->messageFactory->createDebug($text);
-    }
-    
-    /**
-     * @param string $text
-     * @return void
-     */
-    private function addNotice(string $text)
-    {
-        $this->messages[] = $this->messageFactory->createNotice($text);
     }
     
     /**

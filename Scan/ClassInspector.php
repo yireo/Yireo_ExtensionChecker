@@ -9,6 +9,7 @@ use Throwable;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
+use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ClassInspector
@@ -32,6 +33,7 @@ class ClassInspector
      * @var ConfigInterface
      */
     private $objectManagerConfig;
+    
     /**
      * @var ComponentFactory
      */
@@ -63,11 +65,15 @@ class ClassInspector
     
     /**
      * @param string $className
-     *
      * @return $this
+     * @throws NoClassNameException
      */
     public function setClassName(string $className)
     {
+        if (!class_exists($className) && !interface_exists($className)) {
+            throw new NoClassNameException('Class "'.$className.'" does not exist');
+        }
+        
         $this->className = $className;
         return $this;
     }
@@ -89,6 +95,10 @@ class ClassInspector
                 }
                 
                 $dependency = $this->normalizeClassName($parameter->getType()->getName());
+                if (!class_exists($dependency)) {
+                    continue;
+                }
+                
                 if (in_array($dependency, ['array'])) {
                     continue;
                 }
@@ -99,6 +109,10 @@ class ClassInspector
         
         $interfaceNames = $object->getInterfaceNames();
         foreach ($interfaceNames as $interfaceName) {
+            if (!interface_exists($dependency)) {
+                continue;
+            }
+            
             if (in_array($interfaceName, ['ArrayAccess'])) {
                 continue;
             }
