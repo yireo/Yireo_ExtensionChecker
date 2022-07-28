@@ -27,6 +27,7 @@
       "Yireo\\ExtensionChecker\\": ""
     },
     "files": [
+      "cli_commands.php",
       "registration.php"
     ]
   }
