@@ -1,16 +1,15 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Console;
 
 use Magento\Framework\ObjectManagerInterface;
 use Yireo\ExtensionChecker\Console\Command\ScanCommand;
+use Magento\Framework\Console\CommandListInterface;
 
 /**
  * Provide list of CLI commands to be available for not-installed application
  */
-class CommandList implements \Magento\Framework\Console\CommandListInterface
+class CommandList implements CommandListInterface
 {
     /**
      * @var ObjectManagerInterface
@@ -52,3 +51,4 @@ class CommandList implements \Magento\Framework\Console\CommandListInterface
         return $commands;
     }
 }
+
