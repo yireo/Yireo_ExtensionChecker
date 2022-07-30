@@ -109,7 +109,7 @@ class ClassInspector
         
         $interfaceNames = $object->getInterfaceNames();
         foreach ($interfaceNames as $interfaceName) {
-            if (!interface_exists($dependency)) {
+            if (!interface_exists($interfaceName)) {
                 continue;
             }
             
