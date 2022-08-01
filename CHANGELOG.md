@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.12] = 1 August 2022
+### Fixed
+- Remove non-JSON lines from composer output
+
 # [1.2.11] = 30 July 2022
 ### Added
 - Allow Command to be run without installing Magento #19 (@lbajsarowicz)

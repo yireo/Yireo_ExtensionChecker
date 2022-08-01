@@ -119,6 +119,9 @@ class Composer
         
         chdir($this->directoryList->getRoot());
         $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
+        $output = str_replace("\n", ' ', $output);
+        $output = preg_replace('/^([^{]+)/m', '', $output);
+
         $packages = $this->serializer->unserialize($output);
         $installedPackages = $packages['installed'];
         
