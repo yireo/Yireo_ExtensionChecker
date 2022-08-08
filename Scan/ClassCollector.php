@@ -61,7 +61,7 @@ class ClassCollector
             }
             
             if ($foundNamespace === true) {
-                if (is_array($token) && in_array((string)$token[0], [T_STRING, T_NS_SEPARATOR, T_NAME_QUALIFIED])) {
+                if (is_array($token) && in_array((string)$token[0], $this->getNamespaceTokens())) {
                     $namespace .= $token[1];
                 } else {
                     if ($token === ';') {
@@ -72,6 +72,27 @@ class ClassCollector
         }
         
         return $namespace;
+    }
+
+    /**
+     * @return array
+     */
+    private function getNamespaceTokens(): array
+    {
+        $namespaceTokens = [T_STRING, T_NS_SEPARATOR];
+        if (defined('T_NAME_QUALIFIED')) {
+            $namespaceTokens[] = T_NAME_QUALIFIED;
+        }
+
+        if (defined('T_NAME_FULLY_QUALIFIED')) {
+            $namespaceTokens[] = T_NAME_FULLY_QUALIFIED;
+        }
+
+        if (defined('T_NAME_RELATIVE')) {
+            $namespaceTokens[] = T_NAME_RELATIVE;
+        }
+
+        return $namespaceTokens;
     }
     
     /**
