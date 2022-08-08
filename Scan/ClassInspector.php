@@ -95,7 +95,7 @@ class ClassInspector
                 }
                 
                 $dependency = $this->normalizeClassName($parameter->getType()->getName());
-                if (!class_exists($dependency)) {
+                if (!class_exists($dependency) && !interface_exists($dependency)) {
                     continue;
                 }
                 

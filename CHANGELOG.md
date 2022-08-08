@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.14] = 8 August 2022
+### Fixed
+- Properly pick up on injected interfaces too
+
 # [1.2.13] = 8 August 2022
 ### Removed
 - Moved CLI to https://github.com/yireo/Yireo_ExtensionCheckerCli
