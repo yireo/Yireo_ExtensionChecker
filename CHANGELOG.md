@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.15] = 20 August 2022
+### Fixed
+- Correctly report source of deprecated class #21
+
 # [1.2.14] = 8 August 2022
 ### Fixed
 - Properly pick up on injected interfaces too
