@@ -200,7 +200,6 @@ class Scan
      */
     private function getDependentClassesFromClasses(array $classes): array
     {
-        $class = '';
         $classDependencies = [];
         foreach ($classes as $class) {
             $this->addDebug('PHP class detected: ' . $class);
@@ -210,15 +209,16 @@ class Scan
                 $this->addDebug('Reflection exception from class inspector [' . $class . ']: ' . $exception->getMessage());
                 continue;
             }
-            
+        
+            foreach ($tmpClassDependencies as $classDependency) {
+                $this->addDebug('PHP dependency detected: ' . $classDependency);
+                $this->reportDeprecatedClass($classDependency, $class);
+            }
+
             $classDependencies = array_merge($classDependencies, $tmpClassDependencies);
         }
         
-        foreach ($classDependencies as $dependency) {
-            $this->addDebug('PHP dependency detected: ' . $dependency);
-            $this->reportDeprecatedClass($dependency, $class);
-        }
-        
+        $classDependencies = array_unique($classDependencies); 
         return $classDependencies;
     }
     
