@@ -2,6 +2,7 @@
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Composer\Semver\Semver;
 use InvalidArgumentException;
 use ReflectionException;
 use Symfony\Component\Console\Output\Output;
@@ -368,16 +369,29 @@ class Scan
         
         $requirements = $composerData['require'];
         foreach ($requirements as $requirement => $requirementVersion) {
-            if (!preg_match('/^ext-/', $requirement) && $requirementVersion === '*') {
-                $msg = 'Composer dependency "' . $requirement . '" is set to version *.';
-                $msg .= ' ';
-                $msg .= sprintf('Current version is %s', $this->getVersionByPackage($requirement));
-                $this->addWarning($msg);
-            }
+            $this->handleComposerRequirement($requirement, $requirementVersion);
         }
         
         if (isset($composerData['repositories'])) {
             $this->addDebug('A composer package should not have a "repositories" section');
+        }
+    }
+
+    private function handleComposerRequirement($requirement, $requirementVersion)
+    {
+        if (!preg_match('/^ext-/', $requirement) && $requirementVersion === '*') {
+            $msg = 'Composer dependency "' . $requirement . '" is set to version *.';
+            $msg .= ' ';
+            $msg .= sprintf('Current version is %s', $this->getVersionByPackage($requirement));
+            $this->addWarning($msg);
+        }
+
+        if ($requirement === 'php') {
+            $currentVersion = phpversion();
+            if (!Semver::satisfies($currentVersion, $requirementVersion)) {
+                $msg = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version '.$currentVersion;
+                $this->addWarning($msg);
+            }
         }
     }
     
