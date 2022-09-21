@@ -23,25 +23,30 @@ class ComponentFactory
      * @var Composer
      */
     private $composer;
-    
+    private ComposerProvider $composerProvider;
+
     /**
      * @param ObjectManager $objectManager
      * @param PackageInfo $packageInfo
      * @param Composer $composer
+     * @param ComposerProvider $composerProvider
      */
     public function __construct(
         ObjectManager $objectManager,
         PackageInfo $packageInfo,
-        Composer $composer
+        Composer $composer,
+        ComposerProvider $composerProvider
     ) {
         $this->objectManager = $objectManager;
         $this->packageInfo = $packageInfo;
         $this->composer = $composer;
+        $this->composerProvider = $composerProvider;
     }
     
     public function createByModuleName(string $moduleName): Component
     {
-        $packageName = $this->packageInfo->getPackageName($moduleName);
+        $composerFile = $this->composerProvider->getComposerFile($moduleName);
+        $packageName = $this->composer->getNameFromFile($composerFile);
         $packageVersion = $this->composer->getVersionByPackage($packageName);
         
         return $this->objectManager->create(Component::class, [

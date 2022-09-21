@@ -279,7 +279,7 @@ class Scan
             $packageNames[] = $packageName;
             
             if (!in_array($packageName, $packageInfo['dependencies'])) {
-                $msg = sprintf('Dependency "%s" not found composer.json.', $packageName);
+                $msg = sprintf('Dependency "%s" not found in composer.json.', $packageName);
                 $msg .= ' ';
                 $msg .= sprintf('Current version is %s', $component->getPackageVersion());
                 $this->addWarning($msg);
@@ -516,7 +516,11 @@ class Scan
      */
     private function hasComposerFile(): bool
     {
-        return is_file($this->getComposerFile());
+        try {
+            return (bool)$this->getComposerFile();
+        } catch (ComponentNotFoundException $componentNotFoundException) {
+            return false;
+        }
     }
     
     /**
@@ -534,10 +538,11 @@ class Scan
     
     /**
      * @return string
+     * @throws ComponentNotFoundException
      */
     private function getComposerFile(): string
     {
-        return $this->moduleInfo->getModuleFolder($this->moduleName) . '/composer.json';
+        return $this->moduleInfo->getComposerFile($this->moduleName);
     }
     
     /**

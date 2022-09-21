@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [1.2.16] = 21 September 2022
+### Fixed
+- Find composer packages where registration.php is not in root #22
+
 # [1.2.15] = 20 August 2022
 ### Fixed
 - Correctly report source of deprecated class #21
