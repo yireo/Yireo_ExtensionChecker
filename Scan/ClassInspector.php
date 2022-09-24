@@ -71,7 +71,7 @@ class ClassInspector
     public function setClassName(string $className)
     {
         try {
-            $classExists = class_exists($className) && !interface_exists($className);
+            $classExists = class_exists($className) || interface_exists($className);
         } catch (Throwable $throwable) {
             $classExists = false;
         }
