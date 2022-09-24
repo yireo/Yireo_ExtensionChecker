@@ -74,6 +74,21 @@ class Composer
 
     /**
      * @param string $composerFile
+     * @return string
+     * @throws NotFoundException
+     */
+    public function getNameFromFile(string $composerFile): string
+    {
+        $extensionData = $this->getDataFromFile($composerFile);
+        if (!isset($extensionData['name'])) {
+            throw new RuntimeException('File "' . $composerFile . '" does not have a "name"');
+        }
+
+        return $extensionData['name'];
+    }
+
+    /**
+     * @param string $composerFile
      * @return array
      * @throws NotFoundException
      * @throws RuntimeException

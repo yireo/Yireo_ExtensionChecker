@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- JSON format to CLI output
+
+# [1.2.17] = 21 September 2022
+### Fixed
+- Find composer packages where registration.php is not in root #22
+
 # [1.2.16] = 19 September 2022
 ### Fixed
 - Fix wrong CLI command name
