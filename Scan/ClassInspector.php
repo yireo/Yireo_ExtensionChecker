@@ -71,7 +71,7 @@ class ClassInspector
     public function setClassName(string $className)
     {
         if (!class_exists($className) && !interface_exists($className)) {
-            throw new NoClassNameException('Class "'.$className.'" does not exist');
+            throw new NoClassNameException('Class "' . $className . '" does not exist');
         }
         
         $this->className = $className;
@@ -160,7 +160,7 @@ class ClassInspector
         if (count($parts) < 2) {
             throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
         }
-    
+        
         $moduleName = $parts[0] . '_' . $parts[1];
         if ($this->moduleInfo->isKnown($moduleName)) {
             return $this->componentFactory->createByModuleName($moduleName);
@@ -170,7 +170,7 @@ class ClassInspector
         if (!empty($package)) {
             return $this->componentFactory->createByLibraryName($package);
         }
-    
+        
         throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
     }
     

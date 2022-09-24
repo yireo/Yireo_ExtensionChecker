@@ -13,6 +13,7 @@ namespace Yireo\ExtensionChecker\Console\Command;
 
 use Exception;
 use InvalidArgumentException;
+use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface as Input;
@@ -22,23 +23,24 @@ use Yireo\ExtensionChecker\Scan\Scan;
 
 class ScanCommand extends Command
 {
-    /**
-     * @var Scan
-     */
-    private $scan;
+    private Scan $scan;
+    private SerializerInterface $serializer;
     
     /**
      * DeleteRuleCommand constructor.
      *
      * @param Scan $scan
-     * @param string $name
+     * @param SerializerInterface $serializer
+     * @param null $name
      */
     public function __construct(
         Scan $scan,
+        SerializerInterface $serializer,
         $name = null
     ) {
         parent::__construct($name);
         $this->scan = $scan;
+        $this->serializer = $serializer;
     }
     
     /**
@@ -76,6 +78,13 @@ class ScanCommand extends Command
             InputOption::VALUE_OPTIONAL,
             'Hide needless dependency notices'
         );
+    
+        $this->addOption(
+            'format',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Format (`json` or the default)'
+        );
     }
     
     /**
@@ -97,6 +106,7 @@ class ScanCommand extends Command
         $hideDeprecated = (bool)$input->getOption('hide-deprecated');
         $hideNeedless = (bool)$input->getOption('hide-needless');
         $verbose = (bool)$input->getOption('verbose');
+        $format = (string)$input->getOption('format');
         
         $this->scan->setModuleName($moduleName);
         $this->scan->setHideDeprecated($hideDeprecated);
@@ -104,20 +114,34 @@ class ScanCommand extends Command
         
         $this->scan->scan();
         $messages = $this->scan->getMessages();
+        $outputData = [];
         
         $hasWarnings = false;
         foreach ($messages as $message) {
             if (!$verbose && $message->isDebug()) {
                 continue;
             }
-            
-            $output->writeln($message->getText());
-            
+    
+            $outputData[] = $message->getText();
             if ($message->isWarning()) {
                 $hasWarnings = true;
             }
         }
         
+        $this->output($output, $outputData, $format);
+        
         return (int)$hasWarnings;
+    }
+    
+    private function output(Output $output, array $outputData, string $format = 'default')
+    {
+        if ($format === 'json') {
+            $output->writeln($this->serializer->serialize($outputData));
+            return;
+        }
+        
+        foreach ($outputData as $line) {
+            $output->writeln($line);
+        }
     }
 }
