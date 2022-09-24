@@ -210,16 +210,16 @@ class Scan
                 $this->addDebug('Reflection exception from class inspector [' . $class . ']: ' . $exception->getMessage());
                 continue;
             }
-        
+            
             foreach ($tmpClassDependencies as $classDependency) {
                 $this->addDebug('PHP dependency detected: ' . $classDependency);
                 $this->reportDeprecatedClass($classDependency, $class);
             }
-
+            
             $classDependencies = array_merge($classDependencies, $tmpClassDependencies);
         }
         
-        $classDependencies = array_unique($classDependencies); 
+        $classDependencies = array_unique($classDependencies);
         return $classDependencies;
     }
     
@@ -276,12 +276,11 @@ class Scan
                 continue;
             }
             
-            $packageNames[] = $packageName;
-            
             if (!in_array($packageName, $packageInfo['dependencies'])) {
-                $msg = sprintf('Dependency "%s" not found in composer.json.', $packageName);
-                $msg .= ' ';
-                $msg .= sprintf('Current version is %s', $component->getPackageVersion());
+                $version = $component->getPackageVersion();
+                $msg = sprintf('Dependency "%s" not found in composer.json. ', $packageName);
+                $msg .= sprintf('Current version is %s. ', $version);
+                $msg .= sprintf('Perhaps use %s?', $this->getSuggestedVersion($version));
                 $this->addWarning($msg);
             }
         }
@@ -376,20 +375,21 @@ class Scan
             $this->addDebug('A composer package should not have a "repositories" section');
         }
     }
-
+    
     private function handleComposerRequirement($requirement, $requirementVersion)
     {
         if (!preg_match('/^ext-/', $requirement) && $requirementVersion === '*') {
-            $msg = 'Composer dependency "' . $requirement . '" is set to version *.';
-            $msg .= ' ';
-            $msg .= sprintf('Current version is %s', $this->getVersionByPackage($requirement));
+            $version = $this->getVersionByPackage($requirement);
+            $msg = 'Composer dependency "' . $requirement . '" is set to version *. ';
+            $msg .= sprintf('Current version is %s. ', $version);
+            $msg .= sprintf('Perhaps use %s?', $this->getSuggestedVersion($version));
             $this->addWarning($msg);
         }
-
+        
         if ($requirement === 'php') {
             $currentVersion = phpversion();
             if (!Semver::satisfies($currentVersion, $requirementVersion)) {
-                $msg = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version '.$currentVersion;
+                $msg = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version ' . $currentVersion;
                 $this->addWarning($msg);
             }
         }
@@ -561,5 +561,20 @@ class Scan
     private function addDebug(string $text)
     {
         $this->messages[] = $this->messageFactory->createDebug($text);
+    }
+    
+    
+    /**
+     * @param string $version
+     * @return string
+     */
+    private function getSuggestedVersion(string $version): string
+    {
+        $versionParts = explode('.', $version);
+        if ((int)$versionParts[0] === 0) {
+            return '~' . $version;
+        }
+        
+        return '^' . $versionParts[0] . '.' . $versionParts[1];
     }
 }
