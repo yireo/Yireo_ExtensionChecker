@@ -70,7 +70,13 @@ class ClassInspector
      */
     public function setClassName(string $className)
     {
-        if (!class_exists($className) && !interface_exists($className)) {
+        try {
+            $classExists = (!class_exists($className) && !interface_exists($className));
+        } catch (\Throwable $throwable) {
+            $classExists = false;
+        }
+        
+        if (!$classExists) {
             throw new NoClassNameException('Class "' . $className . '" does not exist');
         }
         
