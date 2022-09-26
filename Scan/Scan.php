@@ -54,8 +54,6 @@ class Scan
         }
 
         $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
-        $components = array_filter($components, fn($component) => $component->getComponentName() !== $moduleName);
-
         $this->scanModuleXmlDependencies->scan($moduleName, $components);
         $this->scanComposerRequirements->scan($moduleName, $components);
 

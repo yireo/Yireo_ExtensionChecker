@@ -83,4 +83,17 @@ class Component
     {
         return $this->componentName;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'component-name' => $this->getComponentName(),
+            'component-type' => $this->getComponentType(),
+            'package-name' => $this->getPackageName(),
+            'package-version' => $this->getPackageVersion(),
+        ];
+    }
 }

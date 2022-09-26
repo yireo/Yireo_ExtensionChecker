@@ -15,7 +15,7 @@ class ScanComposerRequirements
     private ComposerFileProvider $composerFileProvider;
     private MessageBucket $messageBucket;
     private ComposerProvider $composerProvider;
-    
+
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         MessageBucket $messageBucket,
@@ -25,7 +25,7 @@ class ScanComposerRequirements
         $this->messageBucket = $messageBucket;
         $this->composerProvider = $composerProvider;
     }
-    
+
     /**
      * @param string $moduleName
      * @param Component[] $components
@@ -37,16 +37,16 @@ class ScanComposerRequirements
     {
         $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
         $requirements = $composerFile->getRequirements();
-        
+
         foreach ($components as $component) {
             $this->scanComponentWithComposerRequirements($component, $requirements);
         }
-        
+
         foreach ($requirements as $requirement => $requirementVersion) {
             $this->scanComposerRequirementWithComponents($requirement, $requirementVersion, $components);
         }
     }
-    
+
     /**
      * @param Component $component
      * @param array $requirements
@@ -54,18 +54,18 @@ class ScanComposerRequirements
      */
     private function scanComponentWithComposerRequirements(Component $component, array $requirements)
     {
-        if (in_array($component->getPackageName(), $requirements)) {
+        if (array_key_exists($component->getPackageName(), $requirements)) {
             return;
         }
-        
+
         $packageName = $component->getPackageName();
         $version = $component->getPackageVersion();
-        $msg = sprintf('Dependency "%s" not found in composer.json. ', $packageName);
-        $msg .= sprintf('Current version is %s. ', $version);
-        $msg .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
-        $this->messageBucket->addWarning($msg);
+        $message = 'No composer dependency found for "'.$packageName.'"';
+        $suggestion = sprintf('Current version is %s. ', $version);
+        $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        $this->messageBucket->add($message, MessageBucket::GROUP_MISSING_COMPOSER_DEP, $suggestion);
     }
-    
+
     /**
      * @param string $requirement
      * @param string $requirementVersion
@@ -81,7 +81,7 @@ class ScanComposerRequirements
         $this->checkIfComposerRequirementUsesWildCard($requirement, $requirementVersion);
         $this->checkPhpVersion($requirement, $requirementVersion);
     }
-    
+
     /**
      * @param string $requirement
      * @param array $components
@@ -92,28 +92,28 @@ class ScanComposerRequirements
         if ($this->isComposerDependencyNeeded($requirement, $components)) {
             return;
         }
-        
-        $msg = sprintf('Dependency "%s" from composer.json possibly not needed.', $requirement);
-        $this->messageBucket->addWarning($msg);
+
+        $message = 'Composer requirement "'.$requirement.'" possibly not needed';
+        $this->messageBucket->add($message, MessageBucket::GROUP_UNNECESSARY_COMPOSER_DEP);
     }
-    
+
     private function checkIfComposerRequirementUsesWildCard(string $requirement, string $requirementVersion)
     {
         if (preg_match('/^ext-/', $requirement)) {
             return;
         }
-        
+
         if ($requirementVersion !== '*') {
             return;
         }
-        
-        $version = $this->composer->getVersionByPackage($requirement);
-        $msg = 'Composer dependency "' . $requirement . '" is set to version *. ';
-        $msg .= sprintf('Current version is %s. ', $version);
-        $msg .= sprintf('Perhaps use %s?', $this->getSuggestedVersion($version));
-        $this->messageBucket->addWarning($msg);
+
+        $version = $this->composerProvider->getVersionByComposerName($requirement);
+        $message = 'Composer requirement "'.$requirement.'" set to wilcard version';
+        $suggestion = 'Current version is set to *. ';
+        $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        $this->messageBucket->add($message, MessageBucket::GROUP_WILDCARD_VERSION, $suggestion);
     }
-    
+
     /**
      * @param string $requirement
      * @param string $requirementVersion
@@ -124,16 +124,16 @@ class ScanComposerRequirements
         if ($requirement !== 'php') {
             return;
         }
-        
+
         $currentVersion = phpversion();
         if (Semver::satisfies($currentVersion, $requirementVersion)) {
             return;
         }
-        
-        $msg = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version ' . $currentVersion;
-        $this->messageBucket->addWarning($msg);
+
+        $message = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version ' . $currentVersion;
+        $this->messageBucket->add($message, MessageBucket::GROUP_UNMET_REQUIREMENT);
     }
-    
+
     /**
      * @param string $dependency
      * @param Component[] $components
@@ -146,24 +146,24 @@ class ScanComposerRequirements
                 return true;
             }
         }
-        
+
         $validDependencies = [
             'php',
             'magento/magento-composer-installer'
         ];
-        
+
         if (\in_array($dependency, $validDependencies)) {
             return true;
         }
-        
+
         if ($dependency === 'magento/framework') {
             return true;
         }
-        
+
         if (str_starts_with($dependency, 'ext-')) {
             return true;
         }
-        
+
         return false;
     }
 }

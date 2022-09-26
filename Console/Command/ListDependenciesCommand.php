@@ -16,31 +16,32 @@ use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
+use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Scan\Scan;
 
 class ListDependenciesCommand extends Command
 {
-    private Scan $scan;
     private SerializerInterface $serializer;
-    
+    private ComponentDetectorList $componentDetectorList;
+
     /**
      * DeleteRuleCommand constructor.
      *
-     * @param Scan $scan
      * @param SerializerInterface $serializer
      * @param null $name
      */
     public function __construct(
-        Scan $scan,
         SerializerInterface $serializer,
+        ComponentDetectorList $componentDetectorList,
         $name = null
     ) {
         parent::__construct($name);
-        $this->scan = $scan;
         $this->serializer = $serializer;
+        $this->componentDetectorList = $componentDetectorList;
     }
     
     /**
@@ -63,13 +64,6 @@ class ListDependenciesCommand extends Command
             null,
             InputOption::VALUE_OPTIONAL,
             'Module name'
-        );
-        
-        $this->addOption(
-            'hide-needless',
-            null,
-            InputOption::VALUE_OPTIONAL,
-            'Hide needless dependency notices'
         );
     
         $this->addOption(
@@ -95,44 +89,33 @@ class ListDependenciesCommand extends Command
         if (empty($moduleName) && empty($modulePath)) {
             throw new InvalidArgumentException('Either module name or module path is required');
         }
-        
-        $hideNeedless = (bool)$input->getOption('hide-needless');
-        $verbose = (bool)$input->getOption('verbose');
+
+        $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
+
         $format = (string)$input->getOption('format');
-        
-        $this->scan->setModuleName($moduleName);
-        $this->scan->setHideNeedless($hideNeedless);
-        
-        $this->scan->scan();
-        $messages = $this->scan->getMessages();
-        $outputData = [];
-        
-        $hasWarnings = false;
-        foreach ($messages as $message) {
-            if (!$verbose && $message->isDebug()) {
-                continue;
-            }
-    
-            $outputData[] = $message->getText();
-            if ($message->isWarning()) {
-                $hasWarnings = true;
-            }
-        }
-        
-        $this->output($output, $outputData, $format);
-        
-        return (int)$hasWarnings;
-    }
-    
-    private function output(Output $output, array $outputData, string $format = 'default')
-    {
         if ($format === 'json') {
-            $output->writeln($this->serializer->serialize($outputData));
-            return;
+            $lines = [];
+            foreach ($components as $component) {
+                $lines[] = $component->toArray();
+            }
+            $output->writeln($this->serializer->serialize($lines));
+            return 0;
         }
-        
-        foreach ($outputData as $line) {
-            $output->writeln($line);
+
+        $table = new Table($output);
+        $table->setHeaders(['Component name', 'Component type', 'Package name', 'Current version']);
+
+        foreach ($components as $component) {
+            $table->addRow([
+                $component->getComponentName(),
+                $component->getComponentType(),
+                $component->getPackageName(),
+                $component->getPackageVersion(),
+            ]);
         }
+
+        $table->render();
+
+        return 0;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\ComponentDetector;
 
+use Yireo\ExtensionChecker\Component\Component;
+
 class ComponentDetectorList
 {
     /**
@@ -28,16 +30,17 @@ class ComponentDetectorList
     
     /**
      * @param string $moduleName
-     * @return Component
+     * @return Component[]
      */
-    public function getComponentsByModuleName(string $moduleName)
+    public function getComponentsByModuleName(string $moduleName): array
     {
         $components = [];
         foreach ($this->componentDetectors as $componentDetector) {
             $components = array_merge($components, $componentDetector->getComponentsByModuleName($moduleName));
         }
-        
-        // @todo: Make sure all components are unique
+
+        $components = array_filter($components, fn($component) => $component->getComponentName() !== $moduleName);
+        $components = array_unique($components, SORT_REGULAR);
         return $components;
     }
 }

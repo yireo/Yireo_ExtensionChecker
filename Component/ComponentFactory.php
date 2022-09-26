@@ -45,7 +45,7 @@ class ComponentFactory
     {
         $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
         $packageName = $composerFile->getName();
-        $packageVersion = $this->packageInfo->getVersion($packageName);
+        $packageVersion = $this->composerProvider->getVersionByComposerName($packageName);
         
         return $this->objectManager->create(Component::class, [
             'componentName' => $moduleName,
@@ -64,8 +64,8 @@ class ComponentFactory
     {
         if (empty($packageVersion)) {
             $packageVersion = $this->composerProvider->getVersionByComposerName($libraryName);
-    
         }
+
         return $this->objectManager->create(Component::class, [
             'componentName' => $libraryName,
             'componentType' => ComponentRegistrar::LIBRARY,

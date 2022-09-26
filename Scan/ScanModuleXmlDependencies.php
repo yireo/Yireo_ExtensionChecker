@@ -2,6 +2,7 @@
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 
@@ -24,13 +25,17 @@ class ScanModuleXmlDependencies
     
     /**
      * @param string $moduleName
-     * @param array $components
+     * @param Component[] $components
      * @return void
      */
     public function scan(string $moduleName, array $components)
     {
         $moduleXmlComponents = $this->moduleXmlComponentDetector->getComponentsByModuleName($moduleName);
         foreach ($components as $component) {
+            if ($component->getComponentType() !== 'module') {
+                break;
+            }
+
             $isComponentFoundInModuleXml = false;
             foreach ($moduleXmlComponents as $moduleXmlComponent) {
                 if ($component->getComponentName() === $moduleXmlComponent->getComponentName()) {
@@ -40,10 +45,8 @@ class ScanModuleXmlDependencies
             }
             
             if (!$isComponentFoundInModuleXml) {
-                $this->messageBucket->addWarning(sprintf(
-                    'Dependency "%s" not found module.xml',
-                    $component->getComponentName()
-                ));
+                $message = 'Module "'.$component->getComponentName().'" has no module.xml entry';
+                $this->messageBucket->add($message, MessageBucket::GROUP_MISSING_MODULEXML_DEP);
             }
         }
         
@@ -57,10 +60,8 @@ class ScanModuleXmlDependencies
             }
             
             if (!$isModuleXmlComponentFoundInDetectedComponents) {
-                $this->messageBucket->addWarning(sprintf(
-                    'Dependency "%s" from module.xml possibly not needed.',
-                    $moduleXmlComponent->getComponentName()
-                ));
+                $message = 'Module "'.$moduleXmlComponent->getComponentName().'" is possibly not needed in module.xml';
+                $this->messageBucket->add($message, MessageBucket::GROUP_UNNECESSARY_MODULEXML_DEP);
             }
         }
     }

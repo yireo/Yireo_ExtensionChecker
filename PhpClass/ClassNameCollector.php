@@ -7,6 +7,7 @@ use Throwable;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\EmptyClassNameException;
+use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\Exception\UnreadableFileException;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 
@@ -34,17 +35,22 @@ class ClassNameCollector
     public function getClassNamesFromFiles(array $files): array
     {
         $classNames = [];
+
         foreach ($files as $file) {
+            if (basename($file) === 'registration.php') {
+                continue;
+            }
+
             try {
                 $classNames[] = $this->getClassNameFromFile($file);
             } catch (Throwable $e) {
-                $this->messageBucket->addDebug($e->getMessage());
+                $this->messageBucket->add($e->getMessage(), MessageBucket::GROUP_EXCEPTION);
                 continue;
             }
         }
         
         if (!count($classNames) > 0) {
-            $this->messageBucket->addDebug('No PHP classes detected for files');
+            $this->messageBucket->add('No PHP classes detected for files', MessageBucket::GROUP_EXCEPTION);
         }
         
         return $classNames;
@@ -92,14 +98,15 @@ class ClassNameCollector
     {
         $allClassNames = [];
         foreach ($classNames as $className) {
-            $this->messageBucket->addDebug('PHP class detected: ' . $className);
             try {
                 $tmpClassNames = $this->classInspector->setClassName($className)->getDependencies();
+            } catch (NoClassNameException $exception) {
+                $message = 'NoClassNameException for "'.$className.'": '.$exception->getMessage();
+                $this->messageBucket->add($message, MessageBucket::GROUP_EXCEPTION);
+                continue;
             } catch (ReflectionException $exception) {
-                $this->messageBucket->addWarning(
-                    'Reflection exception from class inspector [' . $className . ']: '
-                    . $exception->getMessage()
-                );
+                $message = 'ReflectionException for "'.$className.'": '.$exception->getMessage();
+                $this->messageBucket->add($message, MessageBucket::GROUP_EXCEPTION);
                 continue;
             }
     

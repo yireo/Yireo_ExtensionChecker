@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
@@ -113,45 +114,41 @@ class ScanCommand extends Command
         $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
         $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
 
-        $verbose = (bool)$input->getOption('verbose');
-        $format = (string)$input->getOption('format');
-
         $this->scan->scan($moduleName);
         $messages = $this->messageBucket->getMessages();
-        $outputData = [];
-        
-        $hasWarnings = false;
-        foreach ($messages as $message) {
-            if (!$verbose && $message->isDebug()) {
-                continue;
-            }
-    
-            $outputData[] = $message->getText();
-            if ($message->isWarning()) {
-                $hasWarnings = true;
-            }
-        }
-        
-        $this->output($output, $outputData, $format);
-        
-        return (int)$hasWarnings;
-    }
 
-    /**
-     * @param Output $output
-     * @param array $outputData
-     * @param string $format
-     * @return void
-     */
-    private function output(Output $output, array $outputData, string $format = 'default')
-    {
-        if ($format === 'json') {
+        if ((string)$input->getOption('format') === 'json') {
+            $outputData = [];
+            $messageGroups = $this->messageBucket->getMessages();
+            foreach ($messages as $message) {
+                $outputData[] = $message->toArray();
+            }
+
             $output->writeln($this->serializer->serialize($outputData));
-            return;
+            return empty($messageGroups) ? 0 : 1;
+        }
+
+        if (empty($messages)) {
+            return 1;
+        }
+
+        $table = new Table($output);
+        $table->setHeaders([
+            'Message',
+            'Group',
+            'Suggestion'
+        ]);
+
+        foreach ($messages as $message) {
+            $table->addRow([
+                $message->getMessage(),
+                $message->getGroupLabel(),
+                $message->getSuggestion(),
+            ]);
         }
         
-        foreach ($outputData as $line) {
-            $output->writeln($line);
-        }
+        $table->render();
+
+        return 0;
     }
 }

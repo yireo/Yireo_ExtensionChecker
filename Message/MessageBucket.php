@@ -6,16 +6,25 @@ use Magento\Framework\ObjectManagerInterface;
 
 class MessageBucket
 {
+    const GROUP_EXCEPTION = 'GROUP_EXCEPTION';
+    const GROUP_MISSING_COMPOSER_DEP = 'GROUP_MISSING_COMPOSER_DEP';
+    const GROUP_UNNECESSARY_COMPOSER_DEP = 'GROUP_UNNECESSARY_COMPOSER_DEP';
+    const GROUP_MISSING_MODULEXML_DEP = 'GROUP_MISSING_MODULEXML_DEP';
+    const GROUP_UNNECESSARY_MODULEXML_DEP = 'GROUP_UNNECESSARY_MODULEXML_DEP';
+    const GROUP_WILDCARD_VERSION = 'GROUP_WILDCARD_VERSION';
+    const GROUP_UNMET_REQUIREMENT = 'GROUP_UNMET_REQUIREMENT';
+    const GROUP_PHP_DEPRECATED = 'GROUP_PHP_DEPRECATED';
+
     /**
      * @var ObjectManagerInterface
      */
     private $objectManager;
-    
+
     /**
      * @var Message[]
      */
     private $messages = [];
-    
+
     /**
      * @param ObjectManagerInterface $objectManager
      */
@@ -24,7 +33,7 @@ class MessageBucket
     ) {
         $this->objectManager = $objectManager;
     }
-    
+
     /**
      * @return Message[]
      */
@@ -32,37 +41,32 @@ class MessageBucket
     {
         return $this->messages;
     }
-    
+
     /**
-     * @param string $text
+     * @param string $message
+     * @param string $group
+     * @param string $suggestion
      */
-    public function addNotice(string $text)
+    public function add(string $message, string $group, string $suggestion = '')
     {
-        $this->messages[] = $this->add($text, Message::TYPE_NOTICE);
+        $this->messages[] = $this->objectManager->create(Message::class, [
+            'message' => $message,
+            'group' => $group,
+            'suggestion' => $suggestion
+        ]);
     }
-    
-    /**
-     * @param string $text
-     */
-    public function addWarning(string $text)
+
+    static public function getGroupLabels(): array
     {
-        $this->messages[] = $this->add($text, Message::TYPE_WARNING);
-    }
-    
-    /**
-     * @param string $text
-     */
-    public function addDebug(string $text)
-    {
-        $this->messages[] = $this->add($text, Message::TYPE_DEBUG);
-    }
-    
-    /**
-     * @param string $text
-     * @param string $type
-     */
-    private function add(string $text, string $type)
-    {
-        return $this->objectManager->create(Message::class, ['text' => $text, 'type' => $type]);
+        return [
+            self::GROUP_EXCEPTION => 'Exception',
+            self::GROUP_MISSING_COMPOSER_DEP => 'Missing composer dependency',
+            self::GROUP_UNNECESSARY_COMPOSER_DEP => 'Unnecessary composer dependency',
+            self::GROUP_MISSING_MODULEXML_DEP => 'Missing module.xml dependency',
+            self::GROUP_UNNECESSARY_MODULEXML_DEP => 'Unnecessary module.xml dependency',
+            self::GROUP_WILDCARD_VERSION => 'Wild card version',
+            self::GROUP_UNMET_REQUIREMENT => 'Unmet requirement',
+            self::GROUP_PHP_DEPRECATED => 'Deprecated PHP code',
+        ];
     }
 }

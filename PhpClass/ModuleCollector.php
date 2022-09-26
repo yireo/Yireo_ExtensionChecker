@@ -6,7 +6,6 @@ use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ModuleCollector
 {
-    
     private ModuleInfo $moduleInfo;
     private FileCollector $fileCollector;
     private ClassNameCollector $classNameCollector;

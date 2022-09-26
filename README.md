@@ -15,6 +15,12 @@ Running this command might give the following output:
 
 The output gives a hint to what to add to `composer.json`. For instance, a composer requirement `magento/module-ui` should be added and this could have a version constraint `^101.1` to match semantic versioning. Theoretically, this could also be `^101.0` or even `^100.0|^101.0`, but for this, deep-code analysis (by you) would be needed.
 
+Listing dependencies (as in: dependencies detected by this ExtensionChecker) could be done with the following command: 
+```bash
+bin/magento yireo_extensionchecker:list-dependencies --module Yireo_Example
+bin/magento yireo_extensionchecker:list-dependencies --module Yireo_Example --format=json
+```
+
 ## Installation
 Install the module as a composer requirement for developer environments:
 

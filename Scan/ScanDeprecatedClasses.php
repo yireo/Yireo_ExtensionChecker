@@ -28,8 +28,8 @@ class ScanDeprecatedClasses
         foreach ($classNames as $className) {
             $this->classInspector->setClassName($className);
             if ($this->classInspector->isDeprecated()) {
-                $msg = sprintf('Use of deprecated dependency "%s"', $className);
-                $this->messageBucket->addWarning($msg);
+                $message = 'Usage of class "'.$className.'" is deprecated';
+                $this->messageBucket->add($message, MessageBucket::GROUP_PHP_DEPRECATED);
             }
         }
     }

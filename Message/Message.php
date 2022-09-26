@@ -4,60 +4,82 @@ namespace Yireo\ExtensionChecker\Message;
 
 class Message
 {
-    public const TYPE_NOTICE = 'notice';
-    public const TYPE_WARNING = 'warning';
-    public const TYPE_DEBUG = 'debug';
-    
     /**
      * @var string
      */
-    private $text;
-    
+    private $message;
+
     /**
      * @var string
      */
-    private $type;
-    
+    private $group;
+
     /**
-     * @param string $text
-     * @param string $type
+     * @var string
+     */
+    private $suggestion;
+
+    /**
+     * @param string $message
+     * @param string $group
+     * @param string $suggestion
      */
     public function __construct(
-        string $text,
-        string $type
+        string $message,
+        string $group,
+        string $suggestion = '',
     ) {
-        $this->text = $text;
-        $this->type = $type;
+        $this->message = $message;
+        $this->group = $group;
+        $this->suggestion = $suggestion;
     }
-    
+
     /**
      * @return string
      */
-    public function getText(): string
+    public function getMessage(): string
     {
-        return $this->text;
+        return $this->message;
     }
-    
+
     /**
      * @return string
      */
-    public function getType(): string
+    public function getGroup(): string
     {
-        return $this->type;
+        return $this->group;
     }
-    
-    public function isNotice(): bool
+
+    /**
+     * @return string
+     */
+    public function getGroupLabel(): string
     {
-        return $this->getType() === self::TYPE_NOTICE;
+        $groupLabels = MessageBucket::getGroupLabels();
+        if (isset($groupLabels[$this->getGroup()])) {
+            return $groupLabels[$this->getGroup()];
+        }
+
+        return $this->getGroup();
     }
-    
-    public function isWarning(): bool
+
+    /**
+     * @return string
+     */
+    public function getSuggestion(): string
     {
-        return $this->getType() === self::TYPE_WARNING;
+        return $this->suggestion;
     }
-    
-    public function isDebug(): bool
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
     {
-        return $this->getType() === self::TYPE_DEBUG;
+        return [
+            'message' => $this->getMessage(),
+            'group' => $this->getGroup(),
+            'suggestion' => $this->getSuggestion(),
+        ];
     }
 }

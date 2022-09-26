@@ -5,6 +5,7 @@
         <arguments>
             <argument name="commands" xsi:type="array">
                 <item name="yireo_extensionchecker_scan" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ScanCommand</item>
+                <item name="yireo_extensionchecker_list_dependencies" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ListDependenciesCommand</item>
             </argument>
         </arguments>
     </type>
