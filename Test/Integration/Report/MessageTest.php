@@ -10,10 +10,10 @@ class MessageTest extends TestCase
 {
     public function testCreateMessage()
     {
-        $arguments = ['target' => 'Hello Target', 'group' => 'Hello Group', 'suggestion' => 'Hello Suggestion'];
+        $arguments = ['message' => 'Hello Message', 'group' => 'Hello Group', 'suggestion' => 'Hello Suggestion'];
         $message = ObjectManager::getInstance()->create(Message::class, $arguments);
         $this->assertInstanceOf(Message::class, $message);
-        $this->assertEquals('Hello Target', $message->getTarget());
+        $this->assertEquals('Hello Message', $message->getMessage());
         $this->assertEquals('Hello Group', $message->getGroup());
         $this->assertEquals('Hello Suggestion', $message->getSuggestion());
     }
