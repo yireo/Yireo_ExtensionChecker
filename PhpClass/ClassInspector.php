@@ -86,7 +86,7 @@ class ClassInspector
     }
     
     /**
-     * @return class-string[]
+     * @return string[]
      * @throws ReflectionException
      */
     public function getDependencies(): array

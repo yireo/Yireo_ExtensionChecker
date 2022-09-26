@@ -5,6 +5,7 @@ namespace Yireo\ExtensionChecker\Scan;
 use InvalidArgumentException;
 use ReflectionException;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class Scan
@@ -14,7 +15,8 @@ class Scan
     private ScanModuleXmlDependencies $scanModuleXmlDependencies;
     private ScanDeprecatedClasses $scanDeprecatedClasses;
     private ScanComposerRequirements $scanComposerRequirements;
-    
+    private RuntimeConfig $runtimeConfig;
+
     /**
      * Scan constructor.
      *
@@ -23,21 +25,24 @@ class Scan
      * @param ScanModuleXmlDependencies $scanModuleXmlDependencies
      * @param ScanDeprecatedClasses $scanDeprecatedClasses
      * @param ScanComposerRequirements $scanComposerRequirements
+     * @param RuntimeConfig $runtimeConfig
      */
     public function __construct(
         ModuleInfo $moduleInfo,
         ComponentDetectorList $componentDetectorList,
         ScanModuleXmlDependencies $scanModuleXmlDependencies,
         ScanDeprecatedClasses $scanDeprecatedClasses,
-        ScanComposerRequirements $scanComposerRequirements
+        ScanComposerRequirements $scanComposerRequirements,
+        RuntimeConfig $runtimeConfig
     ) {
         $this->moduleInfo = $moduleInfo;
         $this->componentDetectorList = $componentDetectorList;
         $this->scanModuleXmlDependencies = $scanModuleXmlDependencies;
         $this->scanDeprecatedClasses = $scanDeprecatedClasses;
         $this->scanComposerRequirements = $scanComposerRequirements;
+        $this->runtimeConfig = $runtimeConfig;
     }
-    
+
     /**
      * @throws ReflectionException
      */
@@ -47,12 +52,15 @@ class Scan
             $message = sprintf('Module "%s" is unknown', $moduleName);
             throw new InvalidArgumentException($message);
         }
-        
+
         $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
-        // @todo: Remove current module from components list array_filter with callback
-        
+        $components = array_filter($components, fn($component) => $component->getComponentName() !== $moduleName);
+
         $this->scanModuleXmlDependencies->scan($moduleName, $components);
         $this->scanComposerRequirements->scan($moduleName, $components);
-        $this->scanDeprecatedClasses->scan($moduleName);
+
+        if (!$this->runtimeConfig->isHideDeprecated()) {
+            $this->scanDeprecatedClasses->scan($moduleName);
+        }
     }
 }

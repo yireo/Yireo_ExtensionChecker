@@ -14,24 +14,20 @@ use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
  */
 class PhpClassComponentDetector implements ComponentDetectorInterface
 {
-    private ClassNameCollector $classNameCollector;
     private ClassInspector $classInspector;
     private ModuleCollector $moduleCollector;
     private ComponentCollector $componentCollector;
     
     /**
-     * @param ClassNameCollector $classNameCollector
      * @param ClassInspector $classInspector
      * @param ModuleCollector $moduleCollector
      * @param ComponentCollector $componentCollector
      */
     public function __construct(
-        ClassNameCollector $classNameCollector,
         ClassInspector $classInspector,
         ModuleCollector $moduleCollector,
         ComponentCollector $componentCollector
     ) {
-        $this->classNameCollector = $classNameCollector;
         $this->classInspector = $classInspector;
         $this->moduleCollector = $moduleCollector;
         $this->componentCollector = $componentCollector;

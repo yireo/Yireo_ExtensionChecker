@@ -2,14 +2,14 @@
 
 namespace Yireo\ExtensionChecker\Composer;
 
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
 
 class ComposerFileFactory
 {
-    private ObjectManager $objectManager;
+    private ObjectManagerInterface $objectManager;
     
     public function __construct(
-        ObjectManager $objectManager
+        ObjectManagerInterface $objectManager
     ) {
         $this->objectManager = $objectManager;
     }

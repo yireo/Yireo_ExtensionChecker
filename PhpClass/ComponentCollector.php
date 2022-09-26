@@ -9,7 +9,10 @@ use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 class ComponentCollector
 {
     private ClassInspector $classInspector;
-    
+
+    /**
+     * @param ClassInspector $classInspector
+     */
     public function __construct(
         ClassInspector $classInspector
     ) {
@@ -19,7 +22,6 @@ class ComponentCollector
     /**
      * @param array $classNames
      * @return Component[]
-     * @todo Move to another class
      */
     public function getComponentsByClasses(array $classNames): array
     {

@@ -11,7 +11,6 @@
 
 namespace Yireo\ExtensionChecker\Console\Command;
 
-use Exception;
 use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
@@ -19,28 +18,36 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
+use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Scan\Scan;
 
 class ScanCommand extends Command
 {
     private Scan $scan;
     private SerializerInterface $serializer;
-    
+    private RuntimeConfig $runtimeConfig;
+    private MessageBucket $messageBucket;
+
     /**
      * DeleteRuleCommand constructor.
      *
      * @param Scan $scan
      * @param SerializerInterface $serializer
-     * @param null $name
+     * @param RuntimeConfig $runtimeConfig
      */
     public function __construct(
         Scan $scan,
         SerializerInterface $serializer,
+        RuntimeConfig $runtimeConfig,
+        MessageBucket $messageBucket,
         $name = null
     ) {
         parent::__construct($name);
         $this->scan = $scan;
         $this->serializer = $serializer;
+        $this->runtimeConfig = $runtimeConfig;
+        $this->messageBucket = $messageBucket;
     }
     
     /**
@@ -103,17 +110,14 @@ class ScanCommand extends Command
             throw new InvalidArgumentException('Either module name or module path is required');
         }
         
-        $hideDeprecated = (bool)$input->getOption('hide-deprecated');
-        $hideNeedless = (bool)$input->getOption('hide-needless');
+        $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
+        $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
+
         $verbose = (bool)$input->getOption('verbose');
         $format = (string)$input->getOption('format');
-        
-        $this->scan->setModuleName($moduleName);
-        $this->scan->setHideDeprecated($hideDeprecated);
-        $this->scan->setHideNeedless($hideNeedless);
-        
-        $this->scan->scan();
-        $messages = $this->scan->getMessages();
+
+        $this->scan->scan($moduleName);
+        $messages = $this->messageBucket->getMessages();
         $outputData = [];
         
         $hasWarnings = false;
@@ -132,7 +136,13 @@ class ScanCommand extends Command
         
         return (int)$hasWarnings;
     }
-    
+
+    /**
+     * @param Output $output
+     * @param array $outputData
+     * @param string $format
+     * @return void
+     */
     private function output(Output $output, array $outputData, string $format = 'default')
     {
         if ($format === 'json') {

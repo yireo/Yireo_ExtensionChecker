@@ -2,29 +2,29 @@
 
 namespace Yireo\ExtensionChecker\Component;
 
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Module\PackageInfo;
+use Magento\Framework\ObjectManagerInterface;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
 
 class ComponentFactory
 {
-    private ObjectManager $objectManager;
+    private ObjectManagerInterface $objectManager;
     private PackageInfo $packageInfo;
     private ComposerFileProvider $composerFileProvider;
     private ComposerProvider $composerProvider;
     
     /**
-     * @param ObjectManager $objectManager
+     * @param ObjectManagerInterface $objectManager
      * @param PackageInfo $packageInfo
      * @param ComposerFileProvider $composerFileProvider
      * @param ComposerProvider $composerProvider
      */
     public function __construct(
-        ObjectManager $objectManager,
+        ObjectManagerInterface $objectManager,
         PackageInfo $packageInfo,
         ComposerFileProvider $composerFileProvider,
         ComposerProvider $composerProvider

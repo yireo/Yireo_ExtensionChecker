@@ -14,7 +14,11 @@ class ClassNameCollector
 {
     private ClassInspector $classInspector;
     private MessageBucket $messageBucket;
-    
+
+    /**
+     * @param ClassInspector $classInspector
+     * @param MessageBucket $messageBucket
+     */
     public function __construct(
         ClassInspector $classInspector,
         MessageBucket $messageBucket

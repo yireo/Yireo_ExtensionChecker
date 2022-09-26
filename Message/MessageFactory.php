@@ -2,20 +2,20 @@
 
 namespace Yireo\ExtensionChecker\Message;
 
-use Magento\Framework\App\ObjectManager;
+use Magento\Framework\ObjectManagerInterface;
 
 class MessageFactory
 {
     /**
-     * @var ObjectManager
+     * @var ObjectManagerInterface
      */
     private $objectManager;
     
     /**
-     * @param ObjectManager $objectManager
+     * @param ObjectManagerInterface $objectManager
      */
     public function __construct(
-        ObjectManager $objectManager
+        ObjectManagerInterface $objectManager
     ) {
         $this->objectManager = $objectManager;
     }
