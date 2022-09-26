@@ -1,7 +1,6 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Scan;
+namespace Yireo\ExtensionChecker\PhpClass;
 
 use Symfony\Component\Finder\Finder;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
@@ -12,17 +11,17 @@ class FileCollector
      * @var Finder
      */
     private $finder;
-
+    
     /**
-     * ClassCollector constructor.
-     *
+     * ClassNameCollector constructor.
+     * @param Finder $finder
      */
     public function __construct(
         Finder $finder
     ) {
         $this->finder = $finder;
     }
-
+    
     /**
      * @param string $folder
      * @return array
@@ -31,24 +30,24 @@ class FileCollector
     public function getFilesFromFolder(string $folder): array
     {
         $this->finder->files()->in($folder);
-
+        
         $files = [];
         foreach ($this->finder as $file) {
             if (!preg_match('/\.php$/', $file->getRelativePathname())) {
                 continue;
             }
-
-            if (strstr($file->getRelativePathname(), 'Test/')) {
+            
+            if (str_contains($file->getRelativePathname(), 'Test.php')) {
                 continue;
             }
-
+            
             $files[] = $file->getRealPath();
         }
         
         if (empty($files)) {
             throw new NoFilesFoundException('No files found in folder "' . $folder . '"');
         }
-
+        
         return $files;
     }
 }

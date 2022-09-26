@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -11,6 +12,15 @@
     <type name="Yireo\ExtensionChecker\Console\Command\ScanCommand">
         <arguments>
             <argument name="scan" xsi:type="object">Yireo\ExtensionChecker\Scan\Scan\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList">
+        <arguments>
+            <argument name="componentDetectors" xsi:type="array">
+                <item name="php_class" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector</item>
+                <item name="guess" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\GuessComponentDetector</item>
+            </argument>
         </arguments>
     </type>
 </config>

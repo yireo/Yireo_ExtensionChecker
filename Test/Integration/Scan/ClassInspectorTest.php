@@ -6,7 +6,7 @@ use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Module\PackageInfo;
 use PHPUnit\Framework\TestCase;
-use Yireo\ExtensionChecker\Scan\ClassInspector;
+use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 
 class ClassInspectorTest extends TestCase
 {

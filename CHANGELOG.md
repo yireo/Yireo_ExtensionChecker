@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - JSON format to CLI output
+- Suggest version number if set to wildcard
+
+### Fixed
+- Make sure invalid FQDN doesn't throw PHP Fatal Error
 
 # [1.2.17] = 21 September 2022
 ### Fixed

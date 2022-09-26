@@ -4,50 +4,48 @@ namespace Yireo\ExtensionChecker\Component;
 
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Component\ComponentRegistrar;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Module\PackageInfo;
-use Yireo\ExtensionChecker\Scan\Composer;
+use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
+use Yireo\ExtensionChecker\Composer\ComposerProvider;
 
 class ComponentFactory
 {
-    /**
-     * @var ObjectManager
-     */
-    private $objectManager;
-    
-    /**
-     * @var PackageInfo
-     */
-    private $packageInfo;
-    
-    /**
-     * @var Composer
-     */
-    private $composer;
+    private ObjectManager $objectManager;
+    private PackageInfo $packageInfo;
+    private ComposerFileProvider $composerFileProvider;
     private ComposerProvider $composerProvider;
-
+    
     /**
      * @param ObjectManager $objectManager
      * @param PackageInfo $packageInfo
-     * @param Composer $composer
+     * @param ComposerFileProvider $composerFileProvider
      * @param ComposerProvider $composerProvider
      */
     public function __construct(
         ObjectManager $objectManager,
         PackageInfo $packageInfo,
-        Composer $composer,
+        ComposerFileProvider $composerFileProvider,
         ComposerProvider $composerProvider
     ) {
         $this->objectManager = $objectManager;
         $this->packageInfo = $packageInfo;
-        $this->composer = $composer;
+        $this->composerFileProvider = $composerFileProvider;
         $this->composerProvider = $composerProvider;
     }
     
+    /**
+     * @param string $moduleName
+     * @return Component
+     * @throws FileSystemException
+     * @throws NotFoundException
+     */
     public function createByModuleName(string $moduleName): Component
     {
-        $composerFile = $this->composerProvider->getComposerFile($moduleName);
-        $packageName = $this->composer->getNameFromFile($composerFile);
-        $packageVersion = $this->composer->getVersionByPackage($packageName);
+        $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
+        $packageName = $composerFile->getName();
+        $packageVersion = $this->packageInfo->getVersion($packageName);
         
         return $this->objectManager->create(Component::class, [
             'componentName' => $moduleName,
@@ -57,10 +55,17 @@ class ComponentFactory
         ]);
     }
     
-    public function createByLibraryName(string $libraryName): Component
+    /**
+     * @param string $libraryName
+     * @param string|null $packageVersion
+     * @return Component
+     */
+    public function createByLibraryName(string $libraryName, ?string $packageVersion = null): Component
     {
-        $packageVersion = $this->composer->getVersionByPackage($libraryName);
-        
+        if (empty($packageVersion)) {
+            $packageVersion = $this->composerProvider->getVersionByComposerName($libraryName);
+    
+        }
         return $this->objectManager->create(Component::class, [
             'componentName' => $libraryName,
             'componentType' => ComponentRegistrar::LIBRARY,

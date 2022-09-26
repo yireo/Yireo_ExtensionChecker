@@ -1,12 +1,51 @@
 <?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Scan;
+namespace Yireo\ExtensionChecker\PhpClass;
 
+use ReflectionException;
+use Throwable;
+use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\EmptyClassNameException;
 use Yireo\ExtensionChecker\Exception\UnreadableFileException;
+use Yireo\ExtensionChecker\Message\MessageBucket;
 
-class ClassCollector
+class ClassNameCollector
 {
+    private ClassInspector $classInspector;
+    private MessageBucket $messageBucket;
+    
+    public function __construct(
+        ClassInspector $classInspector,
+        MessageBucket $messageBucket
+    ) {
+        $this->classInspector = $classInspector;
+        $this->messageBucket = $messageBucket;
+    }
+    
+    /**
+     * @param string[] $files
+     * @return string[]
+     */
+    public function getClassNamesFromFiles(array $files): array
+    {
+        $classNames = [];
+        foreach ($files as $file) {
+            try {
+                $classNames[] = $this->getClassNameFromFile($file);
+            } catch (Throwable $e) {
+                $this->messageBucket->addDebug($e->getMessage());
+                continue;
+            }
+        }
+        
+        if (!count($classNames) > 0) {
+            $this->messageBucket->addDebug('No PHP classes detected for files');
+        }
+        
+        return $classNames;
+    }
+    
     /**
      * @param string $file
      *
@@ -16,6 +55,10 @@ class ClassCollector
      */
     public function getClassNameFromFile(string $file): string
     {
+        if (!file_exists($file)) {
+            throw new UnreadableFileException('File "' . $file . '" does not exist');
+        }
+        
         $contents = file_get_contents($file);
         if (empty($contents)) {
             throw new UnreadableFileException('Empty contents for file "' . $file . '"');
@@ -36,6 +79,32 @@ class ClassCollector
         $class = $namespace ? $namespace . '\\' . $class : $class;
         return $this->normalizeClassName($class);
     }
+    
+    /**
+     * @param string[] $classNames
+     * @return string[]
+     */
+    public function getDependentClassesFromClasses(array $classNames): array
+    {
+        $allClassNames = [];
+        foreach ($classNames as $className) {
+            $this->messageBucket->addDebug('PHP class detected: ' . $className);
+            try {
+                $tmpClassNames = $this->classInspector->setClassName($className)->getDependencies();
+            } catch (ReflectionException $exception) {
+                $this->messageBucket->addWarning(
+                    'Reflection exception from class inspector [' . $className . ']: '
+                    . $exception->getMessage()
+                );
+                continue;
+            }
+    
+            $allClassNames = array_merge($allClassNames, $tmpClassNames);
+        }
+        
+        return array_unique($allClassNames);
+    }
+    
     
     /**
      * @param $class
@@ -73,7 +142,7 @@ class ClassCollector
         
         return $namespace;
     }
-
+    
     /**
      * @return array
      */
@@ -83,15 +152,15 @@ class ClassCollector
         if (defined('T_NAME_QUALIFIED')) {
             $namespaceTokens[] = T_NAME_QUALIFIED;
         }
-
+        
         if (defined('T_NAME_FULLY_QUALIFIED')) {
             $namespaceTokens[] = T_NAME_FULLY_QUALIFIED;
         }
-
+        
         if (defined('T_NAME_RELATIVE')) {
             $namespaceTokens[] = T_NAME_RELATIVE;
         }
-
+        
         return $namespaceTokens;
     }
     

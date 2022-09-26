@@ -1,6 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Scan;
+namespace Yireo\ExtensionChecker\PhpClass;
 
 use Magento\Framework\ObjectManager\ConfigInterface;
 use ReflectionClass;
@@ -85,7 +86,7 @@ class ClassInspector
     }
     
     /**
-     * @return string[]
+     * @return class-string[]
      * @throws ReflectionException
      */
     public function getDependencies(): array
@@ -105,7 +106,7 @@ class ClassInspector
                     continue;
                 }
                 
-                if (in_array($dependency, ['array'])) {
+                if ($dependency === 'array') {
                     continue;
                 }
                 
@@ -119,22 +120,13 @@ class ClassInspector
                 continue;
             }
             
-            if (in_array($interfaceName, ['ArrayAccess'])) {
+            if ($interfaceName === 'ArrayAccess') {
                 continue;
             }
             
             $dependencies[] = $interfaceName;
         }
         return $dependencies;
-    }
-    
-    /**
-     * @param $class
-     * @return string
-     */
-    private function normalizeClassName($class): string
-    {
-        return is_object($class) ? get_class($class) : (string)$class;
     }
     
     /**
@@ -148,7 +140,7 @@ class ClassInspector
             return false;
         }
         
-        if (!strstr((string)$object->getDocComment(), '@deprecated')) {
+        if (strpos((string)$object->getDocComment(), '@deprecated') === false) {
             return false;
         }
         
@@ -209,8 +201,22 @@ class ClassInspector
         } catch (ReflectionException $e) {
             return [];
         }
+    
+        $filename = $object->getFileName();
+        if (empty($filename)) {
+            return [];
+        }
         
-        return $this->tokenizer->getStringTokensFromFilename($object->getFileName());
+        return $this->tokenizer->getStringTokensFromFilename($filename);
+    }
+    
+    /**
+     * @param $class
+     * @return string
+     */
+    private function normalizeClassName($class): string
+    {
+        return is_object($class) ? get_class($class) : (string)$class;
     }
     
     /**

@@ -3,7 +3,9 @@
 namespace Yireo\ExtensionChecker\Util;
 
 use Magento\Framework\Component\ComponentRegistrar;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Io\File;
+use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Module\ModuleList;
 use Magento\Framework\Module\PackageInfo;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -12,36 +14,14 @@ use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 
 class ModuleInfo
 {
-    /**
-     * @var string
-     */
     private $moduleName;
-
-    /**
-     * @var ModuleList
-     */
-    private $moduleList;
-
-    /**
-     * @var ComponentRegistrar
-     */
-    private $componentRegistrar;
-
-    /**
-     * @var PackageInfo
-     */
-    private $packageInfo;
-
-    /**
-     * @var File
-     */
-    private $fileReader;
-
-    /**
-     * @var Json
-     */
-    private $jsonSerializer;
-
+    private ModuleList $moduleList;
+    private ComponentRegistrar $componentRegistrar;
+    private PackageInfo $packageInfo;
+    private File $fileReader;
+    private Json $jsonSerializer;
+    private FileDriver $fileDriver;
+    
     /**
      * Module constructor.
      * @param ModuleList $moduleList
@@ -55,13 +35,15 @@ class ModuleInfo
         ComponentRegistrar $componentRegistrar,
         PackageInfo $packageInfo,
         File $fileReader,
-        Json $jsonSerializer
+        Json $jsonSerializer,
+        FileDriver $fileDriver
     ) {
         $this->moduleList = $moduleList;
         $this->componentRegistrar = $componentRegistrar;
         $this->packageInfo = $packageInfo;
         $this->fileReader = $fileReader;
         $this->jsonSerializer = $jsonSerializer;
+        $this->fileDriver = $fileDriver;
     }
 
     /**
@@ -100,14 +82,13 @@ class ModuleInfo
     public function getModuleInfo(string $moduleName): array
     {
         $this->moduleName = $moduleName;
-        $info = $this->moduleList->getOne($moduleName);
-
-        return $info;
+        return $this->moduleList->getOne($moduleName);
     }
 
     /**
      * @param string $moduleName
      * @return array
+     * @deprecated Move this to ComposerFile class instead
      */
     public function getPackageInfo(string $moduleName): array
     {
@@ -124,6 +105,7 @@ class ModuleInfo
 
     /**
      * @return array
+     * @deprecated Move this to ComposerFile class instead
      */
     private function getDependencies(): array
     {
@@ -133,7 +115,6 @@ class ModuleInfo
         $sources = [
             'require',
             'require-dev',
-            'suggest'
         ];
 
         foreach ($sources as $source) {
@@ -151,6 +132,7 @@ class ModuleInfo
 
     /**
      * @return string[]
+     * @deprecated Move this to ComposerFile class instead
      */
     private function getRequirements(): array
     {
@@ -172,6 +154,7 @@ class ModuleInfo
 
     /**
      * @return array
+     * @deprecated Move this to ComposerFile class instead
      */
     private function getAdditionalRequirements(): array
     {
@@ -187,6 +170,7 @@ class ModuleInfo
 
     /**
      * @return array
+     * @deprecated Move this to ComposerFile class instead
      */
     private function getComposerJsonData(): array
     {
@@ -197,24 +181,24 @@ class ModuleInfo
         }
 
         $contents = $this->fileReader->read($composerFile);
-        $data = $this->jsonSerializer->unserialize($contents);
-
-        return $data;
+        return $this->jsonSerializer->unserialize($contents);
     }
-
+    
     /**
+     * @param string $moduleName
      * @return string
-     * @throws ComponentNotFoundException
+     * @throws FileSystemException
+     * @deprecated Move this to ComposerFile class instead
      */
     public function getComposerFile(string $moduleName): string
     {
         $composerFile = $this->getModuleFolder($moduleName) . '/composer.json';
-        if (file_exists($composerFile)) {
+        if ($this->fileDriver->isExists($composerFile)) {
             return $composerFile;
         }
 
         $composerFile = $this->getModuleFolder($moduleName) . '/../composer.json';
-        if (file_exists($composerFile)) {
+        if ($this->fileDriver->isExists($composerFile)) {
             return $composerFile;
         }
 
