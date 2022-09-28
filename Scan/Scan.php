@@ -46,11 +46,15 @@ class Scan
     /**
      * @throws ReflectionException
      */
-    public function scan(string $moduleName)
+    public function scan(string $moduleName, string $modulePath)
     {
-        if ($this->moduleInfo->isKnown($moduleName) === false) {
+        if (!empty($moduleName) && $this->moduleInfo->isKnown($moduleName) === false) {
             $message = sprintf('Module "%s" is unknown', $moduleName);
             throw new InvalidArgumentException($message);
+        }
+
+        if (empty($moduleName) && !empty($modulePath)) {
+            $moduleName = $this->moduleInfo->getModuleNameFromPath($modulePath);
         }
 
         $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);

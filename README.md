@@ -18,7 +18,7 @@ The output gives a hint to what to add to `composer.json`. For instance, a compo
 Listing dependencies (as in: dependencies detected by this ExtensionChecker) could be done with the following command: 
 ```bash
 bin/magento yireo_extensionchecker:list-dependencies --module Yireo_Example
-bin/magento yireo_extensionchecker:list-dependencies --module Yireo_Example --format=json
+bin/magento yireo_extensionchecker:list-dependencies --module Yireo_Example --format=json | jq
 ```
 
 ## Installation

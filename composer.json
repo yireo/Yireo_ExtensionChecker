@@ -21,7 +21,8 @@
     "composer/semver": "*",
     "php": "^7.4|^8.0",
     "ext-json": "*",
-    "ext-pcre": "*"
+    "ext-pcre": "*",
+    "ext-xml": "*"
   },
   "autoload": {
     "psr-4": {

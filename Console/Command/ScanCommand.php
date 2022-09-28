@@ -114,12 +114,11 @@ class ScanCommand extends Command
         $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
         $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
 
-        $this->scan->scan($moduleName);
+        $this->scan->scan($moduleName, $modulePath);
         $messages = $this->messageBucket->getMessages();
 
         if ((string)$input->getOption('format') === 'json') {
             $outputData = [];
-            $messageGroups = $this->messageBucket->getMessages();
             foreach ($messages as $message) {
                 $outputData[] = $message->toArray();
             }

@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\ComponentDetector;
 
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
@@ -21,15 +23,21 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         $this->moduleInfo = $moduleInfo;
         $this->componentFactory = $componentFactory;
     }
-    
+
     /**
      * @param string $moduleName
      * @return Component[]
+     * @throws FileSystemException
+     * @throws NotFoundException
      */
     public function getComponentsByModuleName(string $moduleName): array
     {
         $components = [];
         $moduleInfo = $this->moduleInfo->getModuleInfo($moduleName);
+        if (empty($moduleInfo)) {
+            return [];
+        }
+
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
             $components[] = $this->componentFactory->createByModuleName($sequenceModuleName);
         }

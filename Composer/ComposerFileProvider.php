@@ -6,45 +6,48 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File as FileDriver;
-use Magento\Framework\Module\ModuleListInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Shell;
 use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\ComposerException;
 use Yireo\ExtensionChecker\Exception\ComposerFileNotFoundException;
+use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ComposerFileProvider
 {
-    private ModuleListInterface $moduleList;
     private ComponentRegistrar $componentRegistrar;
     private FileDriver $fileDriver;
     private ComposerFileFactory $composerFileFactory;
     private DirectoryList $directoryList;
     private SerializerInterface $serializer;
     private Shell $shell;
-    
+    private ModuleInfo $moduleInfo;
+
     /**
-     * @param ModuleListInterface $moduleList
      * @param ComponentRegistrar $componentRegistrar
      * @param FileDriver $fileDriver
      * @param ComposerFileFactory $composerFileFactory
+     * @param DirectoryList $directoryList
+     * @param SerializerInterface $serializer
+     * @param Shell $shell
+     * @param ModuleInfo $moduleInfo
      */
     public function __construct(
-        ModuleListInterface $moduleList,
         ComponentRegistrar $componentRegistrar,
         FileDriver $fileDriver,
         ComposerFileFactory $composerFileFactory,
         DirectoryList $directoryList,
         SerializerInterface $serializer,
-        Shell $shell
+        Shell $shell,
+        ModuleInfo $moduleInfo
     ) {
-        $this->moduleList = $moduleList;
         $this->componentRegistrar = $componentRegistrar;
         $this->fileDriver = $fileDriver;
         $this->composerFileFactory = $composerFileFactory;
         $this->directoryList = $directoryList;
         $this->serializer = $serializer;
         $this->shell = $shell;
+        $this->moduleInfo = $moduleInfo;
     }
     
     /**
@@ -55,12 +58,8 @@ class ComposerFileProvider
      */
     public function getComposerFileByModuleName(string $moduleName): ComposerFile
     {
-        $module = $this->moduleList->getOne($moduleName);
-        if (!$module) {
-            throw new ComponentNotFoundException('Unknown module "'.$moduleName.'"');
-        }
-
-        $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
+        $moduleInfo = $this->moduleInfo->getModuleInfo($moduleName);
+        $modulePath = $moduleInfo['path'];
         $possibleComposerPaths = [
             $modulePath . '/composer.json',
             $modulePath . '/../composer.json',
@@ -82,7 +81,7 @@ class ComposerFileProvider
      */
     public function getVersionByComposerName(string $composerName): string
     {
-        $installedPackages = $this->getInstalledPackages();
+        $installedPackages = $this->getAllComposerNames();
         
         foreach ($installedPackages as $installedPackage) {
             if ($installedPackage['name'] === $composerName) {
@@ -94,7 +93,7 @@ class ComposerFileProvider
     }
     
     /**
-     * @return string[]
+     * @return array[]
      */
     public function getAllComposerNames(): array
     {
