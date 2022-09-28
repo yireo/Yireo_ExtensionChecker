@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\PhpClass;
 
@@ -15,35 +14,12 @@ use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ClassInspector
 {
-    /**
-     * @var string
-     */
-    private $className = '';
-
-    /**
-     * @var array
-     */
-    private $registry = [];
-
-    /**
-     * @var Tokenizer
-     */
-    private $tokenizer;
-
-    /**
-     * @var ConfigInterface
-     */
-    private $objectManagerConfig;
-
-    /**
-     * @var ComponentFactory
-     */
-    private $componentFactory;
-
-    /**
-     * @var ModuleInfo
-     */
-    private $moduleInfo;
+    private string $className = '';
+    private array $registry = [];
+    private Tokenizer $tokenizer;
+    private ConfigInterface $objectManagerConfig;
+    private ComponentFactory $componentFactory;
+    private ModuleInfo $moduleInfo;
 
     /**
      * ClassInspector constructor.
@@ -110,6 +86,10 @@ class ClassInspector
                     continue;
                 }
 
+                if (in_array($dependency, spl_classes())) {
+                    continue;
+                }
+
                 if ($dependency === 'array') {
                     continue;
                 }
@@ -124,12 +104,16 @@ class ClassInspector
                 continue;
             }
 
+            // @todo: Check if the name has no slashes and conclude that it is built-in?
             if ($interfaceName === 'ArrayAccess') {
                 continue;
             }
 
             $dependencies[] = $interfaceName;
         }
+
+        // @todo: Detect static calls (like Composer\Semver\Semver::satisfies() in this codebase)
+
         return $dependencies;
     }
 
