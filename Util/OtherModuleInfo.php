@@ -41,9 +41,9 @@ class OtherModuleInfo
      */
     public function getByName(string $moduleName): array
     {
-        $otherModuleInfo = array_filter($this->otherModuleInfo, fn ($moduleInfo) => $moduleInfo['name'] === $moduleName);
-        if (!empty($otherModuleInfo)) {
-            return array_shift($otherModuleInfo);
+        $moduleInfos = array_filter($this->otherModuleInfo, fn ($moduleInfo) => $moduleInfo['name'] === $moduleName);
+        if (!empty($moduleInfos)) {
+            return array_shift($moduleInfos);
         }
 
         throw new ModuleNotFoundException('No module "' . $moduleName . '" info found');
