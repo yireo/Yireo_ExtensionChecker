@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.0.0] = 28 September 2022
+### Removed
+- Huge rewrite of entire logic
+
 ### Added
 - JSON format to CLI output
 - Suggest version number if set to wildcard
