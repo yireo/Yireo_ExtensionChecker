@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.0.1] = 28 September 2022
+### Fixed
+- Fixed PHP 7.4 compat issue in Message/Message.php
+
 # [2.0.0] = 28 September 2022
 ### Removed
 - Huge rewrite of entire logic

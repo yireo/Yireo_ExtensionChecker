@@ -19,7 +19,7 @@ class Message
         MessageGroupLabels $messageGroupLabels,
         string $message,
         string $group,
-        string $suggestion = '',
+        string $suggestion = ''
     ) {
         $this->messageGroupLabels = $messageGroupLabels;
         $this->message = $message;
@@ -72,7 +72,7 @@ class Message
         return [
             'message' => $this->getMessage(),
             'group' => $this->getGroup(),
-            'suggestion' => $this->getSuggestion(),
+            'suggestion' => $this->getSuggestion()
         ];
     }
 }
