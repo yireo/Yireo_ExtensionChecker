@@ -8,7 +8,6 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Shell;
-use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\ComposerException;
 use Yireo\ExtensionChecker\Exception\ComposerFileNotFoundException;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
@@ -49,7 +48,7 @@ class ComposerFileProvider
         $this->shell = $shell;
         $this->moduleInfo = $moduleInfo;
     }
-    
+
     /**
      * @param string $moduleName
      * @return ComposerFile
@@ -71,10 +70,10 @@ class ComposerFileProvider
                 return $this->composerFileFactory->create($possibleComposerPath);
             }
         }
-        
-        throw new ComposerFileNotFoundException('Could not locate composer.json for module "'.$moduleName.'"');
+
+        throw new ComposerFileNotFoundException('Could not locate composer.json for module "' . $moduleName . '"');
     }
-    
+
     /**
      * @param string $composerName
      * @return string
@@ -82,43 +81,43 @@ class ComposerFileProvider
     public function getVersionByComposerName(string $composerName): string
     {
         $installedPackages = $this->getAllComposerNames();
-        
+
         foreach ($installedPackages as $installedPackage) {
             if ($installedPackage['name'] === $composerName) {
                 return $installedPackage['version'];
             }
         }
-        
+
         return '';
     }
-    
+
     /**
      * @return array[]
      */
     public function getAllComposerNames(): array
     {
         static $installedPackages = [];
-        
+
         if (!empty($installedPackages)) {
             return $installedPackages;
         }
-        
+
         chdir($this->directoryList->getRoot());
         $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
         $output = str_replace("\n", ' ', $output);
         $output = preg_replace('/^([^{]+)/m', '', $output);
-        
+
         $packages = $this->serializer->unserialize($output);
         if (!isset($packages['installed'])) {
             throw new ComposerException('No installed packages found');
         }
-        
+
         $installedPackages = $packages['installed'];
-        
+
         if (empty($installedPackages)) {
             throw new ComposerException('No installed packages found');
         }
-        
+
         return $installedPackages;
     }
 }

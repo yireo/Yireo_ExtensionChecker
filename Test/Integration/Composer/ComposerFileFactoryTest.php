@@ -5,7 +5,6 @@ namespace Yireo\ExtensionChecker\Test\Integration\Composer;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Filesystem\DirectoryList;
 use PHPUnit\Framework\TestCase;
-use Yireo\ExtensionChecker\Composer\ComposerFile;
 use Yireo\ExtensionChecker\Composer\ComposerFileFactory;
 
 class ComposerFileFactoryTest extends TestCase

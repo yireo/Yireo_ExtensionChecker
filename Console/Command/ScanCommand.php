@@ -17,8 +17,8 @@ use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
-use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Scan\Scan;
@@ -50,7 +50,7 @@ class ScanCommand extends Command
         $this->runtimeConfig = $runtimeConfig;
         $this->messageBucket = $messageBucket;
     }
-    
+
     /**
      * Configure this command
      */
@@ -58,35 +58,35 @@ class ScanCommand extends Command
     {
         $this->setName('yireo_extensionchecker:scan');
         $this->setDescription('Scan a specific Magento module');
-        
+
         $this->addOption(
             'path',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module path'
         );
-        
+
         $this->addOption(
             'module',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module name'
         );
-        
+
         $this->addOption(
             'hide-deprecated',
             null,
             InputOption::VALUE_OPTIONAL,
             'Hide deprecated dependency notices'
         );
-        
+
         $this->addOption(
             'hide-needless',
             null,
             InputOption::VALUE_OPTIONAL,
             'Hide needless dependency notices'
         );
-    
+
         $this->addOption(
             'format',
             null,
@@ -94,7 +94,7 @@ class ScanCommand extends Command
             'Format (`json` or the default)'
         );
     }
-    
+
     /**
      * @param Input $input
      * @param Output $output
@@ -106,11 +106,11 @@ class ScanCommand extends Command
     {
         $moduleName = (string)$input->getOption('module');
         $modulePath = (string)$input->getOption('path');
-        
+
         if (empty($moduleName) && empty($modulePath)) {
             throw new InvalidArgumentException('Either module name or module path is required');
         }
-        
+
         $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
         $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
 
@@ -145,7 +145,7 @@ class ScanCommand extends Command
                 $message->getSuggestion(),
             ]);
         }
-        
+
         $table->render();
 
         return 0;

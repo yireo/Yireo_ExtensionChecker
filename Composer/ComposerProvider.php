@@ -19,7 +19,7 @@ class ComposerProvider
     private DirectoryList $directoryList;
     private SerializerInterface $serializer;
     private Shell $shell;
-    
+
     /**
      * @param ModuleListInterface $moduleList
      * @param ComponentRegistrar $componentRegistrar
@@ -46,7 +46,7 @@ class ComposerProvider
         $this->serializer = $serializer;
         $this->shell = $shell;
     }
-    
+
     /**
      * @param string $composerName
      * @return string
@@ -54,16 +54,16 @@ class ComposerProvider
     public function getVersionByComposerName(string $composerName): string
     {
         $composerPackages = $this->getComposerPackages();
-        
+
         foreach ($composerPackages as $composerPackage) {
             if ($composerPackage['name'] === $composerName) {
                 return $composerPackage['version'];
             }
         }
-        
+
         return '';
     }
-    
+
     /**
      * @param string $version
      * @return string
@@ -74,37 +74,37 @@ class ComposerProvider
         if ((int)$versionParts[0] === 0) {
             return '~' . $version;
         }
-        
+
         return '^' . $versionParts[0] . '.' . $versionParts[1];
     }
-    
+
     /**
      * @return array[]
      */
     public function getComposerPackages(): array
     {
         static $composerPackages = [];
-        
+
         if (!empty($composerPackages)) {
             return $composerPackages;
         }
-        
+
         chdir($this->directoryList->getRoot());
         $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
         $output = str_replace("\n", ' ', $output);
         $output = preg_replace('/^([^{]+)/m', '', $output);
-        
+
         $packages = $this->serializer->unserialize($output);
         if (!isset($packages['installed'])) {
             throw new ComposerException('No installed packages found');
         }
-    
+
         $composerPackages = $packages['installed'];
-        
+
         if (empty($composerPackages)) {
             throw new ComposerException('No installed packages found');
         }
-        
+
         return $composerPackages;
     }
 }

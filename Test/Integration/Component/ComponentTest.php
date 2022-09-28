@@ -3,10 +3,8 @@
 namespace Yireo\ExtensionChecker\Test\Integration\Component;
 
 use Magento\Framework\App\ObjectManager;
-use Magento\Framework\Component\ComponentRegistrar;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Component\Component;
-use Yireo\ExtensionChecker\Component\ComponentFactory;
 
 class ComponentTest extends TestCase
 {
@@ -23,6 +21,6 @@ class ComponentTest extends TestCase
         $this->assertEquals('module', $component->getComponentType());
         $this->assertEquals('yireo/example', $component->getPackageName());
         $this->assertEquals('0.0.1', $component->getPackageVersion());
-        $this->assertEquals('Yireo_Example',(string)$component);
+        $this->assertEquals('Yireo_Example', (string)$component);
     }
 }

@@ -4,12 +4,11 @@ namespace Yireo\ExtensionChecker\PhpClass;
 
 use ReflectionException;
 use Throwable;
-use Yireo\ExtensionChecker\Component\Component;
-use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\EmptyClassNameException;
 use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\Exception\UnreadableFileException;
 use Yireo\ExtensionChecker\Message\MessageBucket;
+use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 
 class ClassNameCollector
 {
@@ -27,7 +26,7 @@ class ClassNameCollector
         $this->classInspector = $classInspector;
         $this->messageBucket = $messageBucket;
     }
-    
+
     /**
      * @param string[] $files
      * @return string[]
@@ -44,18 +43,18 @@ class ClassNameCollector
             try {
                 $classNames[] = $this->getClassNameFromFile($file);
             } catch (Throwable $e) {
-                $this->messageBucket->add($e->getMessage(), MessageBucket::GROUP_EXCEPTION);
+                $this->messageBucket->add($e->getMessage(), MessageGroupLabels::GROUP_EXCEPTION);
                 continue;
             }
         }
-        
+
         if (!count($classNames) > 0) {
-            $this->messageBucket->add('No PHP classes detected for files', MessageBucket::GROUP_EXCEPTION);
+            $this->messageBucket->add('No PHP classes detected for files', MessageGroupLabels::GROUP_EXCEPTION);
         }
-        
+
         return $classNames;
     }
-    
+
     /**
      * @param string $file
      *
@@ -68,28 +67,28 @@ class ClassNameCollector
         if (!file_exists($file)) {
             throw new UnreadableFileException('File "' . $file . '" does not exist');
         }
-        
+
         $contents = file_get_contents($file);
         if (empty($contents)) {
             throw new UnreadableFileException('Empty contents for file "' . $file . '"');
         }
-        
+
         $tokens = token_get_all($contents);
         if (empty($tokens)) {
             throw new UnreadableFileException('Contents for file "' . $file . '" deliver zero tokens');
         }
-        
+
         $namespace = $this->findNamespaceInTokens($tokens);
         $class = $this->findClassNameInTokens($tokens);
-        
+
         if (empty($class)) {
             throw new EmptyClassNameException(sprintf('Class is empty for file "%s"', $file));
         }
-        
+
         $class = $namespace ? $namespace . '\\' . $class : $class;
         return $this->normalizeClassName($class);
     }
-    
+
     /**
      * @param string[] $classNames
      * @return string[]
@@ -101,22 +100,21 @@ class ClassNameCollector
             try {
                 $tmpClassNames = $this->classInspector->setClassName($className)->getDependencies();
             } catch (NoClassNameException $exception) {
-                $message = 'NoClassNameException for "'.$className.'": '.$exception->getMessage();
-                $this->messageBucket->add($message, MessageBucket::GROUP_EXCEPTION);
+                $message = 'NoClassNameException for "' . $className . '": ' . $exception->getMessage();
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_EXCEPTION);
                 continue;
             } catch (ReflectionException $exception) {
-                $message = 'ReflectionException for "'.$className.'": '.$exception->getMessage();
-                $this->messageBucket->add($message, MessageBucket::GROUP_EXCEPTION);
+                $message = 'ReflectionException for "' . $className . '": ' . $exception->getMessage();
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_EXCEPTION);
                 continue;
             }
-    
+
             $allClassNames = array_merge($allClassNames, $tmpClassNames);
         }
-        
+
         return array_unique($allClassNames);
     }
-    
-    
+
     /**
      * @param $class
      * @return string
@@ -125,7 +123,7 @@ class ClassNameCollector
     {
         return is_object($class) ? get_class($class) : (string)$class;
     }
-    
+
     /**
      * @param array $tokens
      * @return string
@@ -134,12 +132,12 @@ class ClassNameCollector
     {
         $foundNamespace = false;
         $namespace = '';
-        
+
         foreach ($tokens as $token) {
             if (is_array($token) && $token[0] == T_NAMESPACE) {
                 $foundNamespace = true;
             }
-            
+
             if ($foundNamespace === true) {
                 if (is_array($token) && in_array((string)$token[0], $this->getNamespaceTokens())) {
                     $namespace .= $token[1];
@@ -150,10 +148,10 @@ class ClassNameCollector
                 }
             }
         }
-        
+
         return $namespace;
     }
-    
+
     /**
      * @return array
      */
@@ -163,18 +161,18 @@ class ClassNameCollector
         if (defined('T_NAME_QUALIFIED')) {
             $namespaceTokens[] = T_NAME_QUALIFIED;
         }
-        
+
         if (defined('T_NAME_FULLY_QUALIFIED')) {
             $namespaceTokens[] = T_NAME_FULLY_QUALIFIED;
         }
-        
+
         if (defined('T_NAME_RELATIVE')) {
             $namespaceTokens[] = T_NAME_RELATIVE;
         }
-        
+
         return $namespaceTokens;
     }
-    
+
     /**
      * @param array $tokens
      * @return string
@@ -183,12 +181,12 @@ class ClassNameCollector
     {
         $foundClass = false;
         $class = '';
-        
+
         foreach ($tokens as $token) {
             if (is_array($token) && ($token[0] === T_CLASS || $token[0] === T_INTERFACE)) {
                 $foundClass = true;
             }
-            
+
             if ($foundClass === true) {
                 if (is_array($token) && $token[0] === T_STRING) {
                     $class = $token[1];
@@ -196,7 +194,7 @@ class ClassNameCollector
                 }
             }
         }
-        
+
         return $class;
     }
 }

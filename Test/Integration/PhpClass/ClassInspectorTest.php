@@ -21,17 +21,17 @@ class ClassInspectorTest extends TestCase
         $this->assertNotEmpty($dependencies);
         $this->assertContains(SearchCriteriaBuilder::class, $dependencies, var_export($dependencies, true));
     }
-    
+
     public function testIsDeprecated()
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
         $classInspector->setClassName(Registry::class);
         $this->assertTrue($classInspector->isDeprecated());
-    
+
         $classInspector->setClassName(ProductRepositoryInterface::class);
         $this->assertFalse($classInspector->isDeprecated());
     }
-    
+
     public function testGetComponentByClass()
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
@@ -39,23 +39,23 @@ class ClassInspectorTest extends TestCase
         $component = $classInspector->getComponentByClass();
         $this->assertEquals('Magento_Catalog', $component->getComponentName());
         $this->assertEquals('module', $component->getComponentType());
-        
+
         $classInspector->setClassName(UrlInterface::class);
         $component = $classInspector->getComponentByClass();
         $this->assertEquals('magento/framework', $component->getComponentName());
         $this->assertEquals('library', $component->getComponentType());
     }
-    
+
     public function testGetPackageByClass()
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
         $classInspector->setClassName(Registry::class);
         $this->assertEquals('magento/framework', $classInspector->getPackageByClass());
-    
+
         $classInspector->setClassName(ProductRepositoryInterface::class);
         $this->assertEquals('magento/module-catalog', $classInspector->getPackageByClass());
     }
-    
+
     public function testGetStringTokensFromFilename()
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);

@@ -15,7 +15,7 @@ class ComposerFile
     private ReadFactory $readFactory;
     private SerializerInterface $serializer;
     private string $composerFile;
-    
+
     /**
      * Composer constructor.
      * @param DirectoryList $directoryList
@@ -37,7 +37,7 @@ class ComposerFile
         $this->shell = $shell;
         $this->composerFile = $composerFile;
     }
-    
+
     /**
      * @return array
      * @throws NotFoundException
@@ -50,10 +50,10 @@ class ComposerFile
         if (empty($extensionData)) {
             throw new RuntimeException('Empty contents after decoding file "' . $this->composerFile . '"');
         }
-        
+
         return $extensionData;
     }
-    
+
     /**
      * @param string $keyName
      * @return mixed
@@ -65,10 +65,10 @@ class ComposerFile
         if (!isset($extensionData[$keyName])) {
             throw new RuntimeException('File "' . $this->composerFile . '" does not have a "' . $keyName . '"');
         }
-        
+
         return $extensionData[$keyName];
     }
-    
+
     /**
      * @return string
      * @throws NotFoundException
@@ -77,7 +77,7 @@ class ComposerFile
     {
         return $this->get('name');
     }
-    
+
     /**
      * @return array
      * @throws NotFoundException

@@ -4,7 +4,6 @@ namespace Yireo\ExtensionChecker\Test\Integration\ComponentDetector;
 
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
-use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector;
 use Yireo\ExtensionChecker\Test\Integration\Behaviour\AssertContainsByComponentName;
 

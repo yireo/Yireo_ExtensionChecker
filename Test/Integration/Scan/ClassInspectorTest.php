@@ -22,7 +22,7 @@ class ClassInspectorTest extends TestCase
         $component = $classInspector->setClassName($className)->getComponentByClass();
         $this->assertEquals($componentName, $component->getComponentName());
     }
-    
+
     public function getComponentByClassProvider(): array
     {
         return [

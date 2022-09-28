@@ -17,11 +17,11 @@ class ComponentCollectorTest extends TestCase
         $components = $componentCollector->getComponentsByClasses($classes);
         $this->assertComponentsContainModuleName('Magento_Catalog', $components);
     }
-    
+
     private function assertComponentsContainModuleName(string $moduleName, array $components)
     {
-        $this->assertNotEmpty(array_filter($components, fn(Component $component) =>
-            $component->getComponentName() === $moduleName)
+        $this->assertNotEmpty(
+            array_filter($components, fn (Component $component) => $component->getComponentName() === $moduleName)
         );
     }
 }

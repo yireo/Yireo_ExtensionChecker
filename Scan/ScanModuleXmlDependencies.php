@@ -5,12 +5,13 @@ namespace Yireo\ExtensionChecker\Scan;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
 use Yireo\ExtensionChecker\Message\MessageBucket;
+use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 
 class ScanModuleXmlDependencies
 {
     private ModuleXmlComponentDetector $moduleXmlComponentDetector;
     private MessageBucket $messageBucket;
-    
+
     /**
      * @param ModuleXmlComponentDetector $moduleXmlComponentDetector
      * @param MessageBucket $messageBucket
@@ -22,7 +23,7 @@ class ScanModuleXmlDependencies
         $this->moduleXmlComponentDetector = $moduleXmlComponentDetector;
         $this->messageBucket = $messageBucket;
     }
-    
+
     /**
      * @param string $moduleName
      * @param Component[] $components
@@ -43,13 +44,13 @@ class ScanModuleXmlDependencies
                     break;
                 }
             }
-            
+
             if (!$isComponentFoundInModuleXml) {
-                $message = 'Module "'.$component->getComponentName().'" has no module.xml entry';
-                $this->messageBucket->add($message, MessageBucket::GROUP_MISSING_MODULEXML_DEP);
+                $message = 'Module "' . $component->getComponentName() . '" has no module.xml entry';
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_MODULEXML_DEP);
             }
         }
-        
+
         foreach ($moduleXmlComponents as $moduleXmlComponent) {
             $isModuleXmlComponentFoundInDetectedComponents = false;
             foreach ($components as $component) {
@@ -58,10 +59,10 @@ class ScanModuleXmlDependencies
                     break;
                 }
             }
-            
+
             if (!$isModuleXmlComponentFoundInDetectedComponents) {
-                $message = 'Module "'.$moduleXmlComponent->getComponentName().'" is possibly not needed in module.xml';
-                $this->messageBucket->add($message, MessageBucket::GROUP_UNNECESSARY_MODULEXML_DEP);
+                $message = 'Module "' . $moduleXmlComponent->getComponentName() . '" is possibly not needed in module.xml';
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP);
             }
         }
     }

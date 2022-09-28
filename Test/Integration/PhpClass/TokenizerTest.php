@@ -2,7 +2,6 @@
 
 namespace Yireo\ExtensionChecker\Test\Integration\Composer;
 
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\PhpClass\Tokenizer;

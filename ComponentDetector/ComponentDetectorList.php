@@ -10,7 +10,7 @@ class ComponentDetectorList
      * @var ComponentDetectorInterface[]
      */
     private array $componentDetectors;
-    
+
     /**
      * @param ComponentDetectorInterface[] $componentDetectors
      */
@@ -19,7 +19,7 @@ class ComponentDetectorList
     ) {
         $this->componentDetectors = $componentDetectors;
     }
-    
+
     /**
      * @return ComponentDetectorInterface[]
      */
@@ -27,7 +27,7 @@ class ComponentDetectorList
     {
         return $this->componentDetectors;
     }
-    
+
     /**
      * @param string $moduleName
      * @return Component[]
@@ -39,7 +39,7 @@ class ComponentDetectorList
             $components = array_merge($components, $componentDetector->getComponentsByModuleName($moduleName));
         }
 
-        $components = array_filter($components, fn($component) => $component->getComponentName() !== $moduleName);
+        $components = array_filter($components, fn ($component) => $component->getComponentName() !== $moduleName);
         $components = array_unique($components, SORT_REGULAR);
         return $components;
     }

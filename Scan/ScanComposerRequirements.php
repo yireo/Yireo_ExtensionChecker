@@ -9,6 +9,7 @@ use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
 use Yireo\ExtensionChecker\Message\MessageBucket;
+use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 
 class ScanComposerRequirements
 {
@@ -60,10 +61,10 @@ class ScanComposerRequirements
 
         $packageName = $component->getPackageName();
         $version = $component->getPackageVersion();
-        $message = 'No composer dependency found for "'.$packageName.'"';
+        $message = 'No composer dependency found for "' . $packageName . '"';
         $suggestion = sprintf('Current version is %s. ', $version);
         $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
-        $this->messageBucket->add($message, MessageBucket::GROUP_MISSING_COMPOSER_DEP, $suggestion);
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $suggestion);
     }
 
     /**
@@ -93,8 +94,8 @@ class ScanComposerRequirements
             return;
         }
 
-        $message = 'Composer requirement "'.$requirement.'" possibly not needed';
-        $this->messageBucket->add($message, MessageBucket::GROUP_UNNECESSARY_COMPOSER_DEP);
+        $message = 'Composer requirement "' . $requirement . '" possibly not needed';
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_COMPOSER_DEP);
     }
 
     private function checkIfComposerRequirementUsesWildCard(string $requirement, string $requirementVersion)
@@ -108,10 +109,10 @@ class ScanComposerRequirements
         }
 
         $version = $this->composerProvider->getVersionByComposerName($requirement);
-        $message = 'Composer requirement "'.$requirement.'" set to wilcard version';
+        $message = 'Composer requirement "' . $requirement . '" set to wilcard version';
         $suggestion = 'Current version is set to *. ';
         $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
-        $this->messageBucket->add($message, MessageBucket::GROUP_WILDCARD_VERSION, $suggestion);
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_WILDCARD_VERSION, $suggestion);
     }
 
     /**
@@ -131,7 +132,7 @@ class ScanComposerRequirements
         }
 
         $message = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version ' . $currentVersion;
-        $this->messageBucket->add($message, MessageBucket::GROUP_UNMET_REQUIREMENT);
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNMET_REQUIREMENT);
     }
 
     /**

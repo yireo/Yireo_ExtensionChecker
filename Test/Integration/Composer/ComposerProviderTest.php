@@ -14,7 +14,7 @@ class ComposerProviderTest extends TestCase
         $version = $composerProvider->getVersionByComposerName('magento/framework');
         $this->assertNotEmpty($version);
     }
-    
+
     public function testGetComposerPackages()
     {
         $composerProvider = ObjectManager::getInstance()->get(ComposerProvider::class);

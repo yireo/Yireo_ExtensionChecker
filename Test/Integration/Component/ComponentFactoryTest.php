@@ -21,7 +21,7 @@ class ComponentFactoryTest extends TestCase
         $this->assertEquals(ComponentRegistrar::MODULE, $component->getComponentType());
         $this->assertEquals($packageName, $component->getPackageName());
     }
-    
+
     public function createByModuleNameProvider()
     {
         return [
@@ -30,7 +30,7 @@ class ComponentFactoryTest extends TestCase
             ['Yireo_ExtensionChecker', 'yireo/magento2-extensionchecker'],
         ];
     }
-    
+
     /**
      * @return void
      * @dataProvider createByFrameworkProvider
@@ -43,7 +43,7 @@ class ComponentFactoryTest extends TestCase
         $this->assertEquals(ComponentRegistrar::LIBRARY, $component->getComponentType());
         $this->assertEquals($frameworkPackageName, $component->getPackageName());
     }
-    
+
     public function createByFrameworkProvider()
     {
         return [

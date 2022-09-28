@@ -9,7 +9,7 @@ class ModuleCollector
     private ModuleInfo $moduleInfo;
     private FileCollector $fileCollector;
     private ClassNameCollector $classNameCollector;
-    
+
     public function __construct(
         ModuleInfo $moduleInfo,
         FileCollector $fileCollector,
@@ -19,7 +19,7 @@ class ModuleCollector
         $this->fileCollector = $fileCollector;
         $this->classNameCollector = $classNameCollector;
     }
-    
+
     /**
      * @param string $moduleName
      * @return string[]

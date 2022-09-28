@@ -15,7 +15,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
 {
     private ModuleInfo $moduleInfo;
     private ComponentFactory $componentFactory;
-    
+
     public function __construct(
         ModuleInfo $moduleInfo,
         ComponentFactory $componentFactory
@@ -41,7 +41,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
             $components[] = $this->componentFactory->createByModuleName($sequenceModuleName);
         }
-        
+
         return $components;
     }
 }

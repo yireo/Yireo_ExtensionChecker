@@ -10,22 +10,22 @@ class Component
      * @var string
      */
     private $componentName;
-    
+
     /**
      * @var string
      */
     private $componentType;
-    
+
     /**
      * @var string
      */
     private $packageName;
-    
+
     /**
      * @var string
      */
     private $packageVersion;
-    
+
     /**
      * @param string $componentName
      * @param string $componentType
@@ -43,7 +43,7 @@ class Component
         $this->packageName = $packageName;
         $this->packageVersion = $packageVersion;
     }
-    
+
     /**
      * @return string
      */
@@ -51,7 +51,7 @@ class Component
     {
         return $this->componentName;
     }
-    
+
     /**
      * @return string
      */
@@ -59,7 +59,7 @@ class Component
     {
         return $this->componentType;
     }
-    
+
     /**
      * @return string
      */
@@ -67,7 +67,7 @@ class Component
     {
         return $this->packageName;
     }
-    
+
     /**
      * @return string
      */
@@ -75,7 +75,7 @@ class Component
     {
         return $this->packageVersion;
     }
-    
+
     /**
      * @return string
      */

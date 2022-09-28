@@ -11,17 +11,15 @@
 
 namespace Yireo\ExtensionChecker\Console\Command;
 
-use Exception;
 use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
-use Symfony\Component\Console\Output\OutputInterface as Output;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
-use Yireo\ExtensionChecker\Scan\Scan;
 
 class ListDependenciesCommand extends Command
 {
@@ -43,7 +41,7 @@ class ListDependenciesCommand extends Command
         $this->serializer = $serializer;
         $this->componentDetectorList = $componentDetectorList;
     }
-    
+
     /**
      * Configure this command
      */
@@ -51,21 +49,21 @@ class ListDependenciesCommand extends Command
     {
         $this->setName('yireo_extensionchecker:list-dependencies');
         $this->setDescription('List dependencies');
-        
+
         $this->addOption(
             'path',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module path'
         );
-        
+
         $this->addOption(
             'module',
             null,
             InputOption::VALUE_OPTIONAL,
             'Module name'
         );
-    
+
         $this->addOption(
             'format',
             null,
@@ -73,7 +71,7 @@ class ListDependenciesCommand extends Command
             'Format (`json` or the default)'
         );
     }
-    
+
     /**
      * @param Input $input
      * @param Output $output
@@ -85,7 +83,7 @@ class ListDependenciesCommand extends Command
     {
         $moduleName = (string)$input->getOption('module');
         $modulePath = (string)$input->getOption('path');
-        
+
         if (empty($moduleName) && empty($modulePath)) {
             throw new InvalidArgumentException('Either module name or module path is required');
         }

@@ -4,7 +4,6 @@ namespace Yireo\ExtensionChecker\ComponentDetector;
 
 use ReflectionException;
 use Yireo\ExtensionChecker\Component\Component;
-use Yireo\ExtensionChecker\PhpClass\ClassNameCollector;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
@@ -17,7 +16,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     private ClassInspector $classInspector;
     private ModuleCollector $moduleCollector;
     private ComponentCollector $componentCollector;
-    
+
     /**
      * @param ClassInspector $classInspector
      * @param ModuleCollector $moduleCollector
@@ -32,7 +31,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
         $this->moduleCollector = $moduleCollector;
         $this->componentCollector = $componentCollector;
     }
-    
+
     /**
      * @return Component[]
      * @throws ReflectionException
@@ -43,7 +42,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
         $components = $this->componentCollector->getComponentsByClasses($classNames);
         return array_merge($components, $this->scanClassesForPhpExtensions($classNames));
     }
-    
+
     /**
      * @param string[] $classNames
      * @return Component[]
@@ -57,7 +56,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
             $newTokens = $this->classInspector->setClassName($className)->getStringTokensFromFilename();
             $stringTokens = array_merge($stringTokens, $newTokens);
         }
-        
+
         $stringTokens = array_unique($stringTokens);
         $phpExtensions = ['json', 'xml', 'pcre', 'gd', 'bcmath'];
         foreach ($phpExtensions as $phpExtension) {
@@ -73,7 +72,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
                 }
             }
         }
-        
+
         return $components;
     }
 }

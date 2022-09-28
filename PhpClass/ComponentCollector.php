@@ -18,7 +18,7 @@ class ComponentCollector
     ) {
         $this->classInspector = $classInspector;
     }
-    
+
     /**
      * @param array $classNames
      * @return Component[]
@@ -32,10 +32,10 @@ class ComponentCollector
             } catch (ReflectionException|ComponentNotFoundException $e) {
                 continue;
             }
-            
+
             $components[] = $component;
         }
-        
+
         return $components;
     }
 }

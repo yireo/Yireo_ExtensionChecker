@@ -19,32 +19,32 @@ class ClassInspector
      * @var string
      */
     private $className = '';
-    
+
     /**
      * @var array
      */
     private $registry = [];
-    
+
     /**
      * @var Tokenizer
      */
     private $tokenizer;
-    
+
     /**
      * @var ConfigInterface
      */
     private $objectManagerConfig;
-    
+
     /**
      * @var ComponentFactory
      */
     private $componentFactory;
-    
+
     /**
      * @var ModuleInfo
      */
     private $moduleInfo;
-    
+
     /**
      * ClassInspector constructor.
      * @param Tokenizer $tokenizer
@@ -63,7 +63,7 @@ class ClassInspector
         $this->componentFactory = $componentFactory;
         $this->moduleInfo = $moduleInfo;
     }
-    
+
     /**
      * @param string $className
      * @return $this
@@ -76,15 +76,15 @@ class ClassInspector
         } catch (Throwable $throwable) {
             $classExists = false;
         }
-        
+
         if (!$classExists) {
             throw new NoClassNameException('Class "' . $className . '" does not exist');
         }
-        
+
         $this->className = $className;
         return $this;
     }
-    
+
     /**
      * @return string[]
      * @throws ReflectionException
@@ -100,35 +100,35 @@ class ClassInspector
                 if (!$parameter->getType()) {
                     continue;
                 }
-                
+
                 $dependency = $this->normalizeClassName($parameter->getType()->getName());
                 if (!class_exists($dependency) && !interface_exists($dependency)) {
                     continue;
                 }
-                
+
                 if ($dependency === 'array') {
                     continue;
                 }
-                
+
                 $dependencies[] = $this->normalizeClassName($parameter->getType()->getName());
             }
         }
-        
+
         $interfaceNames = $object->getInterfaceNames();
         foreach ($interfaceNames as $interfaceName) {
             if (!interface_exists($interfaceName)) {
                 continue;
             }
-            
+
             if ($interfaceName === 'ArrayAccess') {
                 continue;
             }
-            
+
             $dependencies[] = $interfaceName;
         }
         return $dependencies;
     }
-    
+
     /**
      * @return bool
      */
@@ -139,14 +139,14 @@ class ClassInspector
         } catch (ReflectionException|Throwable $exception) {
             return false;
         }
-        
+
         if (strpos((string)$object->getDocComment(), '@deprecated') === false) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * @return Component
      * @throws ReflectionException
@@ -158,20 +158,20 @@ class ClassInspector
         if (count($parts) < 2) {
             throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
         }
-        
+
         $moduleName = $parts[0] . '_' . $parts[1];
         if ($this->moduleInfo->isKnown($moduleName)) {
             return $this->componentFactory->createByModuleName($moduleName);
         }
-        
+
         $package = $this->getPackageByClass();
         if (!empty($package)) {
             return $this->componentFactory->createByLibraryName($package);
         }
-        
+
         throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
     }
-    
+
     /**
      * @return string
      * @throws ReflectionException
@@ -183,14 +183,14 @@ class ClassInspector
         if (empty($filename)) {
             return '';
         }
-        
+
         if (!preg_match('/vendor\/([^\/]+)\/([^\/]+)\//', $filename, $match)) {
             return '';
         }
-        
+
         return $match[1] . '/' . $match[2];
     }
-    
+
     /**
      * @return string[]
      */
@@ -201,15 +201,15 @@ class ClassInspector
         } catch (ReflectionException $e) {
             return [];
         }
-    
+
         $filename = $object->getFileName();
         if (empty($filename)) {
             return [];
         }
-        
+
         return $this->tokenizer->getStringTokensFromFilename($filename);
     }
-    
+
     /**
      * @param $class
      * @return string
@@ -218,7 +218,7 @@ class ClassInspector
     {
         return is_object($class) ? get_class($class) : (string)$class;
     }
-    
+
     /**
      * @param $className
      * @return bool
@@ -229,24 +229,23 @@ class ClassInspector
         if (empty($instanceType)) {
             return class_exists($className) || interface_exists($className);
         }
-        
+
         $reflectionClass = new ReflectionClass($instanceType);
         if ($reflectionClass->isInterface()) {
             return true;
         }
-        
+
         if (!$reflectionClass->isInstantiable()) {
             return false;
         }
-        
+
         if ($reflectionClass->isAbstract()) {
             return false;
         }
-        
+
         return true;
     }
-    
-    
+
     /**
      * @throws ReflectionException
      */
@@ -255,14 +254,14 @@ class ClassInspector
         if (isset($this->registry[$this->className])) {
             return $this->registry[$this->className];
         }
-        
+
         if ($this->isInstantiable($this->className) === false) {
             throw new ReflectionException('Class does not exist');
         }
-        
+
         $object = new ReflectionClass($this->className);
         $this->registry[$this->className] = $object;
-        
+
         return $object;
     }
 }

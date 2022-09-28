@@ -6,6 +6,7 @@ use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 use Yireo\ExtensionChecker\Message\MessageBucket;
+use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 /**
@@ -40,7 +41,7 @@ class GuessComponentDetector implements ComponentDetectorInterface
             $moduleFolder = $this->moduleInfo->getModuleFolder($moduleName);
         } catch (ModuleNotFoundException $moduleNotFoundException) {
             $message = 'ModuleNotFoundException for module "' . $moduleName . '": ' . $moduleNotFoundException->getMessage();
-            $this->messageBucket->add($message, MessageBucket::GROUP_EXCEPTION);
+            $this->messageBucket->add($message, MessageGroupLabels::GROUP_EXCEPTION);
             return $components;
         }
 
