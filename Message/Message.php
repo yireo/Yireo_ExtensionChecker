@@ -4,31 +4,24 @@ namespace Yireo\ExtensionChecker\Message;
 
 class Message
 {
-    /**
-     * @var string
-     */
-    private $message;
+    private MessageGroupLabels $messageGroupLabels;
+    private string $message;
+    private string $group;
+    private string $suggestion;
 
     /**
-     * @var string
-     */
-    private $group;
-
-    /**
-     * @var string
-     */
-    private $suggestion;
-
-    /**
+     * @param MessageGroupLabels $messageGroupLabels
      * @param string $message
      * @param string $group
      * @param string $suggestion
      */
     public function __construct(
+        MessageGroupLabels $messageGroupLabels,
         string $message,
         string $group,
         string $suggestion = '',
     ) {
+        $this->messageGroupLabels = $messageGroupLabels;
         $this->message = $message;
         $this->group = $group;
         $this->suggestion = $suggestion;
@@ -55,7 +48,7 @@ class Message
      */
     public function getGroupLabel(): string
     {
-        $groupLabels = MessageBucket::getGroupLabels();
+        $groupLabels = $this->messageGroupLabels->get();
         if (isset($groupLabels[$this->getGroup()])) {
             return $groupLabels[$this->getGroup()];
         }
