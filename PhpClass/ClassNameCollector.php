@@ -183,7 +183,7 @@ class ClassNameCollector
         $class = '';
 
         foreach ($tokens as $token) {
-            if (is_array($token) && ($token[0] === T_CLASS || $token[0] === T_INTERFACE)) {
+            if (is_array($token) && ($token[0] === T_CLASS || $token[0] === T_INTERFACE || $token[0] === T_TRAIT)) {
                 $foundClass = true;
             }
 

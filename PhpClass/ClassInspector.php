@@ -72,7 +72,7 @@ class ClassInspector
     public function setClassName(string $className)
     {
         try {
-            $classExists = class_exists($className) || interface_exists($className);
+            $classExists = class_exists($className) || interface_exists($className) || trait_exists($className);
         } catch (Throwable $throwable) {
             $classExists = false;
         }
@@ -91,6 +91,10 @@ class ClassInspector
      */
     public function getDependencies(): array
     {
+        if (!$this->isInstantiable($this->className)) {
+            return [];
+        }
+
         $object = $this->getReflectionObject();
         $dependencies = [];
         $constructor = $object->getConstructor();
@@ -102,7 +106,7 @@ class ClassInspector
                 }
 
                 $dependency = $this->normalizeClassName($parameter->getType()->getName());
-                if (!class_exists($dependency) && !interface_exists($dependency)) {
+                if (!class_exists($dependency) && !interface_exists($dependency) && !trait_exists($dependency)) {
                     continue;
                 }
 
@@ -225,6 +229,10 @@ class ClassInspector
      */
     private function isInstantiable($className): bool
     {
+        if (trait_exists($className)) {
+            return false;
+        }
+
         $instanceType = $this->objectManagerConfig->getPreference($className);
         if (empty($instanceType)) {
             return class_exists($className) || interface_exists($className);
