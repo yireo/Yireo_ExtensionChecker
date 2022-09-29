@@ -124,11 +124,11 @@ class ScanCommand extends Command
             }
 
             $output->writeln($this->serializer->serialize($outputData));
-            return empty($messageGroups) ? 0 : 1;
+            return empty($messages) ? 0 : 1;
         }
 
         if (empty($messages)) {
-            return 1;
+            return 0;
         }
 
         $table = new Table($output);
@@ -148,6 +148,6 @@ class ScanCommand extends Command
 
         $table->render();
 
-        return 0;
+        return 1;
     }
 }
