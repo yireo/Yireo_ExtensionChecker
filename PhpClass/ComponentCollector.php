@@ -5,6 +5,7 @@ namespace Yireo\ExtensionChecker\PhpClass;
 use ReflectionException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
+use Yireo\ExtensionChecker\Exception\NoClassNameException;
 
 class ComponentCollector
 {
@@ -29,7 +30,7 @@ class ComponentCollector
         foreach ($classNames as $className) {
             try {
                 $component = $this->classInspector->setClassName($className)->getComponentByClass();
-            } catch (ReflectionException|ComponentNotFoundException $e) {
+            } catch (ReflectionException|ComponentNotFoundException|NoClassNameException $e) {
                 continue;
             }
 

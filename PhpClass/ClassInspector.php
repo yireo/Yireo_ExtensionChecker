@@ -47,7 +47,7 @@ class ClassInspector
      * @return $this
      * @throws NoClassNameException
      */
-    public function setClassName(string $className)
+    public function setClassName(string $className): ClassInspector
     {
         try {
             $classExists = class_exists($className) || interface_exists($className) || trait_exists($className);
@@ -55,7 +55,7 @@ class ClassInspector
             $classExists = false;
         }
 
-        if (!$classExists) {
+        if (false === $classExists) {
             throw new NoClassNameException('Class "' . $className . '" does not exist');
         }
 

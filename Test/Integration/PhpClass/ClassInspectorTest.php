@@ -55,16 +55,4 @@ class ClassInspectorTest extends TestCase
         $classInspector->setClassName(ProductRepositoryInterface::class);
         $this->assertEquals('magento/module-catalog', $classInspector->getPackageByClass());
     }
-
-    public function testGetStringTokensFromFilename()
-    {
-        $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
-        $classInspector->setClassName(self::class);
-        $stringTokens = $classInspector->getStringTokensFromFilename();
-        $this->assertNotEmpty($stringTokens);
-        $this->assertContains('strict_types', $stringTokens);
-        $this->assertContains('ClassInspectorTest', $stringTokens);
-        $this->assertContains('ObjectManager', $stringTokens);
-        $this->assertContains('assertContains', $stringTokens);
-    }
 }

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Support for imported namespaces separated by comma
+- Prevent incorrect imported namespaces from causing issues
 
 # [2.0.2] = 29 September 2022
 ### Fixed

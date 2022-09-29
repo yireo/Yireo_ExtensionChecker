@@ -4,6 +4,7 @@ namespace Yireo\ExtensionChecker\Test\Integration\Composer;
 
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
+use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 use Yireo\ExtensionChecker\PhpClass\Tokenizer;
 
 class TokenizerTest extends TestCase

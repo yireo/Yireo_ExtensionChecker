@@ -4,6 +4,7 @@ namespace Yireo\ExtensionChecker\ComponentDetector;
 
 use ReflectionException;
 use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
@@ -51,14 +52,18 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     /**
      * @param string[] $classNames
      * @return Component[]
-     * @throws ReflectionException
      */
     private function scanClassesForPhpExtensions(array $classNames): array
     {
         $components = [];
         $stringTokens = [];
         foreach ($classNames as $className) {
-            $fileName = $this->classInspector->setClassName($className)->getFilename();
+            try {
+                $fileName = $this->classInspector->setClassName($className)->getFilename();
+            } catch(NoClassNameException $noClassNameException) {
+                continue;
+            }
+
             $newTokens = $this->tokenizer->getStringTokensFromFilename($fileName);
             $stringTokens = array_merge($stringTokens, $newTokens);
         }
