@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Support for imported namespaces separated by comma
+
 # [2.0.2] = 29 September 2022
 ### Fixed
 - Detect imported classes in a filename manually using a simple regex

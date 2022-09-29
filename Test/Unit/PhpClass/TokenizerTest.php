@@ -16,10 +16,13 @@ class TokenizerTest extends TestCase
         $source = <<<EOF
 use Foo\Bar;
 use Foo2\Bar as Foo2Bar;
+use Foo3\Bar as Foo3Bar, Foo4\Bar;
 EOF;
 
         $importedClassnames = $tokenizer->getImportedClassnamesFromSource($source);
         $this->assertContains('Foo\Bar', $importedClassnames);
         $this->assertContains('Foo2\Bar', $importedClassnames);
+        $this->assertContains('Foo3\Bar', $importedClassnames);
+        $this->assertContains('Foo4\Bar', $importedClassnames);
     }
 }
