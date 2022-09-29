@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\PhpClass;
 
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManager\ConfigInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -112,7 +114,10 @@ class ClassInspector
             $dependencies[] = $interfaceName;
         }
 
-        // @todo: Detect static calls (like Composer\Semver\Semver::satisfies() in this codebase)
+        $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
+        foreach ($importedClasses as $importedClass) {
+            $dependencies[] = $importedClass;
+        }
 
         return $dependencies;
     }
@@ -138,7 +143,8 @@ class ClassInspector
     /**
      * @return Component
      * @throws ReflectionException
-     * @throws ComponentNotFoundException
+     * @throws FileSystemException
+     * @throws NotFoundException
      */
     public function getComponentByClass(): Component
     {
@@ -180,22 +186,17 @@ class ClassInspector
     }
 
     /**
-     * @return string[]
+     * @return string
      */
-    public function getStringTokensFromFilename(): array
+    public function getFilename(): string
     {
         try {
             $object = $this->getReflectionObject();
         } catch (ReflectionException $e) {
-            return [];
+            return '';
         }
 
-        $filename = $object->getFileName();
-        if (empty($filename)) {
-            return [];
-        }
-
-        return $this->tokenizer->getStringTokensFromFilename($filename);
+        return (string)$object->getFileName();
     }
 
     /**

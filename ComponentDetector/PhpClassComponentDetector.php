@@ -7,6 +7,7 @@ use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
+use Yireo\ExtensionChecker\PhpClass\Tokenizer;
 
 /**
  * Detect components from a module its PHP classes
@@ -16,20 +17,24 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     private ClassInspector $classInspector;
     private ModuleCollector $moduleCollector;
     private ComponentCollector $componentCollector;
+    private Tokenizer $tokenizer;
 
     /**
      * @param ClassInspector $classInspector
      * @param ModuleCollector $moduleCollector
      * @param ComponentCollector $componentCollector
+     * @param Tokenizer $tokenizer
      */
     public function __construct(
         ClassInspector $classInspector,
         ModuleCollector $moduleCollector,
-        ComponentCollector $componentCollector
+        ComponentCollector $componentCollector,
+        Tokenizer $tokenizer
     ) {
         $this->classInspector = $classInspector;
         $this->moduleCollector = $moduleCollector;
         $this->componentCollector = $componentCollector;
+        $this->tokenizer = $tokenizer;
     }
 
     /**
@@ -53,7 +58,8 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
         $components = [];
         $stringTokens = [];
         foreach ($classNames as $className) {
-            $newTokens = $this->classInspector->setClassName($className)->getStringTokensFromFilename();
+            $fileName = $this->classInspector->setClassName($className)->getFilename();
+            $newTokens = $this->tokenizer->getStringTokensFromFilename($fileName);
             $stringTokens = array_merge($stringTokens, $newTokens);
         }
 

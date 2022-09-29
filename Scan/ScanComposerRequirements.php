@@ -59,6 +59,11 @@ class ScanComposerRequirements
             return;
         }
 
+        // @todo: Find a better way to determine this
+        if (in_array($component->getPackageName(), ['symfony/console'])) {
+            return;
+        }
+
         $packageName = $component->getPackageName();
         $version = $component->getPackageVersion();
         $message = 'No composer dependency found for "' . $packageName . '"';

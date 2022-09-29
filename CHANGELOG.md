@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.0.2] = 29 September 2022
+### Fixed
+- Detect imported classes in a filename manually using a simple regex
+
 # [2.0.1] = 28 September 2022
 ### Fixed
 - Fixed PHP 7.4 compat issue in Message/Message.php
