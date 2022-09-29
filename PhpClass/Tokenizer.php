@@ -65,7 +65,7 @@ class Tokenizer
 
         $importedClassNames = [];
         foreach ($matches[1] as $match) {
-            $match = preg_replace('/ as ([^\,\;]+)/', '', $match);
+            $match = preg_replace('/ as ([^,;]+)/', '', $match);
             $submatches = explode(',', $match);
             foreach ($submatches as $submatch) {
                 $importedClassNames[] = trim($submatch);
