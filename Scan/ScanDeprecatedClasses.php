@@ -2,6 +2,7 @@
 
 namespace Yireo\ExtensionChecker\Scan;
 
+use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
@@ -23,11 +24,20 @@ class ScanDeprecatedClasses
         $this->moduleCollector = $moduleCollector;
     }
 
+    /**
+     * @param string $moduleName
+     * @return void
+     */
     public function scan(string $moduleName)
     {
         $classNames = $this->moduleCollector->getClassNamesFromModule($moduleName);
         foreach ($classNames as $className) {
-            $this->classInspector->setClassName($className);
+            try {
+                $this->classInspector->setClassName($className);
+            } catch(NoClassNameException $noClassNameException) {
+                continue;
+            }
+
             if ($this->classInspector->isDeprecated()) {
                 $message = 'Usage of class "' . $className . '" is deprecated';
                 $this->messageBucket->add($message, MessageGroupLabels::GROUP_PHP_DEPRECATED);

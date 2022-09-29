@@ -40,6 +40,14 @@ class ClassNameCollector
                 continue;
             }
 
+            if (strstr($file, '/_files/')) {
+                continue;
+            }
+
+            if (strstr($file, '/Test/Mftf/') || strstr($file, '/Test/Fixture/')) {
+                continue;
+            }
+
             try {
                 $classNames[] = $this->getClassNameFromFile($file);
             } catch (Throwable $e) {
