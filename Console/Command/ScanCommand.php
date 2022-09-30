@@ -18,8 +18,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
+use Yireo\ExtensionChecker\Message\Message;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Scan\Scan;
 
@@ -118,15 +120,39 @@ class ScanCommand extends Command
         $messages = $this->messageBucket->getMessages();
 
         if ((string)$input->getOption('format') === 'json') {
-            $outputData = [];
-            foreach ($messages as $message) {
-                $outputData[] = $message->toArray();
-            }
-
-            $output->writeln($this->serializer->serialize($outputData));
-            return empty($messages) ? 0 : 1;
+            return $this->outputJson($output, $messages);
         }
 
+        return $this->outputTable($output, $messages);
+    }
+
+    /**
+     * @param Output $output
+     * @param Message[] $messages
+     * @return int
+     */
+    private function outputJson(OutputInterface $output, array $messages = []): int
+    {
+        $outputData = [];
+        foreach ($messages as $message) {
+            if (!$output->isVerbose() && $message->isDebug()) {
+                continue;
+            }
+
+            $outputData[] = $message->toArray();
+        }
+
+        $output->writeln($this->serializer->serialize($outputData));
+        return empty($messages) ? 0 : 1;
+    }
+
+    /**
+     * @param Output $output
+     * @param Message[] $messages
+     * @return int
+     */
+    private function outputTable(OutputInterface $output, array $messages = []): int
+    {
         if (empty($messages)) {
             return 0;
         }
@@ -139,6 +165,10 @@ class ScanCommand extends Command
         ]);
 
         foreach ($messages as $message) {
+            if (!$output->isVerbose() && $message->isDebug()) {
+                continue;
+            }
+
             $table->addRow([
                 $message->getMessage(),
                 $message->getGroupLabel(),
@@ -147,7 +177,6 @@ class ScanCommand extends Command
         }
 
         $table->render();
-
         return 1;
     }
 }

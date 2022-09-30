@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Only show exception messages in output with verbosity set
+
 # [2.0.3] = 29 September 2022
 ### Fixed
 - Skip various needless errors

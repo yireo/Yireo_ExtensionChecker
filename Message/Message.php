@@ -57,6 +57,14 @@ class Message
     }
 
     /**
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return $this->getGroup() === MessageGroupLabels::GROUP_EXCEPTION;
+    }
+
+    /**
      * @return string
      */
     public function getSuggestion(): string
