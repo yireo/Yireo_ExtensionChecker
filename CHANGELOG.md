@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.0.4] = 29 September 2022
 ### Fixed
 - Only show exception messages in output with verbosity set
+- Additional tests and fixes
 
 # [2.0.3] = 29 September 2022
 ### Fixed
