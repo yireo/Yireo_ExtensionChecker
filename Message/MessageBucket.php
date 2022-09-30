@@ -46,4 +46,12 @@ class MessageBucket
             'suggestion' => $suggestion
         ]);
     }
+
+    /**
+     * @return void
+     */
+    public function clean()
+    {
+        $this->messages = [];
+    }
 }

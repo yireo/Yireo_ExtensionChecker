@@ -2,24 +2,24 @@
 
 namespace Yireo\ExtensionChecker\PhpClass;
 
-use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\FinderFactory;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
 
 class FileCollector
 {
     /**
-     * @var Finder
+     * @var FinderFactory
      */
-    private $finder;
+    private $finderFactory;
 
     /**
      * ClassNameCollector constructor.
-     * @param Finder $finder
+     * @param FinderFactory $finderFactory
      */
     public function __construct(
-        Finder $finder
+        FinderFactory $finderFactory
     ) {
-        $this->finder = $finder;
+        $this->finderFactory = $finderFactory;
     }
 
     /**
@@ -29,10 +29,11 @@ class FileCollector
      */
     public function getFilesFromFolder(string $folder): array
     {
-        $this->finder->files()->in($folder);
+        $finder = $this->finderFactory->create();
+        $finder->files()->in($folder);
 
         $files = [];
-        foreach ($this->finder as $file) {
+        foreach ($finder as $file) {
             if (!preg_match('/\.php$/', $file->getRelativePathname())) {
                 continue;
             }

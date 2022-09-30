@@ -1,11 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Test\Integration\Composer;
+namespace Yireo\ExtensionChecker\Test\Integration\PhpClass;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\ProductRepository;
+use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\App\ObjectManager;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
+use Magento\Framework\Module\PackageInfo;
 use Magento\Framework\Registry;
 use Magento\Framework\UrlInterface;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +24,7 @@ class ClassInspectorTest extends TestCase
         $classInspector->setClassName(ProductRepository::class);
         $dependencies = $classInspector->getDependencies();
         $this->assertNotEmpty($dependencies);
-        $this->assertContains(SearchCriteriaBuilder::class, $dependencies, var_export($dependencies, true));
+        $this->assertContains(SearchCriteriaInterface::class, $dependencies, var_export($dependencies, true));
     }
 
     public function testIsDeprecated()
@@ -32,13 +37,20 @@ class ClassInspectorTest extends TestCase
         $this->assertFalse($classInspector->isDeprecated());
     }
 
-    public function testGetComponentByClass()
+    /**
+     * @param string $className
+     * @param string $componentName
+     * @return void
+     * @throws FileSystemException
+     * @throws NotFoundException
+     * @throws \ReflectionException
+     * @dataProvider getComponentByClassProvider
+     */
+    public function testGetComponentByClass(string $className, string $componentName)
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
-        $classInspector->setClassName(ProductRepositoryInterface::class);
-        $component = $classInspector->getComponentByClass();
-        $this->assertEquals('Magento_Catalog', $component->getComponentName());
-        $this->assertEquals('module', $component->getComponentType());
+        $component = $classInspector->setClassName($className)->getComponentByClass();
+        $this->assertEquals($componentName, $component->getComponentName());
 
         $classInspector->setClassName(UrlInterface::class);
         $component = $classInspector->getComponentByClass();
@@ -54,5 +66,14 @@ class ClassInspectorTest extends TestCase
 
         $classInspector->setClassName(ProductRepositoryInterface::class);
         $this->assertEquals('magento/module-catalog', $classInspector->getPackageByClass());
+    }
+
+    public function getComponentByClassProvider(): array
+    {
+        return [
+            [PackageInfo::class, 'magento/framework'],
+            [CustomerRepositoryInterface::class, 'Magento_Customer'],
+            [ClassInspectorTest::class, 'Yireo_ExtensionChecker'],
+        ];
     }
 }

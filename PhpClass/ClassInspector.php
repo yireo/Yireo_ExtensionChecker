@@ -49,18 +49,35 @@ class ClassInspector
      */
     public function setClassName(string $className): ClassInspector
     {
-        try {
-            $classExists = class_exists($className) || interface_exists($className) || trait_exists($className);
-        } catch (Throwable $throwable) {
-            $classExists = false;
-        }
-
-        if (false === $classExists) {
+        if (false === $this->isClassExists($className)) {
             throw new NoClassNameException('Class "' . $className . '" does not exist');
         }
 
         $this->className = $className;
         return $this;
+    }
+
+    /**
+     * @param $className
+     * @return bool
+     */
+    private function isClassExists($className): bool
+    {
+        try {
+            return class_exists($className) || interface_exists($className) || trait_exists($className);
+        } catch (Throwable $throwable) {
+        }
+
+        if (preg_match('/Factory$/', $className)) {
+            $className = preg_replace('/Factory$/', '', $className);
+        }
+
+        try {
+            return class_exists($className) || interface_exists($className) || trait_exists($className);
+        } catch (Throwable $throwable) {
+        }
+
+        return false;
     }
 
     /**
@@ -84,7 +101,7 @@ class ClassInspector
                 }
 
                 $dependency = $this->normalizeClassName($parameter->getType()->getName());
-                if (!class_exists($dependency) && !interface_exists($dependency) && !trait_exists($dependency)) {
+                if ($this->isClassExists($dependency)) {
                     continue;
                 }
 
@@ -102,7 +119,7 @@ class ClassInspector
 
         $interfaceNames = $object->getInterfaceNames();
         foreach ($interfaceNames as $interfaceName) {
-            if (!interface_exists($interfaceName)) {
+            if (!$this->isClassExists($interfaceName)) {
                 continue;
             }
 
