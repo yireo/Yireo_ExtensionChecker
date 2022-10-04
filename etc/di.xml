@@ -20,6 +20,7 @@
         <arguments>
             <argument name="componentDetectors" xsi:type="array">
                 <item name="php_class" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector</item>
+                <item name="xml_layout" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector</item>
                 <item name="guess" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\GuessComponentDetector</item>
             </argument>
         </arguments>
