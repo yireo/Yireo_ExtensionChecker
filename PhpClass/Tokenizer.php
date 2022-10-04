@@ -3,6 +3,11 @@
 namespace Yireo\ExtensionChecker\PhpClass;
 
 use Magento\Framework\Filesystem\File\ReadFactory;
+use PhpParser\Node\Name\FullyQualified;
+use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor\NameResolver;
+use PhpParser\ParserFactory;
 
 class Tokenizer
 {
@@ -59,20 +64,21 @@ class Tokenizer
      */
     public function getImportedClassnamesFromSource(string $source): array
     {
-        if (!preg_match_all('/^use (.*)\;$/m', $source, $matches)) {
-            return [];
+        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $traverser = new NodeTraverser;
+        $traverser->addVisitor(new NameResolver);
+        $stmts = $parser->parse($source);
+        $stmts = $traverser->traverse($stmts);
+
+        $usedClassNames = [];
+
+        $nodeFinder = new NodeFinder();
+        $nodes = $nodeFinder->findInstanceOf($stmts, FullyQualified::class);
+        foreach ($nodes as $node) {
+            $usedClassNames[] = $node->toString();
         }
 
-        $importedClassNames = [];
-        foreach ($matches[1] as $match) {
-            $match = preg_replace('/ as ([^,;]+)/', '', $match);
-            $submatches = explode(',', $match);
-            foreach ($submatches as $submatch) {
-                $importedClassNames[] = trim($submatch);
-            }
-        }
-
-        return $importedClassNames;
+        return array_unique($usedClassNames);
     }
 
     /**

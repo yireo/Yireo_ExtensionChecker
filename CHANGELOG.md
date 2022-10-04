@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+# [2.1.0] = 4 October 2022
+### Added
 - Added GitHub Actions for integration tests
+- Use `nikic/php-parser` to better detect used FQCN
 
 # [2.0.4] = 29 September 2022
 ### Fixed
