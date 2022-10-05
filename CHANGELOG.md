@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.1.1] = 5 October 2022
+### Fixed
+- PHP comma not working in PHP 7.4 (#25 @sprankhub)
+
 # [2.1.0] = 4 October 2022
 ### Added
 - Add XML Layout detector to find component dependencies
