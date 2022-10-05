@@ -19,7 +19,7 @@ class LayoutComponentDetector implements ComponentDetectorInterface
     public function __construct(
         FileCollector $fileCollector,
         ModuleInfo $moduleInfo,
-        ComponentCollector $componentCollector,
+        ComponentCollector $componentCollector
     ) {
         $this->fileCollector = $fileCollector;
         $this->moduleInfo = $moduleInfo;
