@@ -28,7 +28,6 @@ class ModuleCollector
     {
         $moduleFolder = $this->moduleInfo->getModuleFolder($moduleName);
         $files = $this->fileCollector->getFilesFromFolder($moduleFolder);
-        $classNames = $this->classNameCollector->getClassNamesFromFiles($files);
-        return $this->classNameCollector->getDependentClassesFromClasses($classNames);
+        return $this->classNameCollector->getClassNamesFromFiles($files);
     }
 }

@@ -6,6 +6,7 @@ use ReflectionException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Exception\NoClassNameException;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
+use Yireo\ExtensionChecker\PhpClass\ClassNameCollector;
 use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
 use Yireo\ExtensionChecker\PhpClass\Tokenizer;
@@ -19,23 +20,27 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     private ModuleCollector $moduleCollector;
     private ComponentCollector $componentCollector;
     private Tokenizer $tokenizer;
+    private ClassNameCollector $classNameCollector;
 
     /**
      * @param ClassInspector $classInspector
      * @param ModuleCollector $moduleCollector
      * @param ComponentCollector $componentCollector
      * @param Tokenizer $tokenizer
+     * @param ClassNameCollector $classNameCollector
      */
     public function __construct(
         ClassInspector $classInspector,
         ModuleCollector $moduleCollector,
         ComponentCollector $componentCollector,
-        Tokenizer $tokenizer
+        Tokenizer $tokenizer,
+        ClassNameCollector $classNameCollector
     ) {
         $this->classInspector = $classInspector;
         $this->moduleCollector = $moduleCollector;
         $this->componentCollector = $componentCollector;
         $this->tokenizer = $tokenizer;
+        $this->classNameCollector = $classNameCollector;
     }
 
     /**
@@ -45,7 +50,8 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     public function getComponentsByModuleName(string $moduleName): array
     {
         $classNames = $this->moduleCollector->getClassNamesFromModule($moduleName);
-        $components = $this->componentCollector->getComponentsByClasses($classNames);
+        $dependentClassNames = $this->classNameCollector->getDependentClassesFromClasses($classNames);
+        $components = $this->componentCollector->getComponentsByClasses($dependentClassNames);
         return array_merge($components, $this->scanClassesForPhpExtensions($classNames));
     }
 
