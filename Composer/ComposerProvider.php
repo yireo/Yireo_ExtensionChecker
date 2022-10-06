@@ -60,6 +60,19 @@ class ComposerProvider
     }
 
     /**
+     * @param string $packageName
+     * @return bool
+     */
+    public function shouldSuggestVersion(string $packageName): bool
+    {
+        if ($packageName === 'php' || preg_match('/^ext-/', $packageName)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return array[]
      */
     public function getComposerPackages(): array
