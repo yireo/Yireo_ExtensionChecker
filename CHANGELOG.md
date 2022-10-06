@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Remove exception when zero PHP files are found
+
 # [2.1.1] = 5 October 2022
 ### Fixed
 - PHP comma not working in PHP 7.4 (#25 @sprankhub)

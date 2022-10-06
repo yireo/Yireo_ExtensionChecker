@@ -56,10 +56,6 @@ class ClassNameCollector
             }
         }
 
-        if (!count($classNames) > 0) {
-            $this->messageBucket->add('No PHP classes detected for files', MessageGroupLabels::GROUP_EXCEPTION);
-        }
-
         return $classNames;
     }
 
