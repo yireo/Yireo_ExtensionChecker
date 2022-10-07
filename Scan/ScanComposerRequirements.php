@@ -68,7 +68,10 @@ class ScanComposerRequirements
         $version = $component->getPackageVersion();
         $message = 'No composer dependency found for "' . $packageName . '"';
         $suggestion = sprintf('Current version is %s. ', $version);
-        $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        if ($this->composerProvider->shouldSuggestVersion($packageName)) {
+            $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        }
+
         $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $suggestion);
     }
 
@@ -116,7 +119,10 @@ class ScanComposerRequirements
         $version = $this->composerProvider->getVersionByComposerName($requirement);
         $message = 'Composer requirement "' . $requirement . '" set to wilcard version';
         $suggestion = 'Current version is set to *. ';
-        $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        if ($this->composerProvider->shouldSuggestVersion($requirement)) {
+            $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
+        }
+
         $this->messageBucket->add($message, MessageGroupLabels::GROUP_WILDCARD_VERSION, $suggestion);
     }
 

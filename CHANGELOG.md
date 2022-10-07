@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Remove exception when zero PHP files are found
+- Remove exception when zero PHP files are found (#28)
+- Don't suggest version for PHP dep and ext- deps (#27)
 
 # [2.1.1] = 5 October 2022
 ### Fixed

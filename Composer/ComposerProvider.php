@@ -51,6 +51,10 @@ class ComposerProvider
      */
     public function getSuggestedVersion(string $version): string
     {
+        if ($version === '*') {
+            return '';
+        }
+
         $versionParts = explode('.', $version);
         if ((int)$versionParts[0] === 0) {
             return '~' . $version;
