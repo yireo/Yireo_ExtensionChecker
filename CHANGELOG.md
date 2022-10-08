@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed 
 - Make sure that non-namespaced classes are picked up as well (#30)
+- Reimplement flag "hide-needless" again
 
 # [2.1.2] = 7 October 2022
 ### Fixed

@@ -4,6 +4,7 @@ namespace Yireo\ExtensionChecker\Scan;
 
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 
@@ -11,6 +12,7 @@ class ScanModuleXmlDependencies
 {
     private ModuleXmlComponentDetector $moduleXmlComponentDetector;
     private MessageBucket $messageBucket;
+    private RuntimeConfig $runtimeConfig;
 
     /**
      * @param ModuleXmlComponentDetector $moduleXmlComponentDetector
@@ -18,10 +20,12 @@ class ScanModuleXmlDependencies
      */
     public function __construct(
         ModuleXmlComponentDetector $moduleXmlComponentDetector,
-        MessageBucket $messageBucket
+        MessageBucket $messageBucket,
+        RuntimeConfig $runtimeConfig
     ) {
         $this->moduleXmlComponentDetector = $moduleXmlComponentDetector;
         $this->messageBucket = $messageBucket;
+        $this->runtimeConfig = $runtimeConfig;
     }
 
     /**
@@ -60,7 +64,7 @@ class ScanModuleXmlDependencies
                 }
             }
 
-            if (!$isModuleXmlComponentFoundInDetectedComponents) {
+            if (!$isModuleXmlComponentFoundInDetectedComponents && !$this->runtimeConfig->isHideNeedless()) {
                 $message = 'Module "' . $moduleXmlComponent->getComponentName() . '" is possibly not needed in module.xml';
                 $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP);
             }

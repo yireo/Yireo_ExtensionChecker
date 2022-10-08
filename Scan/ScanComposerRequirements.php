@@ -8,6 +8,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 
@@ -16,15 +17,18 @@ class ScanComposerRequirements
     private ComposerFileProvider $composerFileProvider;
     private MessageBucket $messageBucket;
     private ComposerProvider $composerProvider;
+    private RuntimeConfig $runtimeConfig;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         MessageBucket $messageBucket,
-        ComposerProvider $composerProvider
+        ComposerProvider $composerProvider,
+        RuntimeConfig $runtimeConfig
     ) {
         $this->composerFileProvider = $composerFileProvider;
         $this->messageBucket = $messageBucket;
         $this->composerProvider = $composerProvider;
+        $this->runtimeConfig = $runtimeConfig;
     }
 
     /**
@@ -98,6 +102,10 @@ class ScanComposerRequirements
      */
     private function checkIfRequirementIsNeeded(string $requirement, array $components)
     {
+        if ($this->runtimeConfig->isHideNeedless()) {
+            return;
+        }
+
         if ($this->isComposerDependencyNeeded($requirement, $components)) {
             return;
         }
