@@ -166,13 +166,11 @@ class ClassInspector
     public function getComponentByClass(): Component
     {
         $parts = explode('\\', $this->className);
-        if (count($parts) < 2) {
-            throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
-        }
-
-        $moduleName = $parts[0] . '_' . $parts[1];
-        if ($this->moduleInfo->isKnown($moduleName)) {
-            return $this->componentFactory->createByModuleName($moduleName);
+        if (count($parts) >= 2) {
+            $moduleName = $parts[0] . '_' . $parts[1];
+            if ($this->moduleInfo->isKnown($moduleName)) {
+                return $this->componentFactory->createByModuleName($moduleName);
+            }
         }
 
         $package = $this->getPackageByClass();

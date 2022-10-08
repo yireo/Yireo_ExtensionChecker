@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed 
+- Make sure that non-namespaced classes are picked up as well (#30)
+
 ### Fixed
 - Remove exception when zero PHP files are found (#28)
 - Don't suggest version for PHP dep and ext- deps (#27)
