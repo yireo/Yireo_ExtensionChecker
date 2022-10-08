@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.1.3] = 8 October 2022
 ### Added
 - First draft of CLI to check module compat with certain Magento version
 
