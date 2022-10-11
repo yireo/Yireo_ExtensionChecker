@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed 
+- Typo prevents missing module.xml deps to be reported
 - Implement verbose flag with some debugging
 - Set default values for RuntimeConfig
 

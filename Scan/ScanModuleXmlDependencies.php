@@ -38,7 +38,7 @@ class ScanModuleXmlDependencies
         $moduleXmlComponents = $this->moduleXmlComponentDetector->getComponentsByModuleName($moduleName);
         foreach ($components as $component) {
             if ($component->getComponentType() !== 'module') {
-                break;
+                continue;
             }
 
             $isComponentFoundInModuleXml = false;
