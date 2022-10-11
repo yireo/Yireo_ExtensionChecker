@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed 
+- Implement verbose flag with some debugging
 - Set default values for RuntimeConfig
 
 # [2.1.3] = 8 October 2022
