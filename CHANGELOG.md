@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.1.4] = 11 October 2022
 ### Fixed 
 - Typo prevents missing module.xml deps to be reported
 - Implement verbose flag with some debugging
