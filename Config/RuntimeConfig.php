@@ -4,8 +4,8 @@ namespace Yireo\ExtensionChecker\Config;
 
 class RuntimeConfig
 {
-    private bool $hideDeprecated;
-    private bool $hideNeedless;
+    private bool $hideDeprecated = false;
+    private bool $hideNeedless = false;
 
     /**
      * @param bool $hideDeprecated
