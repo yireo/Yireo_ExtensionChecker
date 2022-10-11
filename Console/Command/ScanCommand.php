@@ -115,6 +115,7 @@ class ScanCommand extends Command
 
         $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
         $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
+        $this->runtimeConfig->setVerbose((bool)$output->getVerbosity());
 
         $this->scan->scan($moduleName, $modulePath);
         $messages = $this->messageBucket->getMessages();

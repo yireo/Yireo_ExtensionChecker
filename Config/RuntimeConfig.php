@@ -6,6 +6,7 @@ class RuntimeConfig
 {
     private bool $hideDeprecated = false;
     private bool $hideNeedless = false;
+    private bool $verbose = false;
 
     /**
      * @param bool $hideDeprecated
@@ -41,5 +42,23 @@ class RuntimeConfig
     public function isHideNeedless(): bool
     {
         return $this->hideNeedless;
+    }
+
+    /**
+     * @param bool $verbose
+     * @return RuntimeConfig
+     */
+    public function setVerbose(bool $verbose): RuntimeConfig
+    {
+        $this->verbose = $verbose;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVerbose(): bool
+    {
+        return $this->verbose;
     }
 }

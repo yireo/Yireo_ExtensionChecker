@@ -4,6 +4,7 @@ namespace Yireo\ExtensionChecker\Message;
 
 class MessageGroupLabels
 {
+    const GROUP_DEBUG = 'GROUP_DEBUG';
     const GROUP_EXCEPTION = 'GROUP_EXCEPTION';
     const GROUP_MISSING_COMPOSER_DEP = 'GROUP_MISSING_COMPOSER_DEP';
     const GROUP_UNNECESSARY_COMPOSER_DEP = 'GROUP_UNNECESSARY_COMPOSER_DEP';
@@ -16,6 +17,7 @@ class MessageGroupLabels
     public function get(): array
     {
         return [
+            self::GROUP_DEBUG => 'Debug',
             self::GROUP_EXCEPTION => 'Exception',
             self::GROUP_MISSING_COMPOSER_DEP => 'Missing composer dependency',
             self::GROUP_UNNECESSARY_COMPOSER_DEP => 'Unnecessary composer dependency',

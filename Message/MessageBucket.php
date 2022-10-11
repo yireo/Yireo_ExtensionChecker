@@ -3,26 +3,27 @@
 namespace Yireo\ExtensionChecker\Message;
 
 use Magento\Framework\ObjectManagerInterface;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 
 class MessageBucket
 {
     /**
-     * @var ObjectManagerInterface
-     */
-    private $objectManager;
-
-    /**
      * @var Message[]
      */
-    private $messages = [];
+    private array $messages = [];
+    private ObjectManagerInterface $objectManager;
+    private RuntimeConfig $runtimeConfig;
 
     /**
      * @param ObjectManagerInterface $objectManager
+     * @param RuntimeConfig $runtimeConfig
      */
     public function __construct(
-        ObjectManagerInterface $objectManager
+        ObjectManagerInterface $objectManager,
+        RuntimeConfig $runtimeConfig
     ) {
         $this->objectManager = $objectManager;
+        $this->runtimeConfig = $runtimeConfig;
     }
 
     /**
@@ -45,6 +46,17 @@ class MessageBucket
             'group' => $group,
             'suggestion' => $suggestion
         ]);
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    public function debug(string $message)
+    {
+        if ($this->runtimeConfig->isVerbose()) {
+            $this->add($message, MessageGroupLabels::GROUP_DEBUG);
+        }
     }
 
     /**
