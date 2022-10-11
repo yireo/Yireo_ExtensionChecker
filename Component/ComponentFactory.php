@@ -8,38 +8,48 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
+use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
+use Yireo\ExtensionChecker\Message\MessageBucket;
 
 class ComponentFactory
 {
     private ObjectManagerInterface $objectManager;
     private ComposerFileProvider $composerFileProvider;
     private ComposerProvider $composerProvider;
+    private MessageBucket $messageBucket;
 
     /**
      * @param ObjectManagerInterface $objectManager
      * @param ComposerFileProvider $composerFileProvider
      * @param ComposerProvider $composerProvider
+     * @param MessageBucket $messageBucket
      */
     public function __construct(
         ObjectManagerInterface $objectManager,
         ComposerFileProvider $composerFileProvider,
-        ComposerProvider $composerProvider
+        ComposerProvider $composerProvider,
+        MessageBucket $messageBucket
     ) {
         $this->objectManager = $objectManager;
         $this->composerFileProvider = $composerFileProvider;
         $this->composerProvider = $composerProvider;
+        $this->messageBucket = $messageBucket;
     }
 
     /**
      * @param string $moduleName
      * @return Component
-     * @throws FileSystemException
-     * @throws NotFoundException
      */
     public function createByModuleName(string $moduleName): Component
     {
-        $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
-        $packageName = $composerFile->getName();
+        try {
+            $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
+            $packageName = $composerFile->getName();
+        } catch (FileSystemException|NotFoundException|ModuleNotFoundException $e) {
+            $packageName = '';
+            $this->messageBucket->debug($e->getMessage());
+        }
+
         $packageVersion = $this->composerProvider->getVersionByComposerName($packageName);
 
         return $this->objectManager->create(Component::class, [

@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
@@ -21,9 +20,36 @@
         <arguments>
             <argument name="componentDetectors" xsi:type="array">
                 <item name="php_class" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector</item>
-                <item name="xml_layout" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector</item>
+                <item name="layout" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector</item>
+                <item name="template" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\TemplateComponentDetector</item>
                 <item name="guess" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\GuessComponentDetector</item>
             </argument>
+        </arguments>
+    </type>
+
+    <virtualType type="Yireo\ExtensionChecker\File\FileCollector" name="Yireo\ExtensionChecker\Virtual\LayoutFileCollector">
+        <arguments>
+            <argument name="fileSuffix" xsi:type="string">.xml</argument>
+            <argument name="fileFolder" xsi:type="string">view</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector">
+        <arguments>
+            <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\LayoutFileCollector</argument>
+        </arguments>
+    </type>
+
+    <virtualType type="Yireo\ExtensionChecker\File\FileCollector" name="Yireo\ExtensionChecker\Virtual\TemplateFileCollector">
+        <arguments>
+            <argument name="fileSuffix" xsi:type="string">.phtml</argument>
+            <argument name="fileFolder" xsi:type="string">view</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Yireo\ExtensionChecker\ComponentDetector\TemplateComponentDetector">
+        <arguments>
+            <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\TemplateFileCollector</argument>
         </arguments>
     </type>
 </config>

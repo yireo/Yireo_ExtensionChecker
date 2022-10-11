@@ -5,21 +5,21 @@ namespace Yireo\ExtensionChecker\ComponentDetector;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\File\FileCollectorInterface;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
-use Yireo\ExtensionChecker\ComponentCollector\LayoutComponentCollector;
+use Yireo\ExtensionChecker\ComponentCollector\TemplateComponentCollector;
 
 /**
- * Detect components from a module its XML layout files
+ * Detect components from a module its PHTML template files
  */
-class LayoutComponentDetector implements ComponentDetectorInterface
+class TemplateComponentDetector implements ComponentDetectorInterface
 {
     private FileCollectorInterface $fileCollector;
     private ModuleInfo $moduleInfo;
-    private LayoutComponentCollector $componentCollector;
+    private TemplateComponentCollector $componentCollector;
 
     public function __construct(
         FileCollectorInterface $fileCollector,
         ModuleInfo $moduleInfo,
-        LayoutComponentCollector $componentCollector
+        TemplateComponentCollector $componentCollector
     ) {
         $this->fileCollector = $fileCollector;
         $this->moduleInfo = $moduleInfo;
