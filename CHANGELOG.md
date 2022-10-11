@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.0] = 11 October 2022
 ### Added
 - New template parsing
 - Simple detection of `Hyva_Theme` deps

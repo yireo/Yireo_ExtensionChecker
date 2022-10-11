@@ -31,7 +31,10 @@ class TemplateComponentCollector extends AbstractComponentCollector
         $fileRead = $this->fileReadFactory->create($file, 'file');
         $contents = $fileRead->readAll();
         $components = $this->findComponentsByModuleName($contents);
-        $patterns = ['hyva.modal' => 'Hyva_Theme'];
+        $patterns = [
+            'hyva.modal' => 'Hyva_Theme',
+            '$viewModels->require' => 'Hyva_Theme',
+        ];
         $components = array_merge($components, $this->findComponentsByPattern($contents, $patterns));
         return $components;
     }
