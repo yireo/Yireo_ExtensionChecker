@@ -18,7 +18,7 @@ class LayoutComponentCollector extends AbstractComponentCollector
     public function __construct(
         ComponentFactory $componentFactory,
         FileReadFactory $fileReadFactory,
-        array $patterns = ['hyva_modal' => 'Hyva_Theme'],
+        array $patterns = ['hyva_modal' => 'Hyva_Theme']
     ) {
         parent::__construct($componentFactory);
         $this->fileReadFactory = $fileReadFactory;

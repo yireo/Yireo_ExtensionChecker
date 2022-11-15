@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+# [2.2.2] = 15 November 2022
+### Fixed
+- Fix PHP 7.4 issues
+
 # [2.2.1] = 15 November 2022
 ### Added
 - Detect classnames referred to via Magento CLI `find('console:command')` 

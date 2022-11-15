@@ -75,7 +75,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
         foreach ($classNames as $className) {
             try {
                 $fileName = $this->classInspector->setClassName($className)->getFilename();
-            } catch (NoClassNameException) {
+            } catch (NoClassNameException $noClassNameException) {
                 continue;
             }
 
