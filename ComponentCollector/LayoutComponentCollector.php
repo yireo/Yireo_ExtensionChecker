@@ -10,12 +10,19 @@ class LayoutComponentCollector extends AbstractComponentCollector
 {
     private FileReadFactory $fileReadFactory;
 
+    /**
+     * @var string[]
+     */
+    private array $patterns;
+
     public function __construct(
+        ComponentFactory $componentFactory,
         FileReadFactory $fileReadFactory,
-        ComponentFactory $componentFactory
+        array $patterns = ['hyva_modal' => 'Hyva_Theme'],
     ) {
-        $this->fileReadFactory = $fileReadFactory;
         parent::__construct($componentFactory);
+        $this->fileReadFactory = $fileReadFactory;
+        $this->patterns = $patterns;
     }
 
     /**
@@ -27,8 +34,7 @@ class LayoutComponentCollector extends AbstractComponentCollector
         $fileRead = $this->fileReadFactory->create($file, 'file');
         $contents = $fileRead->readAll();
         $components = $this->findComponentsByModuleName($contents);
-        $patterns = ['hyva_modal' => 'Hyva_Theme'];
-        $components = array_merge($components, $this->findComponentsByPattern($contents, $patterns));
+        $components = array_merge($components, $this->findComponentsByPattern($contents, $this->patterns));
         return $components;
     }
 }

@@ -20,6 +20,7 @@
         <arguments>
             <argument name="componentDetectors" xsi:type="array">
                 <item name="php_class" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector</item>
+                <item name="php_file" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpFileComponentDetector</item>
                 <item name="layout" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector</item>
                 <item name="template" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\TemplateComponentDetector</item>
                 <item name="guess" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\GuessComponentDetector</item>
@@ -37,6 +38,18 @@
     <type name="Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector">
         <arguments>
             <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\LayoutFileCollector</argument>
+        </arguments>
+    </type>
+
+    <virtualType type="Yireo\ExtensionChecker\File\FileCollector" name="Yireo\ExtensionChecker\Virtual\PhpFileCollector">
+        <arguments>
+            <argument name="fileSuffix" xsi:type="string">.php</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Yireo\ExtensionChecker\ComponentDetector\PhpFileComponentDetector">
+        <arguments>
+            <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\PhpFileCollector</argument>
         </arguments>
     </type>
 

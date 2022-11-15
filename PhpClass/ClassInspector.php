@@ -12,6 +12,7 @@ use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\Exception\ComponentNotFoundException;
 use Yireo\ExtensionChecker\Exception\NoClassNameException;
+use Yireo\ExtensionChecker\PhpClass\ClassInspector\ClassDetectorListing;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ClassInspector
@@ -22,6 +23,7 @@ class ClassInspector
     private ConfigInterface $objectManagerConfig;
     private ComponentFactory $componentFactory;
     private ModuleInfo $moduleInfo;
+    private ClassDetectorListing $classDetectorListing;
 
     /**
      * ClassInspector constructor.
@@ -29,17 +31,20 @@ class ClassInspector
      * @param ConfigInterface $objectManagerConfig
      * @param ComponentFactory $componentFactory
      * @param ModuleInfo $moduleInfo
+     * @param ClassDetectorListing $classDetectorListing
      */
     public function __construct(
         Tokenizer $tokenizer,
         ConfigInterface $objectManagerConfig,
         ComponentFactory $componentFactory,
-        ModuleInfo $moduleInfo
+        ModuleInfo $moduleInfo,
+        ClassDetectorListing $classDetectorListing
     ) {
         $this->tokenizer = $tokenizer;
         $this->objectManagerConfig = $objectManagerConfig;
         $this->componentFactory = $componentFactory;
         $this->moduleInfo = $moduleInfo;
+        $this->classDetectorListing = $classDetectorListing;
     }
 
     /**
@@ -92,6 +97,7 @@ class ClassInspector
 
         $object = $this->getReflectionObject();
         $dependencies = [];
+
         $constructor = $object->getConstructor();
         if ($constructor) {
             $parameters = $constructor->getParameters();
@@ -136,7 +142,24 @@ class ClassInspector
             $dependencies[] = $importedClass;
         }
 
+        $dependencies = array_merge($dependencies, $this->getDependenciesFromFileContents($this->getFilename()));
+
         return $dependencies;
+    }
+
+    /**
+     * @param string $fileName
+     * @return string[]
+     */
+    private function getDependenciesFromFileContents(string $fileName): array
+    {
+        $classNames = [];
+        foreach ($this->classDetectorListing->get() as $classDetector) {
+            $fileContents = file_get_contents($fileName);
+            $classNames = array_merge($classNames, $classDetector->getClassNames($fileContents));
+        }
+
+        return $classNames;
     }
 
     /**
