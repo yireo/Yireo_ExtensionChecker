@@ -61,12 +61,21 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
      */
     private function scanClassesForPhpExtensions(array $classNames): array
     {
-        $components = [];
+        $stringTokens = $this->getStringTokensFromClassNames($classNames);
+        return $this->detectPhpExtensionsFromTokens($stringTokens);
+    }
+
+    /**
+     * @param string[] $classNames
+     * @return string[]
+     */
+    private function getStringTokensFromClassNames(array $classNames): array
+    {
         $stringTokens = [];
         foreach ($classNames as $className) {
             try {
                 $fileName = $this->classInspector->setClassName($className)->getFilename();
-            } catch(NoClassNameException $noClassNameException) {
+            } catch (NoClassNameException) {
                 continue;
             }
 
@@ -74,8 +83,18 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
             $stringTokens = array_merge($stringTokens, $newTokens);
         }
 
-        $stringTokens = array_unique($stringTokens);
+        return $stringTokens;
+    }
+
+    /**
+     * @param string[] $stringTokens
+     * @return Component[]
+     */
+    private function detectPhpExtensionsFromTokens(array $stringTokens): array
+    {
+        $components = [];
         $phpExtensions = ['json', 'xml', 'pcre', 'gd', 'bcmath'];
+
         foreach ($phpExtensions as $phpExtension) {
             $phpExtensionFunctions = get_extension_funcs($phpExtension);
             foreach ($phpExtensionFunctions as $phpExtensionFunction) {
