@@ -65,4 +65,10 @@
             <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\TemplateFileCollector</argument>
         </arguments>
     </type>
+
+    <type name="Yireo\ExtensionChecker\PhpClass\ClassInspector\ClassDetectorListing">
+        <arguments>
+            <argument name="commandClassDetector" xsi:type="object">Yireo\ExtensionChecker\PhpClass\CommandClassDetector\Proxy</argument>
+        </arguments>
+    </type>
 </config>

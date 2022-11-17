@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+# [2.2.3] = 17 November 2022
+### Fixed
+- Issue with missing DI proxy during M2 installation (also with Integration Tests) #38
+
 # [2.2.2] = 15 November 2022
 ### Fixed
 - Fix PHP 7.4 issues
