@@ -68,7 +68,7 @@ class ScanComposerRequirements
             return;
         }
 
-        $packageName = $component->getPackageName();
+        $packageName = $component->getPackageName() ?? $component->getComponentName();
         $version = $component->getPackageVersion();
         $message = 'No composer dependency found for "' . $packageName . '"';
         $suggestion = sprintf('Current version is %s. ', $version);
