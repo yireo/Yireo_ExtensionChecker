@@ -68,7 +68,7 @@
 
     <type name="Yireo\ExtensionChecker\PhpClass\ClassInspector\ClassDetectorListing">
         <arguments>
-            <argument name="commandClassDetector" xsi:type="object">Yireo\ExtensionChecker\PhpClass\CommandClassDetector\Proxy</argument>
+            <argument name="commandClassDetector" xsi:type="object">Yireo\ExtensionChecker\PhpClass\ClassInspector\CommandClassDetector\Proxy</argument>
         </arguments>
     </type>
 </config>
