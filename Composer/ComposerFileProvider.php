@@ -3,7 +3,6 @@
 namespace Yireo\ExtensionChecker\Composer;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Serialize\SerializerInterface;
@@ -14,7 +13,6 @@ use Yireo\ExtensionChecker\Util\ModuleInfo;
 
 class ComposerFileProvider
 {
-    private ComponentRegistrar $componentRegistrar;
     private FileDriver $fileDriver;
     private ComposerFileFactory $composerFileFactory;
     private DirectoryList $directoryList;
@@ -23,7 +21,6 @@ class ComposerFileProvider
     private ModuleInfo $moduleInfo;
 
     /**
-     * @param ComponentRegistrar $componentRegistrar
      * @param FileDriver $fileDriver
      * @param ComposerFileFactory $composerFileFactory
      * @param DirectoryList $directoryList
@@ -32,7 +29,6 @@ class ComposerFileProvider
      * @param ModuleInfo $moduleInfo
      */
     public function __construct(
-        ComponentRegistrar $componentRegistrar,
         FileDriver $fileDriver,
         ComposerFileFactory $composerFileFactory,
         DirectoryList $directoryList,
@@ -40,7 +36,6 @@ class ComposerFileProvider
         Shell $shell,
         ModuleInfo $moduleInfo
     ) {
-        $this->componentRegistrar = $componentRegistrar;
         $this->fileDriver = $fileDriver;
         $this->composerFileFactory = $composerFileFactory;
         $this->directoryList = $directoryList;
