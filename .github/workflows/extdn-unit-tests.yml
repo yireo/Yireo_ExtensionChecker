@@ -6,7 +6,6 @@ env:
   MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
   MODULE_NAME: ${{ secrets.MODULE_NAME }}
   COMPOSER_NAME: ${{ secrets.COMPOSER_NAME }}
-  PHPUNIT_FILE: .github/workflows/phpunit_unit_tests.xml
 
 jobs:
   unit-tests:
