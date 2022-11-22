@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- New CLI `yireo_extensionchecker:list-classes`
 
 # [2.2.4] = 17 November 2022
 ### Fixed
