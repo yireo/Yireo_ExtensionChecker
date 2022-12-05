@@ -98,44 +98,12 @@ class ClassInspector
         $object = $this->getReflectionObject();
         $dependencies = [];
 
-        $constructor = $object->getConstructor();
-        if ($constructor) {
-            $parameters = $constructor->getParameters();
-            foreach ($parameters as $parameter) {
-                if (!$parameter->getType()) {
-                    continue;
-                }
-
-                $dependency = $this->normalizeClassName($parameter->getType()->getName());
-                if ($this->isClassExists($dependency)) {
-                    continue;
-                }
-
-                if (in_array($dependency, spl_classes())) {
-                    continue;
-                }
-
-                if ($dependency === 'array') {
-                    continue;
-                }
-
-                $dependencies[] = $this->normalizeClassName($parameter->getType()->getName());
-            }
+        if ($object->getParentClass()) {
+            //$dependencies[] = $object->getParentClass()->getName();
         }
 
-        $interfaceNames = $object->getInterfaceNames();
-        foreach ($interfaceNames as $interfaceName) {
-            if (!$this->isClassExists($interfaceName)) {
-                continue;
-            }
-
-            // @todo: Check if the name has no slashes and conclude that it is built-in?
-            if ($interfaceName === 'ArrayAccess') {
-                continue;
-            }
-
-            $dependencies[] = $interfaceName;
-        }
+        $dependencies = array_merge($dependencies, $this->getDependenciesFromConstructor());
+        $dependencies = array_merge($dependencies, $this->getImplementedInterfaceNames());
 
         $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
         foreach ($importedClasses as $importedClass) {
@@ -143,6 +111,66 @@ class ClassInspector
         }
 
         $dependencies = array_merge($dependencies, $this->getDependenciesFromFileContents($this->getFilename()));
+
+        return $dependencies;
+    }
+
+    /**
+     * @return array
+     * @throws ReflectionException
+     */
+    public function getDependenciesFromConstructor(): array
+    {
+        $constructor = $this->getReflectionObject()->getConstructor();
+        if (!$constructor) {
+            return [];
+        }
+
+        $dependencies = [];
+        $parameters = $constructor->getParameters();
+        foreach ($parameters as $parameter) {
+            if (!$parameter->getType()) {
+                continue;
+            }
+
+            $dependency = $this->normalizeClassName($parameter->getType()->getName());
+            if (!$this->isClassExists($dependency)) {
+                continue;
+            }
+
+            if (in_array($dependency, spl_classes())) {
+                continue;
+            }
+
+            if ($dependency === 'array') {
+                continue;
+            }
+
+            $dependencies[] = $this->normalizeClassName($parameter->getType()->getName());
+        }
+
+        return $dependencies;
+    }
+
+    /**
+     * @return string[]
+     * @throws ReflectionException
+     */
+    public function getImplementedInterfaceNames(): array
+    {
+        $dependencies = [];
+        $interfaceNames = $this->getReflectionObject()->getInterfaceNames();
+        foreach ($interfaceNames as $interfaceName) {
+            if (!$this->isClassExists($interfaceName)) {
+                continue;
+            }
+
+            if ($interfaceName === 'ArrayAccess') {
+                continue;
+            }
+
+            $dependencies[] = $interfaceName;
+        }
 
         return $dependencies;
     }
@@ -287,7 +315,7 @@ class ClassInspector
         }
 
         if ($this->isInstantiable($this->className) === false) {
-            throw new ReflectionException('Class does not exist');
+            throw new ReflectionException('Class "' . $this->className . '" does not exist');
         }
 
         $object = new ReflectionClass($this->className);
