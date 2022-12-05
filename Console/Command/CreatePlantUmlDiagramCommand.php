@@ -5,7 +5,7 @@
  *
  * @package     Yireo_ExtensionChecker
  * @author      Yireo (https://www.yireo.com/)
- * @copyright   Copyright 2018 Yireo (https://www.yireo.com/)
+ * @copyright   Copyright 2022 Yireo (https://www.yireo.com/)
  * @license     Open Source License (OSL v3)
  */
 
@@ -15,7 +15,6 @@ use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
@@ -24,11 +23,9 @@ use Yireo\ExtensionChecker\PhpClass\ClassInspector;
 use Yireo\ExtensionChecker\PhpClass\ClassNameCollector;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
 
-class CreateClassesDiagramCommand extends Command
+class CreatePlantUmlDiagramCommand extends Command
 {
-    private SerializerInterface $serializer;
     private ModuleCollector $moduleCollector;
-    private ClassNameCollector $classNameCollector;
     private ClassInspector $classInspector;
 
     /**
@@ -40,16 +37,12 @@ class CreateClassesDiagramCommand extends Command
      * @param null $name
      */
     public function __construct(
-        SerializerInterface $serializer,
         ModuleCollector $moduleCollector,
-        ClassNameCollector $classNameCollector,
         ClassInspector $classInspector,
         $name = null
     ) {
         parent::__construct($name);
-        $this->serializer = $serializer;
         $this->moduleCollector = $moduleCollector;
-        $this->classNameCollector = $classNameCollector;
         $this->classInspector = $classInspector;
     }
 
@@ -58,8 +51,8 @@ class CreateClassesDiagramCommand extends Command
      */
     protected function configure()
     {
-        $this->setName('yireo_extensionchecker:create-classes-diagram');
-        $this->setDescription('Create classes diagram');
+        $this->setName('yireo_extensionchecker:create-plantuml-diagram');
+        $this->setDescription('Output PlantUML diagram data');
 
         $this->addOption(
             'path',

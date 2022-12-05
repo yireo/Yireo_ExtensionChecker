@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.5] = 5 December 2022
 ### Added
 - New CLI `yireo_extensionchecker:list-classes`
+- New CLI `yireo_extensionchecker:create-plantuml-diagram`
 
 # [2.2.4] = 17 November 2022
 ### Fixed
