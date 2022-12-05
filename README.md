@@ -39,17 +39,11 @@ Class dependencies (injected via the constructor) are traced back to their corre
 
 Also, by tokenizing the PHP source, it is detected whether the `composer.json` file should reflect a specific PHP extension (for example, `ext-json`) when an extension-specific PHP function is used (for example, `json_encode`).
 
-## @todo: Incorrect versioning for dependencies
-When loading dependencies in `composer.json`, semantic versioning should be used to identify the right release for your dependency (major, minor, patch). A wildcard `*` is definitely forbidden. Magento dependencies should be in proper format. All dependencies should have major definitions that are not in the future.
-
 ## @todo: Hard-coded Proxies
 A Proxy is a DI trick which should be configured in the `di.xml` file of a module and not be hard-coded in PHP. The extension could report this.
 
 ## @todo: Check other methods for signature
 If another method than the constructor contains type hints for imported namespaces, those namespaces lead to further dependencies with the module. For example, if a specific method returns an object of type `Magento/ModuleX/SomeInterface` then `Magento_ModuleX` would need to be reported as a dependency.
-
-## @todo: Check for XML files
-Some XML files lead to the requirement (or suggestion?) for other modules. For instance, the existence of a folder `etc/adminhtml/` would require the `Magento_Adminhtml` module.
 
 ## @todo: Scan for `@since`
 Scan class dependencies for `@since` and double-check if this minimum version matches with the composer requirements.
