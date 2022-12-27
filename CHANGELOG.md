@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.6] = 27 December 2022
+### Added
+- Add difference between hard and soft dependencies
+- Add XML-file collector for `etc/` folder
+
+### Fixed
+- Make sure no table is outputted when messages count 0
+
 # [2.2.5] = 5 December 2022
 ### Added
 - New CLI `yireo_extensionchecker:list-classes`

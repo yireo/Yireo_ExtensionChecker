@@ -119,6 +119,11 @@ class ScanCommand extends Command
 
         $this->scan->scan($moduleName, $modulePath);
         $messages = $this->messageBucket->getMessages();
+        foreach ($messages as $messageId => $message) {
+            if (!$output->isVerbose() && $message->isDebug()) {
+                unset($messages[$messageId]);
+            }
+        }
 
         if ((string)$input->getOption('format') === 'json') {
             return $this->outputJson($output, $messages);
@@ -136,10 +141,6 @@ class ScanCommand extends Command
     {
         $outputData = [];
         foreach ($messages as $message) {
-            if (!$output->isVerbose() && $message->isDebug()) {
-                continue;
-            }
-
             $outputData[] = $message->toArray();
         }
 
@@ -154,7 +155,7 @@ class ScanCommand extends Command
      */
     private function outputTable(OutputInterface $output, array $messages = []): int
     {
-        if (empty($messages)) {
+        if (count($messages) < 1) {
             return 0;
         }
 
@@ -166,10 +167,6 @@ class ScanCommand extends Command
         ]);
 
         foreach ($messages as $message) {
-            if (!$output->isVerbose() && $message->isDebug()) {
-                continue;
-            }
-
             $table->addRow([
                 $message->getMessage(),
                 $message->getGroupLabel(),
