@@ -41,6 +41,29 @@ class ComponentDetectorList
 
         $components = array_filter($components, fn ($component) => $component->getComponentName() !== $moduleName);
         $components = array_unique($components, SORT_REGULAR);
+        $components = $this->filterSoftAndHardDuplicates($components);
+
+        return $components;
+    }
+
+    /**
+     * @param Component[] $components
+     * @return void
+     */
+    private function filterSoftAndHardDuplicates(array $components): array
+    {
+        foreach ($components as $index => $component) {
+            if ($component->isHardRequirement()) {
+                continue;
+            }
+
+            foreach ($components as $c) {
+                if ($c->getComponentName() === $component->getComponentName() && $c->isHardRequirement()) {
+                    unset($components[$index]);
+                }
+            }
+        }
+
         return $components;
     }
 }

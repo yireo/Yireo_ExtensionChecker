@@ -39,7 +39,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         }
 
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
-            $components[] = $this->componentFactory->createByModuleName($sequenceModuleName);
+            $components[] = $this->componentFactory->createByModuleName($sequenceModuleName, false);
         }
 
         return $components;

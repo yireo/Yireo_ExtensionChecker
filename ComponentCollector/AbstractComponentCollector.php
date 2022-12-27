@@ -26,7 +26,7 @@ class AbstractComponentCollector
      * @throws FileSystemException
      * @throws NotFoundException
      */
-    protected function findComponentsByModuleName(string $content): array
+    protected function findComponentsByModuleName(string $content, bool $hardRequirement = false): array
     {
         if (!preg_match_all('/([A-Za-z0-9]+)_([A-Za-z0-9]+)::/', $content, $matches)) {
             return [];
@@ -34,7 +34,7 @@ class AbstractComponentCollector
 
         foreach ($matches[0] as $matchIndex => $match) {
             $moduleName = $matches[1][$matchIndex] . '_' . $matches[2][$matchIndex];
-            $components[] = $this->componentFactory->createByModuleName($moduleName);
+            $components[] = $this->componentFactory->createByModuleName($moduleName, $hardRequirement);
         }
 
         return $components;
@@ -47,12 +47,12 @@ class AbstractComponentCollector
      * @throws FileSystemException
      * @throws NotFoundException
      */
-    protected function findComponentsByPattern(string $contents, array $patterns): array
+    protected function findComponentsByPattern(string $contents, array $patterns, bool $hardRequirement = false): array
     {
         $components = [];
         foreach ($patterns as $search => $moduleName) {
             if (strstr($contents, $search)) {
-                $components[] = $this->componentFactory->createByModuleName($moduleName);
+                $components[] = $this->componentFactory->createByModuleName($moduleName, $hardRequirement);
             }
         }
 

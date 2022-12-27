@@ -40,7 +40,7 @@ class ComponentFactory
      * @param string $moduleName
      * @return Component
      */
-    public function createByModuleName(string $moduleName): Component
+    public function createByModuleName(string $moduleName, bool $hardRequirement = false): Component
     {
         try {
             $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
@@ -56,7 +56,8 @@ class ComponentFactory
             'componentName' => $moduleName,
             'componentType' => ComponentRegistrar::MODULE,
             'packageName' => $packageName,
-            'packageVersion' => $packageVersion
+            'packageVersion' => $packageVersion,
+            'hardRequirement' => $hardRequirement
         ]);
     }
 
@@ -65,7 +66,7 @@ class ComponentFactory
      * @param string|null $packageVersion
      * @return Component
      */
-    public function createByLibraryName(string $libraryName, ?string $packageVersion = null): Component
+    public function createByLibraryName(string $libraryName, ?string $packageVersion = null, bool $hardRequirement = false): Component
     {
         if (empty($packageVersion)) {
             $packageVersion = $this->composerProvider->getVersionByComposerName($libraryName);
@@ -75,7 +76,8 @@ class ComponentFactory
             'componentName' => $libraryName,
             'componentType' => ComponentRegistrar::LIBRARY,
             'packageName' => $libraryName,
-            'packageVersion' => $packageVersion
+            'packageVersion' => $packageVersion,
+            'hardRequirement' => $hardRequirement
         ]);
     }
 }

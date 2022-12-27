@@ -103,6 +103,7 @@ class ClassInspector
         }
 
         $dependencies = array_merge($dependencies, $this->getDependenciesFromConstructor());
+        return $dependencies;
         $dependencies = array_merge($dependencies, $this->getImplementedInterfaceNames());
 
         $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
@@ -128,6 +129,7 @@ class ClassInspector
 
         $dependencies = [];
         $parameters = $constructor->getParameters();
+
         foreach ($parameters as $parameter) {
             if (!$parameter->getType()) {
                 continue;
@@ -220,13 +222,13 @@ class ClassInspector
         if (count($parts) >= 2) {
             $moduleName = $parts[0] . '_' . $parts[1];
             if ($this->moduleInfo->isKnown($moduleName)) {
-                return $this->componentFactory->createByModuleName($moduleName);
+                return $this->componentFactory->createByModuleName($moduleName, true);
             }
         }
 
         $package = $this->getPackageByClass();
         if (!empty($package)) {
-            return $this->componentFactory->createByLibraryName($package);
+            return $this->componentFactory->createByLibraryName($package, null, true);
         }
 
         throw new ComponentNotFoundException('No component found for class "' . $this->className . '"');
@@ -310,6 +312,7 @@ class ClassInspector
      */
     private function getReflectionObject(): ReflectionClass
     {
+        return new ReflectionClass($this->className);
         if (isset($this->registry[$this->className])) {
             return $this->registry[$this->className];
         }

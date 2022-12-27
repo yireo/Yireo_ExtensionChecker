@@ -25,23 +25,27 @@ class Component
      * @var string
      */
     private $packageVersion;
+    private bool $hardRequirement;
 
     /**
      * @param string $componentName
      * @param string $componentType
      * @param string $packageName
      * @param string $packageVersion
+     * @param bool $hardRequirement
      */
     public function __construct(
         string $componentName = '',
         string $componentType = ComponentRegistrar::MODULE,
         string $packageName = '',
-        string $packageVersion = ''
+        string $packageVersion = '',
+        bool $hardRequirement = false
     ) {
         $this->componentName = $componentName;
         $this->componentType = $componentType;
         $this->packageName = $packageName;
         $this->packageVersion = $packageVersion;
+        $this->hardRequirement = $hardRequirement;
     }
 
     /**
@@ -74,6 +78,22 @@ class Component
     public function getPackageVersion(): string
     {
         return $this->packageVersion;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHardRequirement(): bool
+    {
+        return $this->hardRequirement;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSoftRequirement(): bool
+    {
+        return !$this->hardRequirement;
     }
 
     /**

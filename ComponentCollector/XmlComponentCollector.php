@@ -8,7 +8,7 @@ use Magento\Framework\Filesystem\File\ReadFactory as FileReadFactory;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 
-class TemplateComponentCollector extends AbstractComponentCollector
+class XmlComponentCollector extends AbstractComponentCollector
 {
     private FileReadFactory $fileReadFactory;
 

@@ -35,7 +35,7 @@ class GuessComponentDetector implements ComponentDetectorInterface
     public function getComponentsByModuleName(string $moduleName): array
     {
         $components = [];
-        $components[] = $this->componentFactory->createByLibraryName('magento/framework');
+        $components[] = $this->componentFactory->createByLibraryName('magento/framework', null, true);
 
         try {
             $moduleFolder = $this->moduleInfo->getModuleFolder($moduleName);
@@ -46,23 +46,27 @@ class GuessComponentDetector implements ComponentDetectorInterface
         }
 
         if (is_dir($moduleFolder . '/Setup') || is_dir($moduleFolder . '/Block')) {
-            $components[] = $this->componentFactory->createByModuleName('Magento_Store');
+            $components[] = $this->componentFactory->createByModuleName('Magento_Store', true);
+        }
+
+        if (is_file($moduleFolder . '/etc/db_schema.xml')) {
+            $components[] = $this->componentFactory->createByModuleName('Magento_Store', true);
         }
 
         if (is_file($moduleFolder . '/etc/schema.graphqls')) {
-            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl');
+            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl', false);
         }
 
         if (is_dir($moduleFolder . '/etc/graphql')) {
-            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl');
+            $components[] = $this->componentFactory->createByModuleName('Magento_GraphQl', false);
         }
 
         if (is_dir($moduleFolder . '/etc/frontend')) {
-            $components[] = $this->componentFactory->createByModuleName('Magento_Store');
+            $components[] = $this->componentFactory->createByModuleName('Magento_Store', false);
         }
 
         if (is_dir($moduleFolder . '/etc/adminhtml')) {
-            $components[] = $this->componentFactory->createByModuleName('Magento_Backend');
+            $components[] = $this->componentFactory->createByModuleName('Magento_Backend', false);
         }
 
         return $components;

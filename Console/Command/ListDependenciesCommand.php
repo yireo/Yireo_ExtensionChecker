@@ -33,10 +33,11 @@ class ListDependenciesCommand extends Command
      * @param null $name
      */
     public function __construct(
-        SerializerInterface $serializer,
+        SerializerInterface   $serializer,
         ComponentDetectorList $componentDetectorList,
-        $name = null
-    ) {
+                              $name = null
+    )
+    {
         parent::__construct($name);
         $this->serializer = $serializer;
         $this->componentDetectorList = $componentDetectorList;
@@ -101,7 +102,13 @@ class ListDependenciesCommand extends Command
         }
 
         $table = new Table($output);
-        $table->setHeaders(['Component name', 'Component type', 'Package name', 'Current version']);
+        $table->setHeaders([
+            'Component name',
+            'Component type',
+            'Package name',
+            'Current version',
+            'Hard requirement'
+        ]);
 
         foreach ($components as $component) {
             $table->addRow([
@@ -109,6 +116,7 @@ class ListDependenciesCommand extends Command
                 $component->getComponentType(),
                 $component->getPackageName(),
                 $component->getPackageVersion(),
+                $component->isHardRequirement() ? 'Yes' : 'No',
             ]);
         }
 

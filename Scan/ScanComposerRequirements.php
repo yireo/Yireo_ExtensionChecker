@@ -59,12 +59,15 @@ class ScanComposerRequirements
      */
     private function scanComponentWithComposerRequirements(Component $component, array $requirements)
     {
+        if ($component->isSoftRequirement()) {
+            return;
+        }
+
         if (array_key_exists($component->getPackageName(), $requirements)) {
             return;
         }
 
-        // @todo: Find a better way to determine this
-        if (in_array($component->getPackageName(), ['symfony/console'])) {
+        if ($component->getPackageName() == 'symfony/console') {
             return;
         }
 

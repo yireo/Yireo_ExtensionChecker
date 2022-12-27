@@ -25,6 +25,7 @@
                 <item name="php_file" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\PhpFileComponentDetector</item>
                 <item name="layout" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\LayoutComponentDetector</item>
                 <item name="template" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\TemplateComponentDetector</item>
+                <item name="xml" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\XmlComponentDetector</item>
                 <item name="guess" xsi:type="object">Yireo\ExtensionChecker\ComponentDetector\GuessComponentDetector</item>
             </argument>
         </arguments>
@@ -65,6 +66,18 @@
     <type name="Yireo\ExtensionChecker\ComponentDetector\TemplateComponentDetector">
         <arguments>
             <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\TemplateFileCollector</argument>
+        </arguments>
+    </type>
+
+    <virtualType type="Yireo\ExtensionChecker\File\FileCollector" name="Yireo\ExtensionChecker\Virtual\XmlFileCollector">
+        <arguments>
+            <argument name="fileSuffix" xsi:type="string">.xml</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Yireo\ExtensionChecker\ComponentDetector\XmlComponentDetector">
+        <arguments>
+            <argument name="fileCollector" xsi:type="object">Yireo\ExtensionChecker\Virtual\XmlFileCollector</argument>
         </arguments>
     </type>
 

@@ -4,10 +4,8 @@ namespace Yireo\ExtensionChecker\ComponentDetector;
 
 use Magento\Framework\Filesystem\File\ReadFactory as FileReadFactory;
 use Yireo\ExtensionChecker\Component\Component;
-use Yireo\ExtensionChecker\ComponentDetector\PhpFileComponentDetector\CommandDetector;
 use Yireo\ExtensionChecker\File\FileCollectorInterface;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
-use Yireo\ExtensionChecker\ComponentCollector\LayoutComponentCollector;
 
 /**
  * Detect components from a module its PHP files
@@ -17,7 +15,6 @@ class PhpFileComponentDetector implements ComponentDetectorInterface
     private FileCollectorInterface $fileCollector;
     private ModuleInfo $moduleInfo;
     private FileReadFactory $fileReadFactory;
-    private CommandDetector $commandDetector;
     private array $phpFileParsers;
 
     public function __construct(

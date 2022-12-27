@@ -103,7 +103,8 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
                         'ext-' . $phpExtension,
                         'library',
                         'ext-' . $phpExtension,
-                        '*'
+                        '*',
+                        true
                     );
                 }
             }

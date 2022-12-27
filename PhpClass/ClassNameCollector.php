@@ -116,6 +116,7 @@ class ClassNameCollector
             $allClassNames = array_merge($allClassNames, $tmpClassNames);
         }
 
+        sort($allClassNames);
         return array_unique($allClassNames);
     }
 

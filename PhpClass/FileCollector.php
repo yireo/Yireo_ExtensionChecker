@@ -34,10 +34,12 @@ class FileCollector
 
         $files = [];
         foreach ($finder as $file) {
+            // Skip non-PHP files
             if (!preg_match('/\.php$/', $file->getRelativePathname())) {
                 continue;
             }
 
+            // Skip test files
             if (str_contains($file->getRelativePathname(), 'Test.php')) {
                 continue;
             }
