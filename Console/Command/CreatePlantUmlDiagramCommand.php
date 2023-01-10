@@ -12,7 +12,6 @@
 namespace Yireo\ExtensionChecker\Console\Command;
 
 use InvalidArgumentException;
-use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface as Input;
@@ -29,11 +28,10 @@ class CreatePlantUmlDiagramCommand extends Command
     private ClassInspector $classInspector;
 
     /**
-     * DeleteRuleCommand constructor.
+     * CreatePlantUmlDiagramCommand constructor.
      *
-     * @param SerializerInterface $serializer
      * @param ModuleCollector $moduleCollector
-     * @param ClassNameCollector $classNameCollector
+     * @param ClassInspector $classInspector
      * @param null $name
      */
     public function __construct(
