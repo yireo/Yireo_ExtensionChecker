@@ -32,12 +32,12 @@ class CreatePlantUmlDiagramCommand extends Command
      *
      * @param ModuleCollector $moduleCollector
      * @param ClassInspector $classInspector
-     * @param null $name
+     * @param string|null $name
      */
     public function __construct(
         ModuleCollector $moduleCollector,
         ClassInspector $classInspector,
-        $name = null
+        string $name = null
     ) {
         parent::__construct($name);
         $this->moduleCollector = $moduleCollector;
