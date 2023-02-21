@@ -2,7 +2,7 @@
   "name": "yireo/magento2-extensionchecker",
   "license": "OSL-3.0",
   "type": "magento2-module",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "homepage": "https://github.com/yireo/Yireo_ExtensionChecker",
   "description": "Scan the code of a Magento module",
   "keywords": [
