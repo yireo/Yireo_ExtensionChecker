@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Add compatibility with older `composer` commands that lack `no-scripts` flag
+
 # [2.2.6] = 27 December 2022
 ### Added
 - Add difference between hard and soft dependencies

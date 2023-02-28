@@ -4,6 +4,7 @@ namespace Yireo\ExtensionChecker\Composer;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Shell;
@@ -29,13 +30,14 @@ class ComposerFileProvider
      * @param ModuleInfo $moduleInfo
      */
     public function __construct(
-        FileDriver $fileDriver,
+        FileDriver          $fileDriver,
         ComposerFileFactory $composerFileFactory,
-        DirectoryList $directoryList,
+        DirectoryList       $directoryList,
         SerializerInterface $serializer,
-        Shell $shell,
-        ModuleInfo $moduleInfo
-    ) {
+        Shell               $shell,
+        ModuleInfo          $moduleInfo
+    )
+    {
         $this->fileDriver = $fileDriver;
         $this->composerFileFactory = $composerFileFactory;
         $this->directoryList = $directoryList;
@@ -98,7 +100,7 @@ class ComposerFileProvider
         }
 
         chdir($this->directoryList->getRoot());
-        $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
+        $output = $this->shell->execute($this->getComposerShowCommand());
         $output = str_replace("\n", ' ', $output);
         $output = preg_replace('/^([^{]+)/m', '', $output);
 
@@ -114,5 +116,29 @@ class ComposerFileProvider
         }
 
         return $installedPackages;
+    }
+
+    /**
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getComposerShowCommand(): string
+    {
+        chdir($this->directoryList->getRoot());
+        $output = $this->shell->execute('composer show --help');
+        $addNoScripts = (bool)strstr($output, '--no-scripts');
+        $addNoPlugins = (bool)strstr($output, '--no-plugins');
+
+        $shellCommand = 'composer show --format=json';
+
+        if ($addNoScripts) {
+            $shellCommand .= ' --no-scripts';
+        }
+
+        if ($addNoPlugins) {
+            $shellCommand .= ' --no-plugins';
+        }
+
+        return $shellCommand;
     }
 }

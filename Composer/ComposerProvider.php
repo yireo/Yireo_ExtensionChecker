@@ -2,30 +2,17 @@
 
 namespace Yireo\ExtensionChecker\Composer;
 
-use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Framework\Shell;
-use Yireo\ExtensionChecker\Exception\ComposerException;
-
 class ComposerProvider
 {
-    private DirectoryList $directoryList;
-    private SerializerInterface $serializer;
-    private Shell $shell;
+    private ComposerFileProvider $composerFileProvider;
 
     /**
-     * @param DirectoryList $directoryList
-     * @param SerializerInterface $serializer
-     * @param Shell $shell
+     * @param ComposerFileProvider $composerFileProvider
      */
     public function __construct(
-        DirectoryList $directoryList,
-        SerializerInterface $serializer,
-        Shell $shell
+        ComposerFileProvider $composerFileProvider
     ) {
-        $this->directoryList = $directoryList;
-        $this->serializer = $serializer;
-        $this->shell = $shell;
+        $this->composerFileProvider = $composerFileProvider;
     }
 
     /**
@@ -81,28 +68,6 @@ class ComposerProvider
      */
     public function getComposerPackages(): array
     {
-        static $composerPackages = [];
-
-        if (!empty($composerPackages)) {
-            return $composerPackages;
-        }
-
-        chdir($this->directoryList->getRoot());
-        $output = $this->shell->execute('composer show --no-scripts --no-plugins --format=json');
-        $output = str_replace("\n", ' ', $output);
-        $output = preg_replace('/^([^{]+)/m', '', $output);
-
-        $packages = $this->serializer->unserialize($output);
-        if (!isset($packages['installed'])) {
-            throw new ComposerException('No installed packages found');
-        }
-
-        $composerPackages = $packages['installed'];
-
-        if (empty($composerPackages)) {
-            throw new ComposerException('No installed packages found');
-        }
-
-        return $composerPackages;
+        return $this->composerFileProvider->getAllComposerNames();
     }
 }
