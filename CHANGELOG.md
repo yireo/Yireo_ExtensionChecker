@@ -6,15 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-<<<<<<< HEAD
-# [2.2.7] = 21 February 2023
-### Fixed
-- Argument type compilation error
-=======
 # [2.2.8] = 28 February 2023
 ### Fixed
 - Add compatibility with older `composer` commands that lack `no-scripts` flag
->>>>>>> f39d2fde9eb627b56383e8494d16e886b2ffb97f
+
+# [2.2.7] = 21 February 2023
+### Fixed
+- Argument type compilation error
 
 # [2.2.6] = 27 December 2022
 ### Added
