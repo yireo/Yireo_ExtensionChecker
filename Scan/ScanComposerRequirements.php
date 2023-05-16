@@ -128,7 +128,7 @@ class ScanComposerRequirements
         }
 
         $version = $this->composerProvider->getVersionByComposerName($requirement);
-        $message = 'Composer requirement "' . $requirement . '" set to wilcard version';
+        $message = 'Composer requirement "' . $requirement . '" set to wildcard version';
         $suggestion = 'Current version is set to *. ';
         if ($this->composerProvider->shouldSuggestVersion($requirement)) {
             $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
