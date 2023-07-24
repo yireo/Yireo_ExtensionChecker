@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add compatibility with older `composer` commands that lack `no-scripts` flag
 
+# [2.2.7] = 21 February 2023
+### Fixed
+- Argument type compilation error
+
 # [2.2.6] = 27 December 2022
 ### Added
 - Add difference between hard and soft dependencies
