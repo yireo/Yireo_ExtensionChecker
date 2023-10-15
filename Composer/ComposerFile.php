@@ -3,11 +3,9 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Composer;
 
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Framework\Shell;
 use RuntimeException;
 
 class ComposerFile
@@ -18,29 +16,22 @@ class ComposerFile
 
     /**
      * Composer constructor.
-     * @param DirectoryList $directoryList
      * @param ReadFactory $readFactory
      * @param SerializerInterface $serializer
-     * @param Shell $shell
      * @param string $composerFile
      */
     public function __construct(
-        DirectoryList $directoryList,
         ReadFactory $readFactory,
         SerializerInterface $serializer,
-        Shell $shell,
         string $composerFile
     ) {
-        $this->directoryList = $directoryList;
         $this->readFactory = $readFactory;
         $this->serializer = $serializer;
-        $this->shell = $shell;
         $this->composerFile = $composerFile;
     }
 
     /**
      * @return array
-     * @throws NotFoundException
      */
     public function getData(): array
     {
@@ -57,7 +48,7 @@ class ComposerFile
     /**
      * @param string $keyName
      * @return mixed
-     * @throws NotFoundException
+     * @throws RuntimeException
      */
     public function get(string $keyName)
     {

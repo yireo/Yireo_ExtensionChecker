@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.9] = 15 October 2023
+### Fixed
+- Cleanup old code with dynamic properties
+
 # [2.2.8] = 28 February 2023
 ### Fixed
 - Add compatibility with older `composer` commands that lack `no-scripts` flag
