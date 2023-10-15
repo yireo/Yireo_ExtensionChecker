@@ -98,6 +98,7 @@ class CheckMagentoVersionCommand extends Command
         if (file_exists($magentoVersionFile)) {
             $magentoVersionComposerData = json_decode(file_get_contents($magentoVersionFile), true);
         } else {
+            // phpcs:ignore
             exec('composer show magento/product-community-edition ' . $magentoVersion . ' --format json -a', $output);
             $magentoVersionComposerString = implode("\n", $output);
             file_put_contents($magentoVersionFile, $magentoVersionComposerString);
