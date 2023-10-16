@@ -31,7 +31,8 @@ class AbstractComponentCollector
         if (!preg_match_all('/([A-Za-z0-9]+)_([A-Za-z0-9]+)::/', $content, $matches)) {
             return [];
         }
-
+        
+        $components = [];
         foreach ($matches[0] as $matchIndex => $match) {
             $moduleName = $matches[1][$matchIndex] . '_' . $matches[2][$matchIndex];
             $components[] = $this->componentFactory->createByModuleName($moduleName, $hardRequirement);
