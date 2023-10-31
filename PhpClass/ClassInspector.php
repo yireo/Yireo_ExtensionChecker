@@ -103,7 +103,6 @@ class ClassInspector
         }
 
         $dependencies = array_merge($dependencies, $this->getDependenciesFromConstructor());
-        return $dependencies;
         $dependencies = array_merge($dependencies, $this->getImplementedInterfaceNames());
 
         $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
