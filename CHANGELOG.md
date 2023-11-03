@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.2.10] = 3 November 2023
+### Fixed
+- Detect more dependencies
+
 # [2.2.9] = 15 October 2023
 ### Fixed
 - Cleanup old code with dynamic properties
