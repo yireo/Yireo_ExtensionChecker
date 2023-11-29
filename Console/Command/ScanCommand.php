@@ -117,7 +117,12 @@ class ScanCommand extends Command
         $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
         $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
 
-        $this->scan->scan($moduleName, $modulePath);
+        $moduleNameArray = explode(',', $moduleName);
+
+        foreach ($moduleNameArray as $moduleName) {
+            $this->scan->scan($moduleName, $modulePath);
+        }
+
         $messages = $this->messageBucket->getMessages();
         foreach ($messages as $messageId => $message) {
             if (!$output->isVerbose() && $message->isDebug()) {
