@@ -121,7 +121,7 @@ class ScanCommand extends Command
         $modulePathArray = explode(',', $modulePath);
 
         foreach ($moduleNameArray as $key => $moduleName) {
-            $modulePath = empty($moduleName) && $modulePathArray[$key] ?? '';
+            $modulePath = (empty($moduleName) && $modulePathArray[$key]) ? $modulePathArray[$key] : '';
             $this->scan->scan($moduleName, $modulePath);
         }
 
