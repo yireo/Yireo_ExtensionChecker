@@ -118,8 +118,10 @@ class ScanCommand extends Command
         $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
 
         $moduleNameArray = explode(',', $moduleName);
+        $modulePathArray = explode(',', $modulePath);
 
-        foreach ($moduleNameArray as $moduleName) {
+        foreach ($moduleNameArray as $key => $moduleName) {
+            $modulePath = empty($moduleName) && $modulePathArray[$key] ?? '';
             $this->scan->scan($moduleName, $modulePath);
         }
 
