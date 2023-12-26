@@ -170,7 +170,8 @@ class ScanCommand extends Command
         $table->setHeaders([
             'Message',
             'Group',
-            'Suggestion'
+            'Suggestion',
+            'module'
         ]);
 
         foreach ($messages as $message) {
@@ -178,6 +179,7 @@ class ScanCommand extends Command
                 $message->getMessage(),
                 $message->getGroupLabel(),
                 $message->getSuggestion(),
+                $message->getModule(),
             ]);
         }
 
