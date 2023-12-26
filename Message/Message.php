@@ -20,12 +20,14 @@ class Message
         MessageGroupLabels $messageGroupLabels,
         string $message,
         string $group,
-        string $suggestion = ''
+        string $suggestion = '',
+        string $module = ''
     ) {
         $this->messageGroupLabels = $messageGroupLabels;
         $this->message = $message;
         $this->group = $group;
         $this->suggestion = $suggestion;
+        $this->module = $module;
     }
 
     /**
@@ -73,6 +75,11 @@ class Message
         return $this->suggestion;
     }
 
+    public function getModule()
+    {
+        return $this->module;
+    }
+
     /**
      * @return array
      */
@@ -81,7 +88,8 @@ class Message
         return [
             'message' => $this->getMessage(),
             'group' => $this->getGroup(),
-            'suggestion' => $this->getSuggestion()
+            'suggestion' => $this->getSuggestion(),
+            'module' => $this->getModule()
         ];
     }
 }

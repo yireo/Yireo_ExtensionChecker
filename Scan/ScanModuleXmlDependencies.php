@@ -66,7 +66,7 @@ class ScanModuleXmlDependencies
 
             if (!$isModuleXmlComponentFoundInDetectedComponents && !$this->runtimeConfig->isHideNeedless()) {
                 $message = 'Module "' . $moduleXmlComponent->getComponentName() . '" is possibly not needed in module.xml';
-                $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP);
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP, '', $moduleName);
             }
         }
     }
