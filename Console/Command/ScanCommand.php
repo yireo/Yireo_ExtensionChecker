@@ -179,7 +179,7 @@ class ScanCommand extends Command
                 $message->getMessage(),
                 $message->getGroupLabel(),
                 $message->getSuggestion(),
-                $message->getModule(),
+                $message->getModule()
             ]);
         }
 
