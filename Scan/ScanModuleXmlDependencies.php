@@ -51,7 +51,7 @@ class ScanModuleXmlDependencies
 
             if (!$isComponentFoundInModuleXml) {
                 $message = 'Module "' . $component->getComponentName() . '" has no module.xml entry';
-                $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_MODULEXML_DEP);
+                $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_MODULEXML_DEP, '', $moduleName);
             }
         }
 
