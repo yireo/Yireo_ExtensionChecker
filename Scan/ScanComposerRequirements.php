@@ -44,7 +44,7 @@ class ScanComposerRequirements
         $requirements = $composerFile->getRequirements();
 
         foreach ($components as $component) {
-            $this->scanComponentWithComposerRequirements($component, $requirements);
+            $this->scanComponentWithComposerRequirements($component, $requirements, $moduleName);
         }
 
         foreach ($requirements as $requirement => $requirementVersion) {

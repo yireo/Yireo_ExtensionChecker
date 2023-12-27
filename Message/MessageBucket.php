@@ -39,12 +39,13 @@ class MessageBucket
      * @param string $group
      * @param string $suggestion
      */
-    public function add(string $message, string $group, string $suggestion = '')
+    public function add(string $message, string $group, string $suggestion = '', string $module = '')
     {
         $this->messages[] = $this->objectManager->create(Message::class, [
             'message' => $message,
             'group' => $group,
-            'suggestion' => $suggestion
+            'suggestion' => $suggestion,
+            'module' => $module,
         ]);
     }
 

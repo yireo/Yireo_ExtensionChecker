@@ -8,6 +8,7 @@ class Message
     private string $message;
     private string $group;
     private string $suggestion;
+    private string $module;
 
     /**
      * @param MessageGroupLabels $messageGroupLabels
