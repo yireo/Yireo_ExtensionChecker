@@ -57,7 +57,6 @@ Scan class dependencies for `@since` and double-check if this minimum version ma
 ## Tip: Check multiple modules 
 You can quickly check upon multiple modules with a command like this:
 
-    bin/magento mod:st --enabled | grep Yireo_ | while read MODULE ; do 
-        echo "Checking $MODULE"
-        bin/magento yireo_extensionchecker:scan --module $MODULE --hide-deprecated 1
-    done
+```bash
+bin/magento yireo_extensionchecker:scan --module $(bin/magento module:status --enabled | grep -e Yireo_ | awk '{printf "%s%s",sep,$0; sep=","} END{print""}') --hide-needless 1 --hide-deprecated 1
+```
