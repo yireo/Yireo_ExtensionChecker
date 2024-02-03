@@ -25,6 +25,9 @@
     "ext-pcre": "*",
     "ext-xml": "*"
   },
+  "require-dev": {
+    "yireo/magento2-integration-test-helper": "*"
+  },
   "autoload": {
     "psr-4": {
       "Yireo\\ExtensionChecker\\": ""

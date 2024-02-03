@@ -5,7 +5,6 @@ namespace Yireo\ExtensionChecker\Test\Integration\ComponentDetector;
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
-use Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector;
 use Yireo\ExtensionChecker\Test\Integration\Behaviour\AssertContainsByComponentName;
 
 class ModuleXmlComponentDetectorTest extends TestCase
@@ -16,7 +15,8 @@ class ModuleXmlComponentDetectorTest extends TestCase
     {
         $componentDetector = ObjectManager::getInstance()->get(ModuleXmlComponentDetector::class);
         $components = $componentDetector->getComponentsByModuleName('Magento_Catalog');
-        $this->assertNotEmpty($components);
-        $this->assertContainsByComponentName('Magento_Checkout', $components);
+        $this->assertNotEmpty($components, 'No components detected');
+        $dump = var_export($components, true);
+        $this->assertContainsByComponentName('Magento_Eav', $components, $dump);
     }
 }

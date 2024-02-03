@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\ComponentDetector;
 
@@ -15,7 +16,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
 {
     private ModuleInfo $moduleInfo;
     private ComponentFactory $componentFactory;
-
+    
     public function __construct(
         ModuleInfo $moduleInfo,
         ComponentFactory $componentFactory
@@ -23,7 +24,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         $this->moduleInfo = $moduleInfo;
         $this->componentFactory = $componentFactory;
     }
-
+    
     /**
      * @param string $moduleName
      * @return Component[]
@@ -35,13 +36,17 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         $components = [];
         $moduleInfo = $this->moduleInfo->getModuleInfo($moduleName);
         if (empty($moduleInfo)) {
-            return [];
+            throw new NotFoundException(__('Module "' . $moduleName . '" not found'));
         }
-
+        
+        if (empty($moduleInfo['sequence'])) {
+            throw new NotFoundException(__('No dependencies for "' . $moduleName . '" found in module.xml'));
+        }
+        
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
             $components[] = $this->componentFactory->createByModuleName($sequenceModuleName, false);
         }
-
+        
         return $components;
     }
 }

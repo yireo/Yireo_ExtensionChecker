@@ -9,9 +9,10 @@ trait AssertContainsByComponentName
     /**
      * @param string $componentName
      * @param Component[] $components
+     * @param string $message
      * @return void
      */
-    public function assertContainsByComponentName(string $componentName, array $components = [])
+    public function assertContainsByComponentName(string $componentName, array $components = [], string $message = '')
     {
         $componentFound = false;
         foreach ($components as $component) {
@@ -21,6 +22,6 @@ trait AssertContainsByComponentName
             }
         }
 
-        $this->assertTrue($componentFound);
+        $this->assertTrue($componentFound, $message);
     }
 }

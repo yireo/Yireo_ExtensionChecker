@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Yireo\ExtensionChecker\Composer;
 
+use InvalidArgumentException;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Framework\Serialize\SerializerInterface;
@@ -37,7 +38,13 @@ class ComposerFile
     {
         $read = $this->readFactory->create($this->composerFile, 'file');
         $composerContents = $read->readAll();
-        $extensionData = $this->serializer->unserialize($composerContents);
+        
+        try {
+            $extensionData = $this->serializer->unserialize($composerContents);
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            throw new RuntimeException('Unserialize of file "' . $this->composerFile . '" failed: '.$invalidArgumentException->getMessage());
+        }
+        
         if (empty($extensionData)) {
             throw new RuntimeException('Empty contents after decoding file "' . $this->composerFile . '"');
         }
