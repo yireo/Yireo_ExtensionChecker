@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.3.1] = 3 February 2024
+### Fixed
+- Additional fixes in performance
+
 # [2.3.0] = 12 December 2023
 ### Added
 - Check multiple modules at once by passing comma-seperated module-names to scan command #46 @iranimij
