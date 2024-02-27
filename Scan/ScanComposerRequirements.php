@@ -57,7 +57,7 @@ class ScanComposerRequirements
      * @param array $requirements
      * @return void
      */
-    private function scanComponentWithComposerRequirements(Component $component, array $requirements)
+    private function scanComponentWithComposerRequirements(Component $component, array $requirements, string $moduleName)
     {
         if ($component->isSoftRequirement()) {
             return;
@@ -79,7 +79,7 @@ class ScanComposerRequirements
             $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
         }
 
-        $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $suggestion);
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $suggestion, $moduleName);
     }
 
     /**
