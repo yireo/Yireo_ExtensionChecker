@@ -39,10 +39,6 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
             throw new NotFoundException(__('Module "' . $moduleName . '" not found'));
         }
         
-        if (empty($moduleInfo['sequence'])) {
-            throw new NotFoundException(__('No dependencies for "' . $moduleName . '" found in module.xml'));
-        }
-        
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
             $components[] = $this->componentFactory->createByModuleName($sequenceModuleName, false);
         }
