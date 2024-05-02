@@ -75,6 +75,10 @@ class Tokenizer
         $nodeFinder = new NodeFinder();
         $nodes = $nodeFinder->findInstanceOf($stmts, FullyQualified::class);
         foreach ($nodes as $node) {
+            // ignore function usages, we only care about classes
+            if (function_exists($node->toString())) {
+                continue;
+            }
             $usedClassNames[] = $node->toString();
         }
 
