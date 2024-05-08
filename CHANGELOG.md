@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.3.4] = 8 May 2024
+### Fixed
+- Do not pick up on nodes that are functions #54 @sprankhub
+
 # [2.3.3] = 10 April 2024
 ### Fixed
 - Remove exception for module with no sequence #52 @iranimij
