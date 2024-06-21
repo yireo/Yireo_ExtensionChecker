@@ -99,8 +99,7 @@ class ListModulesCommand extends Command
             if (!empty($composerVersion)) {
                 return $composerVersion;
             }
-        } catch(RuntimeException) {}
-
+        } catch(RuntimeException $e) {}
 
         $composerName = $composerFile->get('name');
         return $this->composerProvider->getVersionByComposerName($composerName);
