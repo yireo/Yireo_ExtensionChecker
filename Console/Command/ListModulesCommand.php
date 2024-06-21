@@ -15,14 +15,23 @@ use Yireo\ExtensionChecker\Composer\ComposerProvider;
 
 class ListModulesCommand extends Command
 {
+    private ComponentRegistrar $componentRegistrar;
+    private ModuleList $moduleList;
+    private ComposerFileFactory $composerFileFactory;
+    private ComposerProvider $composerProvider;
+
     public function __construct(
-        private ComponentRegistrar $componentRegistrar,
-        private ModuleList $moduleList,
-        private ComposerFileFactory $composerFileFactory,
-        private ComposerProvider $composerProvider,
+        ComponentRegistrar $componentRegistrar,
+        ModuleList $moduleList,
+        ComposerFileFactory $composerFileFactory,
+        ComposerProvider $composerProvider,
         ?string $name = null)
     {
         parent::__construct($name);
+        $this->componentRegistrar = $componentRegistrar;
+        $this->moduleList = $moduleList;
+        $this->composerFileFactory = $composerFileFactory;
+        $this->composerProvider = $composerProvider;
     }
 
     /**
