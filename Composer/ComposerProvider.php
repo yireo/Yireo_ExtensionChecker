@@ -22,7 +22,6 @@ class ComposerProvider
     public function getVersionByComposerName(string $composerName): string
     {
         $composerPackages = $this->getComposerPackages();
-
         foreach ($composerPackages as $composerPackage) {
             if ($composerPackage['name'] === $composerName) {
                 return $composerPackage['version'];
