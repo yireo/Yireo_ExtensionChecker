@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.4.1] = 24 June 2024
+### Fixed
+- Added JSON format to module list output
+
 # [2.4.0] = 21 June 2024
 ### Added
 - New CLI `yireo_extensionchecker:list:modules` (module name, enabled/disabled, composer version)
