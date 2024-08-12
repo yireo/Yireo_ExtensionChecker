@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.4.2] = 12 August 2024
+### Fixed
+- Changed call in Nikic parser
+
+
 # [2.4.1] = 24 June 2024
 ### Fixed
 - Added JSON format to module list output
