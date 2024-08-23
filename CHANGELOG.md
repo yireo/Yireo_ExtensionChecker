@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.4.3] = 23 August 2024
+### Fixed
+- Fixes for dev requirements
+
 # [2.4.2] = 12 August 2024
 ### Fixed
 - Changed call in Nikic parser
