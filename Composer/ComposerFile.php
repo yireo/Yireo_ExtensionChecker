@@ -78,12 +78,18 @@ class ComposerFile
 
     /**
      * @return array
-     * @throws NotFoundException
-     * @throws RuntimeException
      */
     public function getRequirements(): array
     {
-        // @todo: Merge this with require-dev?
-        return array_merge($this->get('require'), $this->get('require-dev'));
+        $requirements = [];
+        try {
+            $requirements = array_merge($requirements, $this->get('require'));
+        } catch (RuntimeException) {}
+
+        try {
+            $requirements = array_merge($requirements, $this->get('require-dev'));
+        } catch (RuntimeException) {}
+
+        return $requirements;
     }
 }
