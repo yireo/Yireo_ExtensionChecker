@@ -84,6 +84,6 @@ class ComposerFile
     public function getRequirements(): array
     {
         // @todo: Merge this with require-dev?
-        return array_merge($this->get('require'), $this->get('require-dev'));
+        return array_merge($this->get('require'));
     }
 }
