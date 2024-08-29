@@ -84,11 +84,11 @@ class ComposerFile
         $requirements = [];
         try {
             $requirements = array_merge($requirements, $this->get('require'));
-        } catch (RuntimeException) {}
+        } catch (RuntimeException $runtimeException) {}
 
         try {
             $requirements = array_merge($requirements, $this->get('require-dev'));
-        } catch (RuntimeException) {}
+        } catch (RuntimeException $runtimeException) {}
 
         return $requirements;
     }
