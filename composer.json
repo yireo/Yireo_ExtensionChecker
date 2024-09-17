@@ -2,7 +2,7 @@
   "name": "yireo/magento2-extensionchecker",
   "license": "OSL-3.0",
   "type": "magento2-module",
-  "version": "2.4.0",
+  "version": "2.4.4",
   "homepage": "https://github.com/yireo/Yireo_ExtensionChecker",
   "description": "Scan the code of a Magento module",
   "keywords": [
@@ -17,16 +17,16 @@
   ],
   "require": {
     "magento/framework": "^102.0|^103.0",
-    "symfony/finder": "^3.0|^4.0|^5.0|^6.0",
+    "symfony/finder": "^3.0|^4.0|^5.0|^6.0|^7.0",
     "composer/semver": "^1.0|^2.0|^3.0",
-    "nikic/php-parser": "^3.0|^4.0",
+    "nikic/php-parser": "^3.0|^4.0|^5.0",
     "php": "^7.4|^8.1",
     "ext-json": "*",
     "ext-pcre": "*",
     "ext-xml": "*"
   },
   "require-dev": {
-    "yireo/magento2-integration-test-helper": "*"
+    "yireo/magento2-integration-test-helper": "~0.0.13"
   },
   "autoload": {
     "psr-4": {

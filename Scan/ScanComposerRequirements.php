@@ -172,7 +172,10 @@ class ScanComposerRequirements
 
         $validDependencies = [
             'php',
-            'magento/magento-composer-installer'
+            'magento/magento-composer-installer',
+            'phpstan/phpstan',
+            'bitexpert/phpstan-magento',
+            'yireo/magento2-integration-test-helper',
         ];
 
         if (\in_array($dependency, $validDependencies)) {

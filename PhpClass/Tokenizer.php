@@ -64,7 +64,7 @@ class Tokenizer
      */
     public function getImportedClassnamesFromSource(string $source): array
     {
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->createForNewestSupportedVersion();
         $traverser = new NodeTraverser;
         $traverser->addVisitor(new NameResolver);
         $stmts = $parser->parse($source);

@@ -9,6 +9,7 @@ use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Composer\ComposerFileFactory;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
@@ -41,6 +42,7 @@ class ListModulesCommand extends Command
     {
         $this->setName('yireo_extensionchecker:list:modules');
         $this->setDescription('List all Magento modules');
+        $this->addOption('format', null, InputOption::VALUE_OPTIONAL, 'Format (json, default)');
     }
 
     /**
@@ -51,6 +53,14 @@ class ListModulesCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
+        $moduleRows = $this->getModuleRows();
+        $format = $input->getOption('format');
+
+        if ($format === 'json') {
+            $output->writeln(json_encode($moduleRows));
+            return Command::SUCCESS;
+        }
+
         $table = new Table($output);
         $table->setHeaders([
             'Module',
@@ -59,25 +69,35 @@ class ListModulesCommand extends Command
             'Composer Version'
         ]);
 
+        foreach ($moduleRows as $moduleRow) {
+            $table->addRow($moduleRow);
+        }
+
+        $table->render();
+
+        return Command::SUCCESS;
+    }
+
+    private function getModuleRows(): array
+    {
         $componentPaths = $this->componentRegistrar->getPaths(ComponentRegistrar::MODULE);
         $moduleNames = array_keys($componentPaths);
+        $moduleRows = [];
 
         foreach ($moduleNames as $moduleName) {
             $moduleInfo = $this->moduleList->getOne($moduleName);
             $status = $moduleInfo ? 'enabled' : 'disabled';
             $setupVersion = isset($moduleInfo['setup_version']) ? $moduleInfo['setup_version'] : '-';
 
-            $table->addRow([
+            $moduleRows[] = [
                 $moduleName,
                 $status,
                 $setupVersion,
                 $this->getComposerVersion($moduleName)
-            ]);
+            ];
         }
 
-        $table->render();
-
-        return Command::SUCCESS;
+        return $moduleRows;
     }
 
     private function getComposerVersion(string $moduleName): string

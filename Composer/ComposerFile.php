@@ -38,13 +38,13 @@ class ComposerFile
     {
         $read = $this->readFactory->create($this->composerFile, 'file');
         $composerContents = $read->readAll();
-        
+
         try {
             $extensionData = $this->serializer->unserialize($composerContents);
         } catch (InvalidArgumentException $invalidArgumentException) {
             throw new RuntimeException('Unserialize of file "' . $this->composerFile . '" failed: '.$invalidArgumentException->getMessage());
         }
-        
+
         if (empty($extensionData)) {
             throw new RuntimeException('Empty contents after decoding file "' . $this->composerFile . '"');
         }
@@ -78,12 +78,18 @@ class ComposerFile
 
     /**
      * @return array
-     * @throws NotFoundException
-     * @throws RuntimeException
      */
     public function getRequirements(): array
     {
-        // @todo: Merge this with require-dev?
-        return $this->get('require');
+        $requirements = [];
+        try {
+            $requirements = array_merge($requirements, $this->get('require'));
+        } catch (RuntimeException $runtimeException) {}
+
+        try {
+            $requirements = array_merge($requirements, $this->get('require-dev'));
+        } catch (RuntimeException $runtimeException) {}
+
+        return $requirements;
     }
 }
