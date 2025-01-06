@@ -6,6 +6,7 @@
                 <item name="yireo_extensionchecker_scan" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ScanCommand</item>
                 <item name="yireo_extensionchecker_list_dependencies" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ListDependenciesCommand</item>
                 <item name="yireo_extensionchecker_list_classes" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ListClassesCommand</item>
+                <item name="yireo_extensionchecker_inspect_class" xsi:type="object">Yireo\ExtensionChecker\Console\Command\InspectClassCommand</item>
                 <item name="yireo_extensionchecker_create_plantuml_diagram" xsi:type="object">Yireo\ExtensionChecker\Console\Command\CreatePlantUmlDiagramCommand</item>
                 <item name="yireo_extensionchecker_check_magento_version" xsi:type="object">Yireo\ExtensionChecker\Console\Command\CheckMagentoVersionCommand</item>
                 <item name="yireo_extensionchecker_list_modules" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ListModulesCommand</item>
