@@ -50,10 +50,7 @@ class PhpClassComponentDetector implements ComponentDetectorInterface
     public function getComponentsByModuleName(string $moduleName): array
     {
         $classNames = $this->moduleCollector->getClassNamesFromModule($moduleName);
-
         $dependentClassNames = $this->classNameCollector->getDependentClassesFromClasses($classNames);
-        print_r($dependentClassNames);exit;
-
         $components = $this->componentCollector->getComponentsByClasses($dependentClassNames);
         return array_merge($components, $this->scanClassesForPhpExtensions($classNames));
     }
