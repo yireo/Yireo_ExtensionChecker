@@ -56,6 +56,10 @@ class ScanModuleXmlDependencies
         }
 
         foreach ($moduleXmlComponents as $moduleXmlComponent) {
+            if ($this->runtimeConfig->isModuleWhitelisted($moduleXmlComponent->getComponentName())) {
+                break;
+            }
+
             $isModuleXmlComponentFoundInDetectedComponents = false;
             foreach ($components as $component) {
                 if ($component->getComponentName() === $moduleXmlComponent->getComponentName()) {
@@ -64,9 +68,15 @@ class ScanModuleXmlDependencies
                 }
             }
 
-            if (!$isModuleXmlComponentFoundInDetectedComponents && !$this->runtimeConfig->isHideNeedless()) {
-                $message = 'Module "' . $moduleXmlComponent->getComponentName() . '" is possibly not needed in module.xml';
-                $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP, '', $moduleName);
+            if (false === $isModuleXmlComponentFoundInDetectedComponents
+                && false === $this->runtimeConfig->isHideNeedless()) {
+                $message = 'Module "%1" is possibly not needed in module.xml';
+                $this->messageBucket->add(
+                    (string)__($message, $moduleXmlComponent->getComponentName()),
+                    MessageGroupLabels::GROUP_UNNECESSARY_MODULEXML_DEP,
+                    '',
+                    $moduleName
+                );
             }
         }
     }

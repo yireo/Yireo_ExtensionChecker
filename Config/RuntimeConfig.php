@@ -7,6 +7,8 @@ class RuntimeConfig
     private bool $hideDeprecated = false;
     private bool $hideNeedless = false;
     private bool $verbose = false;
+    private array $whitelistedComposerPackages = ['magento/module-store'];
+    private array $whitelistedMagentoModules = ['Magento_Store'];
 
     /**
      * @param bool $hideDeprecated
@@ -60,5 +62,15 @@ class RuntimeConfig
     public function isVerbose(): bool
     {
         return $this->verbose;
+    }
+
+    public function isModuleWhitelisted(string $moduleName): bool
+    {
+        return in_array($moduleName, $this->whitelistedMagentoModules);
+    }
+
+    public function isComposerPackageWhitelisted(string $composerPackage): bool
+    {
+        return in_array($composerPackage, $this->whitelistedComposerPackages);
     }
 }

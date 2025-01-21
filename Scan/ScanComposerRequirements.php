@@ -57,8 +57,11 @@ class ScanComposerRequirements
      * @param array $requirements
      * @return void
      */
-    private function scanComponentWithComposerRequirements(Component $component, array $requirements, string $moduleName)
-    {
+    private function scanComponentWithComposerRequirements(
+        Component $component,
+        array $requirements,
+        string $moduleName
+    ) {
         if ($component->isSoftRequirement()) {
             return;
         }
@@ -110,6 +113,10 @@ class ScanComposerRequirements
         }
 
         if ($this->isComposerDependencyNeeded($requirement, $components)) {
+            return;
+        }
+
+        if ($this->runtimeConfig->isComposerPackageWhitelisted($requirement)) {
             return;
         }
 
