@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+# [2.5.1] = 21 January 2025
+### Fixed
+- Not every occurance of find() is a CLI command (#58 @gwharton)
+
 # [2.5.0] = 6 January 2025
 ### Fixed
 - Prevent deps from deps to be reported #26
