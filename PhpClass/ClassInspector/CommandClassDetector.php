@@ -3,6 +3,7 @@
 namespace Yireo\ExtensionChecker\PhpClass\ClassInspector;
 
 use Magento\Framework\Console\Cli as CliApplication;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 class CommandClassDetector implements ClassDetectorInterface
 {
@@ -23,7 +24,12 @@ class CommandClassDetector implements ClassDetectorInterface
         $classnames = [];
 
         foreach ($matches[1] as $commandName) {
-            $command = $this->cliApplication->find($commandName);
+            try {
+                $command = $this->cliApplication->find($commandName);
+            } catch (CommandNotFoundException $exception) {
+                continue;
+            }
+
             $classnames[] = get_class($command);
         }
 

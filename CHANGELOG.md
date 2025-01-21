@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Allow for whitelisting specific modules like `Magento_Store`
 
+# [2.5.1] = 21 January 2025
+### Fixed
+- Not every occurance of find() is a CLI command (#58 @gwharton)
+
+# [2.5.0] = 6 January 2025
+### Fixed
+- Prevent deps from deps to be reported #26
+
+### Added
+- New command `inspect-class`
+
 # [2.4.4] = 29 August 2024
 ### Fixed
 - Prevent exception when require and/or require-dev is empty

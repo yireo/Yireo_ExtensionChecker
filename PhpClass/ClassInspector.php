@@ -99,11 +99,11 @@ class ClassInspector
         $dependencies = [];
 
         if ($object->getParentClass()) {
-            //$dependencies[] = $object->getParentClass()->getName();
+            $dependencies[] = $object->getParentClass()->getName();
         }
 
-        $dependencies = array_merge($dependencies, $this->getDependenciesFromConstructor());
-        $dependencies = array_merge($dependencies, $this->getImplementedInterfaceNames());
+        //$dependencies = array_merge($dependencies, $this->getDependenciesFromConstructor());
+        //$dependencies = array_merge($dependencies, $this->getImplementedInterfaceNames());
 
         $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
         foreach ($importedClasses as $importedClass) {
