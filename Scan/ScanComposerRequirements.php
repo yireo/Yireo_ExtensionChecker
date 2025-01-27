@@ -48,7 +48,7 @@ class ScanComposerRequirements
         }
 
         foreach ($requirements as $requirement => $requirementVersion) {
-            $this->scanComposerRequirementWithComponents($requirement, $requirementVersion, $components);
+            $this->scanComposerRequirementWithComponents($requirement, $requirementVersion, $components, $moduleName);
         }
     }
 
@@ -82,32 +82,43 @@ class ScanComposerRequirements
             $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
         }
 
-        $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $suggestion, $moduleName);
+        $this->messageBucket->add(
+            $message,
+            MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP,
+            $suggestion,
+            $moduleName
+        );
     }
 
     /**
      * @param string $requirement
      * @param string $requirementVersion
      * @param Component[] $components
+     * @param string $moduleName
      * @return void
      */
     private function scanComposerRequirementWithComponents(
         string $requirement,
         string $requirementVersion,
-        array $components
+        array $components,
+        string $moduleName
     ) {
-        $this->checkIfRequirementIsNeeded($requirement, $components);
-        $this->checkIfComposerRequirementUsesWildCard($requirement, $requirementVersion);
-        $this->checkPhpVersion($requirement, $requirementVersion);
+        $this->checkIfRequirementIsNeeded($requirement, $components, $moduleName);
+        $this->checkIfComposerRequirementUsesWildCard($requirement, $requirementVersion, $moduleName);
+        $this->checkPhpVersion($requirement, $requirementVersion, $moduleName);
     }
 
     /**
      * @param string $requirement
      * @param array $components
+     * @param string $moduleName
      * @return void
      */
-    private function checkIfRequirementIsNeeded(string $requirement, array $components)
-    {
+    private function checkIfRequirementIsNeeded(
+        string $requirement,
+        array $components,
+        string $moduleName
+    ) {
         if ($this->runtimeConfig->isHideNeedless()) {
             return;
         }
@@ -121,11 +132,25 @@ class ScanComposerRequirements
         }
 
         $message = 'Composer requirement "' . $requirement . '" possibly not needed';
-        $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNNECESSARY_COMPOSER_DEP);
+        $this->messageBucket->add(
+            $message,
+            MessageGroupLabels::GROUP_UNNECESSARY_COMPOSER_DEP,
+            '',
+            $moduleName
+        );
     }
 
-    private function checkIfComposerRequirementUsesWildCard(string $requirement, string $requirementVersion)
-    {
+    /**
+     * @param string $requirement
+     * @param string $requirementVersion
+     * @param string $moduleName
+     * @return void
+     */
+    private function checkIfComposerRequirementUsesWildCard(
+        string $requirement,
+        string $requirementVersion,
+        string $moduleName
+    ) {
         if (preg_match('/^ext-/', $requirement)) {
             return;
         }
@@ -141,16 +166,25 @@ class ScanComposerRequirements
             $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
         }
 
-        $this->messageBucket->add($message, MessageGroupLabels::GROUP_WILDCARD_VERSION, $suggestion);
+        $this->messageBucket->add(
+            $message,
+            MessageGroupLabels::GROUP_WILDCARD_VERSION,
+            $suggestion,
+            $moduleName
+        );
     }
 
     /**
      * @param string $requirement
      * @param string $requirementVersion
+     * @param string $moduleName
      * @return void
      */
-    private function checkPhpVersion(string $requirement, string $requirementVersion)
-    {
+    private function checkPhpVersion(
+        string $requirement,
+        string $requirementVersion,
+        string $moduleName
+    ) {
         if ($requirement !== 'php') {
             return;
         }
@@ -161,7 +195,12 @@ class ScanComposerRequirements
         }
 
         $message = 'Required PHP version "' . $requirementVersion . '" does not match your current PHP version ' . $currentVersion;
-        $this->messageBucket->add($message, MessageGroupLabels::GROUP_UNMET_REQUIREMENT);
+        $this->messageBucket->add(
+            $message,
+            MessageGroupLabels::GROUP_UNMET_REQUIREMENT,
+            '',
+            $moduleName
+        );
     }
 
     /**
