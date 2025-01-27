@@ -40,7 +40,12 @@ class ScanDeprecatedClasses
 
             if ($this->classInspector->isDeprecated()) {
                 $message = 'Usage of class "' . $className . '" is deprecated';
-                $this->messageBucket->add($message, MessageGroupLabels::GROUP_PHP_DEPRECATED);
+                $this->messageBucket->add(
+                    $message,
+                    MessageGroupLabels::GROUP_PHP_DEPRECATED,
+                    '',
+                    $moduleName
+                );
             }
         }
     }
