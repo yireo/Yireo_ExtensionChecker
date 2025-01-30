@@ -11,12 +11,12 @@
 
 namespace Yireo\ExtensionChecker\Console\Command;
 
-use Composer\Console\Input\InputArgument;
 use InvalidArgumentException;
 use Magento\Framework\Serialize\SerializerInterface;
 use ReflectionException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
