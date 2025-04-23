@@ -116,7 +116,6 @@ class ClassInspector
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function getDependenciesFromConstructor(): array
