@@ -37,7 +37,7 @@ class CheckMagentoVersionCommand extends Command
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         DirectoryList $directoryList,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($name);
         $this->composerFileProvider = $composerFileProvider;
