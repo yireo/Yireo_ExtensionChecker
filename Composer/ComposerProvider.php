@@ -46,6 +46,10 @@ class ComposerProvider
             return '~' . $version;
         }
 
+        if (count($versionParts) === 1) {
+            return $versionParts[0];
+        }
+
         return '^' . $versionParts[0] . '.' . $versionParts[1];
     }
 
