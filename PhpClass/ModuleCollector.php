@@ -24,7 +24,9 @@ class ModuleCollector
      * @param string $moduleName
      * @return string[]
      */
-    public function getClassNamesFromModule(string $moduleName): array
+    public function getClassNamesFromModule(
+        string $moduleName,
+    ): array
     {
         $moduleFolder = $this->moduleInfo->getModuleFolder($moduleName);
         $files = $this->fileCollector->getFilesFromFolder($moduleFolder);

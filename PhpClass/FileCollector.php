@@ -39,11 +39,6 @@ class FileCollector
                 continue;
             }
 
-            // Skip test files
-            if (str_contains($file->getRelativePathname(), 'Test.php')) {
-                continue;
-            }
-
             $files[] = $file->getRealPath();
         }
 
