@@ -38,10 +38,11 @@ class ComponentCollector
             try {
                 $component = $this->classInspector->setClassName($className)->getComponentByClass();
             } catch (ReflectionException|ComponentNotFoundException|NoClassNameException $e) {
+                $this->messageBucket->debug($e->getMessage());
                 continue;
             }
 
-            $this->messageBucket->debug('Found component "' . $component->getComponentName() . '"');
+            $this->messageBucket->debug('Found component "' . $component->getComponentName() . '" for class "'.$className.'"');
             $components[] = $component;
         }
 
