@@ -19,6 +19,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
+use Throwable;
 use Yireo\ExtensionChecker\PhpClass\ModuleCollector;
 
 class ListClassesCommand extends Command
@@ -105,13 +106,15 @@ class ListClassesCommand extends Command
         $table->setHeaders(['Class name', 'Class type']);
 
         foreach ($classNames as $className) {
-            if (strstr($className, '\\Test\\')) {
+            try {
+                $classType = $this->getClassType($className);
+            } catch(Throwable $e) {
                 continue;
             }
 
             $table->addRow([
                 $className,
-                $this->getClassType($className)
+                $classType
             ]);
         }
 

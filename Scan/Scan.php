@@ -3,7 +3,9 @@
 namespace Yireo\ExtensionChecker\Scan;
 
 use InvalidArgumentException;
-use ReflectionException;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
+use Magento\Framework\Exception\ValidatorException;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
@@ -16,6 +18,7 @@ class Scan
     private ScanDeprecatedClasses $scanDeprecatedClasses;
     private ScanComposerRequirements $scanComposerRequirements;
     private RuntimeConfig $runtimeConfig;
+    private ScanComposerFile $scanComposerFile;
 
     /**
      * Scan constructor.
@@ -33,6 +36,7 @@ class Scan
         ScanModuleXmlDependencies $scanModuleXmlDependencies,
         ScanDeprecatedClasses $scanDeprecatedClasses,
         ScanComposerRequirements $scanComposerRequirements,
+        ScanComposerFile $scanComposerFile,
         RuntimeConfig $runtimeConfig
     ) {
         $this->moduleInfo = $moduleInfo;
@@ -40,11 +44,16 @@ class Scan
         $this->scanModuleXmlDependencies = $scanModuleXmlDependencies;
         $this->scanDeprecatedClasses = $scanDeprecatedClasses;
         $this->scanComposerRequirements = $scanComposerRequirements;
+        $this->scanComposerFile = $scanComposerFile;
         $this->runtimeConfig = $runtimeConfig;
     }
 
     /**
-     * @throws ReflectionException
+     * @param string $moduleName
+     * @param string $modulePath
+     * @throws FileSystemException
+     * @throws NotFoundException
+     * @throws ValidatorException
      */
     public function scan(string $moduleName, string $modulePath)
     {
@@ -64,5 +73,7 @@ class Scan
         if (!$this->runtimeConfig->isHideDeprecated()) {
             $this->scanDeprecatedClasses->scan($moduleName);
         }
+
+        $this->scanComposerFile->scan($moduleName);
     }
 }
