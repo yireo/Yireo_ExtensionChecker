@@ -16,7 +16,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
 {
     private ModuleInfo $moduleInfo;
     private ComponentFactory $componentFactory;
-    
+
     public function __construct(
         ModuleInfo $moduleInfo,
         ComponentFactory $componentFactory
@@ -24,7 +24,7 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         $this->moduleInfo = $moduleInfo;
         $this->componentFactory = $componentFactory;
     }
-    
+
     /**
      * @param string $moduleName
      * @return Component[]
@@ -38,11 +38,11 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
         if (empty($moduleInfo)) {
             throw new NotFoundException(__('Module "' . $moduleName . '" not found'));
         }
-        
+
         foreach ($moduleInfo['sequence'] as $sequenceModuleName) {
-            $components[] = $this->componentFactory->createByModuleName($sequenceModuleName, false);
+            $components[] = $this->componentFactory->createByModuleName($sequenceModuleName);
         }
-        
+
         return $components;
     }
 }
