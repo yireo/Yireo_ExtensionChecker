@@ -8,9 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.5.3] - 17 May 2025
 ### Fixed
+- Add composer/composer to deps because of usage Composer API
+- Properly find classes behind factory classes
+- Update MODULE.json
 - Detect PHP classes in etc/ XML files
 - Remove default param
 - Do not skip abstract classes and interfaces when finding deps
+- Do not skip test classes
+- Add PHP 8.4
+- Detect invalid composer license
 - If no composer name, show module name
 
 ## [2.5.2] - 27 April 2025
