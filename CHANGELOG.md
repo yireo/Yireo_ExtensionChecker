@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.3] - 17 May 2025
+### Fixed
+- Detect PHP classes in etc/ XML files
+- Remove default param
+- Do not skip abstract classes and interfaces when finding deps
+- If no composer name, show module name
+
 ## [2.5.2] - 27 April 2025
 ### Fixed
 - Prevent error if not semver version
