@@ -63,6 +63,10 @@ class AbstractComponentCollector
                 continue;
             }
 
+            if (preg_match('/(.*)Factory$/', $match, $factoryMatch)) {
+                $classNames[] = $factoryMatch[1];
+            }
+
             $classNames[] = $match;
         }
 

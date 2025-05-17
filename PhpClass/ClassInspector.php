@@ -107,6 +107,10 @@ class ClassInspector
 
         $importedClasses = $this->tokenizer->getImportedClassnamesFromFile($this->getFilename());
         foreach ($importedClasses as $importedClass) {
+            if (preg_match('/^(.*)Factory$/', $importedClass, $factoryMatch)) {
+                $dependencies[] = $factoryMatch[1];
+            }
+
             $dependencies[] = $importedClass;
         }
 

@@ -2,6 +2,7 @@
 
 namespace Yireo\ExtensionChecker\PhpClass;
 
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\FinderFactory;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
 
@@ -29,6 +30,7 @@ class FileCollector
      */
     public function getFilesFromFolder(string $folder): array
     {
+        /** @var Finder $finder */
         $finder = $this->finderFactory->create();
         $finder->files()->in($folder);
 
