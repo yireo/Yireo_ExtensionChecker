@@ -7,6 +7,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Filesystem\File\ReadFactory as FileReadFactory;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 
 class TemplateComponentCollector extends AbstractComponentCollector
 {
@@ -14,10 +15,11 @@ class TemplateComponentCollector extends AbstractComponentCollector
 
     public function __construct(
         FileReadFactory $fileReadFactory,
+        ComponentCollector $componentCollector,
         ComponentFactory $componentFactory
     ) {
         $this->fileReadFactory = $fileReadFactory;
-        parent::__construct($componentFactory);
+        parent::__construct($componentFactory, $componentCollector);
     }
 
     /**

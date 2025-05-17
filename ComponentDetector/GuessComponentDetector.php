@@ -45,6 +45,8 @@ class GuessComponentDetector implements ComponentDetectorInterface
             return $components;
         }
 
+        // @todo: Refactor is_dir and is_file to use Magento Filesystem instead
+        // @todo: Move this into a DI-based configuration
         if (is_dir($moduleFolder . '/Setup') || is_dir($moduleFolder . '/Block')) {
             $components[] = $this->componentFactory->createByModuleName('Magento_Store', true);
         }

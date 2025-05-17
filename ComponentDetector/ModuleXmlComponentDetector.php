@@ -28,7 +28,6 @@ class ModuleXmlComponentDetector implements ComponentDetectorInterface
     /**
      * @param string $moduleName
      * @return Component[]
-     * @throws FileSystemException
      * @throws NotFoundException
      */
     public function getComponentsByModuleName(string $moduleName): array

@@ -5,6 +5,7 @@ namespace Yireo\ExtensionChecker\ComponentCollector;
 use Magento\Framework\Filesystem\File\ReadFactory as FileReadFactory;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
 
 class LayoutComponentCollector extends AbstractComponentCollector
 {
@@ -17,10 +18,11 @@ class LayoutComponentCollector extends AbstractComponentCollector
 
     public function __construct(
         ComponentFactory $componentFactory,
+        ComponentCollector $componentCollector,
         FileReadFactory $fileReadFactory,
         array $patterns = ['hyva_modal' => 'Hyva_Theme']
     ) {
-        parent::__construct($componentFactory);
+        parent::__construct($componentFactory, $componentCollector);
         $this->fileReadFactory = $fileReadFactory;
         $this->patterns = $patterns;
     }
