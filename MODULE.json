@@ -1,5 +1,8 @@
 {
-    "modules": [],
+    "modules": [
+        "Magento_Catalog",
+        "Magento_Customer"
+    ],
     "components": [],
     "config": [],
     "tests": {
