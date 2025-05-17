@@ -319,10 +319,6 @@ class ClassInspector
         }
 
         $object = new ReflectionClass($this->className);
-        if ($object->isAbstract()) {
-            throw new ReflectionException('Class "' . $this->className . '" is abstract');
-        }
-
         $this->registry[$this->className] = $object;
 
         return $object;
