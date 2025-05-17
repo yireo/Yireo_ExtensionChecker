@@ -1,0 +1,10 @@
+{
+    "modules": [],
+    "components": [],
+    "config": [],
+    "tests": {
+        "unit": 2,
+        "integration": 28,
+        "functional": 0
+    }
+}
