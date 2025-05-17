@@ -17,6 +17,9 @@
   ],
   "require": {
     "magento/framework": "^102.0|^103.0",
+    "magento/module-catalog": "^103.0|^104.0",
+    "magento/module-customer": "^103.0",
+    "guzzlehttp/guzzle": "^6.0|^7.0",
     "symfony/finder": "^3.0|^4.0|^5.0|^6.0|^7.0",
     "composer/semver": "^1.0|^2.0|^3.0",
     "composer/composer": "^1.0|^2.0",
