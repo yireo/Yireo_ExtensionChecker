@@ -11,6 +11,7 @@ use Yireo\ExtensionChecker\Composer\ComposerProvider;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
+use Yireo\ExtensionChecker\Util\CheckerConfiguration;
 
 class ScanComposerRequirements
 {
@@ -18,17 +19,20 @@ class ScanComposerRequirements
     private MessageBucket $messageBucket;
     private ComposerProvider $composerProvider;
     private RuntimeConfig $runtimeConfig;
+    private CheckerConfiguration $checkerConfiguration;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         MessageBucket $messageBucket,
         ComposerProvider $composerProvider,
-        RuntimeConfig $runtimeConfig
+        RuntimeConfig $runtimeConfig,
+        CheckerConfiguration $checkerConfiguration
     ) {
         $this->composerFileProvider = $composerFileProvider;
         $this->messageBucket = $messageBucket;
         $this->composerProvider = $composerProvider;
         $this->runtimeConfig = $runtimeConfig;
+        $this->checkerConfiguration = $checkerConfiguration;
     }
 
     /**
@@ -48,7 +52,7 @@ class ScanComposerRequirements
         }
 
         foreach ($requirements as $requirement => $requirementVersion) {
-            $this->scanComposerRequirementWithComponents($requirement, $requirementVersion, $components);
+            $this->scanComposerRequirementWithComponents($moduleName, $requirement, $requirementVersion, $components);
         }
     }
 
@@ -93,11 +97,12 @@ class ScanComposerRequirements
      * @return void
      */
     private function scanComposerRequirementWithComponents(
+        string $moduleName,
         string $requirement,
         string $requirementVersion,
         array $components
     ) {
-        $this->checkIfRequirementIsNeeded($requirement, $components);
+        $this->checkIfRequirementIsNeeded($moduleName, $requirement, $components);
         $this->checkIfComposerRequirementUsesWildCard($requirement, $requirementVersion);
         $this->checkPhpVersion($requirement, $requirementVersion);
     }
@@ -107,9 +112,13 @@ class ScanComposerRequirements
      * @param array $components
      * @return void
      */
-    private function checkIfRequirementIsNeeded(string $requirement, array $components)
+    private function checkIfRequirementIsNeeded(string $moduleName, string $requirement, array $components)
     {
         if ($this->runtimeConfig->isHideNeedless()) {
+            return;
+        }
+
+        if ($this->checkerConfiguration->isIgnored($moduleName, $requirement)) {
             return;
         }
 

@@ -7,12 +7,14 @@ use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
+use Yireo\ExtensionChecker\Util\CheckerConfiguration;
 
 class ScanModuleXmlDependencies
 {
     private ModuleXmlComponentDetector $moduleXmlComponentDetector;
     private MessageBucket $messageBucket;
     private RuntimeConfig $runtimeConfig;
+    private CheckerConfiguration $checkerConfiguration;
 
     /**
      * @param ModuleXmlComponentDetector $moduleXmlComponentDetector
@@ -21,11 +23,13 @@ class ScanModuleXmlDependencies
     public function __construct(
         ModuleXmlComponentDetector $moduleXmlComponentDetector,
         MessageBucket $messageBucket,
-        RuntimeConfig $runtimeConfig
+        RuntimeConfig $runtimeConfig,
+        CheckerConfiguration $checkerConfiguration
     ) {
         $this->moduleXmlComponentDetector = $moduleXmlComponentDetector;
         $this->messageBucket = $messageBucket;
         $this->runtimeConfig = $runtimeConfig;
+        $this->checkerConfiguration = $checkerConfiguration;
     }
 
     /**
@@ -50,7 +54,7 @@ class ScanModuleXmlDependencies
             }
 
             if (!$isComponentFoundInModuleXml) {
-                $message = 'Module "' . $component->getComponentName() . '" has no module.xml entry';
+                $message = 'Module "'.$component->getComponentName().'" has no module.xml entry';
                 $this->messageBucket->add($message, MessageGroupLabels::GROUP_MISSING_MODULEXML_DEP, '', $moduleName);
             }
         }
@@ -62,6 +66,11 @@ class ScanModuleXmlDependencies
 
             $isModuleXmlComponentFoundInDetectedComponents = false;
             foreach ($components as $component) {
+                if ($this->checkerConfiguration->isIgnored($moduleName, $moduleXmlComponent->getComponentName())) {
+                    $isModuleXmlComponentFoundInDetectedComponents = true;
+                    break;
+                }
+
                 if ($component->getComponentName() === $moduleXmlComponent->getComponentName()) {
                     $isModuleXmlComponentFoundInDetectedComponents = true;
                     break;
