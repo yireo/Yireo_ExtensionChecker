@@ -14,6 +14,7 @@
         <sequence>
              <module name="Magento_Catalog"/>
              <module name="Magento_Customer"/>
+             <module name="Yireo_IntegrationTestHelper"/>
         </sequence>
     </module>
 </config>
