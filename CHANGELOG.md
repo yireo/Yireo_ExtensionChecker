@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.4] - 22 May 2025
+### Fixed
+- Search PHTML templates for classes
+
 ## [2.5.3] - 17 May 2025
 ### Fixed
 - Add composer/composer to deps because of usage Composer API
