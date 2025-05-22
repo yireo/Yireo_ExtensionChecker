@@ -22,7 +22,7 @@ class ScanComposerRequirementsTest extends TestCase
     {
         $messages = $this->scan('Yireo_ExtensionChecker');
         //$this->assertEmpty($messages, $this->getMessagesDump($messages)); // @todo: This is the goal
-        $this->assertEquals(1, count($messages));
+        $this->assertEquals(0, count($messages));
 
         //$messages = $this->scan('Magento_Store');
         //$this->assertEmpty($messages, $this->getMessagesDump($messages)); // @todo: Too many things go wrong here
