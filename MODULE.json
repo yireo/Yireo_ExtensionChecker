@@ -1,7 +1,8 @@
 {
     "modules": [
         "Magento_Catalog",
-        "Magento_Customer"
+        "Magento_Customer",
+        "Yireo_IntegrationTestHelper"
     ],
     "components": [],
     "config": [],
