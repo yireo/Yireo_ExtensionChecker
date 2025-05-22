@@ -54,6 +54,20 @@ If another method than the constructor contains type hints for imported namespac
 ## @todo: Scan for `@since`
 Scan class dependencies for `@since` and double-check if this minimum version matches with the composer requirements.
 
+## File `.yireo-extension-checker.json`
+Sometimes a scan shows that dependencies are not needed, even though you disagree. To override this, you can add a file
+`.yireo-extension-checker.json` to your module folder with a content like the following:
+
+```json
+{
+  "ignore": [
+    "Yireo_Example",
+    "yireo/magento2-example"
+  ]
+}
+```
+
+
 ## Tip: Check multiple modules 
 You can quickly check upon multiple modules with a command like this:
 
