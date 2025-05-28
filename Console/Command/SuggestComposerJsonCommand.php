@@ -60,6 +60,10 @@ class SuggestComposerJsonCommand extends Command
             }
 
             $version = $this->composerProvider->getSuggestedVersion($component->getPackageVersion());
+            if (str_starts_with($component->getPackageName(), 'ext-')) {
+                $version = '*';
+            }
+
             $composerDependencies[$component->getPackageName()] = $version;
         }
 
