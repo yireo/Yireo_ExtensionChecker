@@ -74,3 +74,16 @@ You can quickly check upon multiple modules with a command like this:
 ```bash
 bin/magento yireo_extensionchecker:scan --module $(bin/magento module:status --enabled | grep -e Yireo_ | awk '{printf "%s%s",sep,$0; sep=","} END{print""}') --hide-needless 1 --hide-deprecated 1
 ```
+
+## Generate module.xml
+Based on the found dependencies, a sample `module.xml` output can be generated. Note that you will need to copy and paste the output yourself:
+
+```bash
+bin/magento yireo_extensionchecker:suggest:module-xml Yireo_Example
+```
+
+Likewise, the `require` section of the `composer.json` file can be generated too:
+
+```bash
+bin/magento yireo_extensionchecker:suggest:composer-json Yireo_Example
+```
