@@ -64,6 +64,11 @@ class Component
         return $this->componentType;
     }
 
+    public function hasComponentName(): bool
+    {
+        return $this->getComponentName() !== $this->getPackageName();
+    }
+
     /**
      * @return string
      */
@@ -78,6 +83,11 @@ class Component
     public function getPackageVersion(): string
     {
         return $this->packageVersion;
+    }
+
+    public function hasPackageName(): bool
+    {
+        return !preg_match('/^([A-Za-z0-9]+)_([A-Za-z0-9]+)$/', $this->getPackageName());
     }
 
     /**
