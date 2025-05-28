@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.6] - 28 May 2025
+### Fixed
+- New CLI for suggesting composer.json and module.xml
+
 ## [2.5.5] - 22 May 2025
 ### Fixed
 - Add `.yireo-extension-checker.json` file
