@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.7] - 28 May 2025
+### Fixed
+- Fix wildcard output for `ext-` in new CLI
+
 ## [2.5.6] - 28 May 2025
 ### Fixed
 - New CLI for suggesting composer.json and module.xml
