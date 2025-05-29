@@ -2,6 +2,7 @@
     "modules": [
         "Magento_Catalog",
         "Magento_Customer",
+        "Magento_Store",
         "Yireo_IntegrationTestHelper"
     ],
     "components": [],
