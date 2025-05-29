@@ -12,6 +12,7 @@
 namespace Yireo\ExtensionChecker\Console\Command;
 
 use InvalidArgumentException;
+use Magento\Framework\Component\ComponentRegistrar;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,6 +25,7 @@ class SuggestComposerJsonCommand extends Command
     public function __construct(
         private ComponentDetectorList $componentDetectorList,
         private ComposerProvider $composerProvider,
+        private ComponentRegistrar $componentRegistrar,
         $name = null
     ) {
         parent::__construct($name);
@@ -64,13 +66,21 @@ class SuggestComposerJsonCommand extends Command
         }
 
         ksort($composerDependencies);
-        $composerData = [
+        $composerData = $this->getCurrentComposerData($moduleName);
+        $composerData = array_merge($composerData, [
             'require' =>  $composerDependencies,
-        ];
+        ]);
 
         $composerJson = json_encode($composerData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
         $output->writeln($composerJson);
 
         return Command::SUCCESS;
+    }
+
+    private function getCurrentComposerData(string $moduleName): array
+    {
+        $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
+        $composerPath = $modulePath . '/composer.json';
+        return json_decode(file_get_contents($composerPath), true);
     }
 }
