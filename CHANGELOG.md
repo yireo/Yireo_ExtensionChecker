@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.5.8] - 29 May 2025
+## [2.5.8] - 02 June 2025
 ### Fixed
 - Suggest composer output CLI based on current composer.json
 
