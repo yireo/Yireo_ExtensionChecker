@@ -95,6 +95,13 @@ class ScanCommand extends Command
             InputOption::VALUE_OPTIONAL,
             'Format (`json` or the default)'
         );
+
+        $this->addOption(
+            'skip-license-check',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Skip composer license check'
+        );
     }
 
     /**
@@ -106,37 +113,43 @@ class ScanCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
-        $moduleName = (string)$input->getOption('module');
-        $modulePath = (string)$input->getOption('path');
+        try {
+            $moduleName = (string)$input->getOption('module');
+            $modulePath = (string)$input->getOption('path');
 
-        if (empty($moduleName) && empty($modulePath)) {
-            throw new InvalidArgumentException('Either module name or module path is required');
-        }
-
-        $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
-        $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
-        $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
-
-        $moduleNameArray = explode(',', $moduleName);
-        $modulePathArray = explode(',', $modulePath);
-
-        foreach ($moduleNameArray as $key => $moduleName) {
-            $modulePath = (empty($moduleName) && $modulePathArray[$key]) ? $modulePathArray[$key] : '';
-            $this->scan->scan($moduleName, $modulePath);
-        }
-
-        $messages = $this->messageBucket->getMessages();
-        foreach ($messages as $messageId => $message) {
-            if (!$output->isVerbose() && $message->isDebug()) {
-                unset($messages[$messageId]);
+            if (empty($moduleName) && empty($modulePath)) {
+                throw new InvalidArgumentException('Either module name or module path is required');
             }
-        }
 
-        if ((string)$input->getOption('format') === 'json') {
-            return $this->outputJson($output, $messages);
-        }
+            $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
+            $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
+            $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
+            $this->runtimeConfig->setSkipLicenseCheck((bool)$input->getOption('skip-license-check'));
 
-        return $this->outputTable($output, $messages);
+            $moduleNameArray = explode(',', $moduleName);
+            $modulePathArray = explode(',', $modulePath);
+
+            foreach ($moduleNameArray as $key => $moduleName) {
+                $modulePath = (empty($moduleName) && $modulePathArray[$key]) ? $modulePathArray[$key] : '';
+                $this->scan->scan($moduleName, $modulePath);
+            }
+
+            $messages = $this->messageBucket->getMessages();
+            foreach ($messages as $messageId => $message) {
+                if (!$output->isVerbose() && $message->isDebug()) {
+                    unset($messages[$messageId]);
+                }
+            }
+
+            if ((string)$input->getOption('format') === 'json') {
+                return $this->outputJson($output, $messages);
+            }
+
+            return $this->outputTable($output, $messages);
+        } catch (\Throwable $e) {
+            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            return 1;
+        }
     }
 
     /**

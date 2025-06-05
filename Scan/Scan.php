@@ -74,6 +74,8 @@ class Scan
             $this->scanDeprecatedClasses->scan($moduleName);
         }
 
-        $this->scanComposerFile->scan($moduleName);
+        if (!$this->runtimeConfig->isSkipLicenseCheck()) {
+            $this->scanComposerFile->scan($moduleName);
+        }
     }
 }
