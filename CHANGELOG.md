@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.9] - 05 June 2025
+### Fixed
+- Add option to skip license validation in composer.json #62 @iranimij
+- Remove `Composer\Console\Input\InputArgument` #61 @frqnck
+- Add $moduleName to output messages where not currently implemented #60 @gwharton
+
 ## [2.5.8] - 02 June 2025
 ### Fixed
 - Suggest composer output CLI based on current composer.json

@@ -184,7 +184,7 @@ class ScanCommand extends Command
             'Message',
             'Group',
             'Suggestion',
-            'module'
+            'Module'
         ]);
 
         foreach ($messages as $message) {
