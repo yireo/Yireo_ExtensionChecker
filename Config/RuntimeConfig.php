@@ -9,6 +9,7 @@ class RuntimeConfig
     private bool $verbose = false;
     private array $whitelistedComposerPackages = ['magento/module-store'];
     private array $whitelistedMagentoModules = ['Magento_Store'];
+    private bool $skipLicenseCheck = false;
 
     /**
      * @param bool $hideDeprecated
@@ -62,6 +63,24 @@ class RuntimeConfig
     public function isVerbose(): bool
     {
         return $this->verbose;
+    }
+
+    /**
+     * @param bool $skipLicenseCheck
+     * @return RuntimeConfig
+     */
+    public function setSkipLicenseCheck(bool $skipLicenseCheck): RuntimeConfig
+    {
+        $this->skipLicenseCheck = $skipLicenseCheck;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSkipLicenseCheck(): bool
+    {
+        return $this->skipLicenseCheck;
     }
 
     public function isModuleWhitelisted(string $moduleName): bool
