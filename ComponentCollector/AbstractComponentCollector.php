@@ -2,8 +2,6 @@
 
 namespace Yireo\ExtensionChecker\ComponentCollector;
 
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Exception\NotFoundException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
 use Yireo\ExtensionChecker\PhpClass\ComponentCollector;
@@ -26,9 +24,8 @@ class AbstractComponentCollector
 
     /**
      * @param string $content
+     * @param bool $hardRequirement
      * @return Component[]
-     * @throws FileSystemException
-     * @throws NotFoundException
      */
     protected function findComponentsByModuleName(string $content, bool $hardRequirement = false): array
     {
@@ -47,9 +44,8 @@ class AbstractComponentCollector
 
     /**
      * @param string $content
+     * @param bool $hardRequirement
      * @return Component[]
-     * @throws FileSystemException
-     * @throws NotFoundException
      */
     protected function findComponentsByClassName(string $content, bool $hardRequirement = false): array
     {
@@ -79,9 +75,8 @@ class AbstractComponentCollector
     /**
      * @param string $contents
      * @param array $patterns
+     * @param bool $hardRequirement
      * @return Component[]
-     * @throws FileSystemException
-     * @throws NotFoundException
      */
     protected function findComponentsByPattern(string $contents, array $patterns, bool $hardRequirement = false): array
     {

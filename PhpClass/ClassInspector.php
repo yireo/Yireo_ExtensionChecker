@@ -7,6 +7,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManager\ConfigInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionNamedType;
 use Throwable;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
@@ -137,7 +138,12 @@ class ClassInspector
                 continue;
             }
 
-            $dependency = $this->normalizeClassName($parameter->getType()->getName());
+            $parameterType = $parameter->getType();
+            if (false === $parameterType instanceof ReflectionNamedType) {
+                continue;
+            }
+
+            $dependency = $this->normalizeClassName($parameterType->getName());
             if (!$this->isClassExists($dependency)) {
                 continue;
             }
@@ -150,7 +156,7 @@ class ClassInspector
                 continue;
             }
 
-            $dependencies[] = $this->normalizeClassName($parameter->getType()->getName());
+            $dependencies[] = $this->normalizeClassName($parameterType->getName());
         }
 
         return $dependencies;

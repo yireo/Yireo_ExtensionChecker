@@ -48,7 +48,7 @@ class ComponentDetectorList
 
     /**
      * @param Component[] $components
-     * @return void
+     * @return Component[]
      */
     private function filterSoftAndHardDuplicates(array $components): array
     {

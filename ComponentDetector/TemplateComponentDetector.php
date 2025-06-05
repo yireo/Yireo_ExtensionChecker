@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\ComponentDetector;
 
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\NotFoundException;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\File\FileCollectorInterface;
 use Yireo\ExtensionChecker\Util\ModuleInfo;
@@ -29,6 +31,8 @@ class TemplateComponentDetector implements ComponentDetectorInterface
     /**
      * @param string $moduleName
      * @return Component[]
+     * @throws FileSystemException
+     * @throws NotFoundException
      */
     public function getComponentsByModuleName(string $moduleName): array
     {

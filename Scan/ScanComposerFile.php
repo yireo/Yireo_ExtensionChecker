@@ -28,10 +28,8 @@ class ScanComposerFile
 
     /**
      * @param string $moduleName
-     * @param Component[] $components
      * @return void
      * @throws FileSystemException
-     * @throws NotFoundException
      */
     public function scan(string $moduleName)
     {

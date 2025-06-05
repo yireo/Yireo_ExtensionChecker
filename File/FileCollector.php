@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\File;
 
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\ValidatorException;
 use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReadFactory;
 use Symfony\Component\Finder\FinderFactory;
 use Yireo\ExtensionChecker\Exception\NoFilesFoundException;
@@ -33,9 +35,10 @@ class FileCollector implements FileCollectorInterface
     }
 
     /**
-     * @param string $folder
+     * @param string $moduleFolder
      * @return array
-     * @throws NoFilesFoundException
+     * @throws FileSystemException
+     * @throws ValidatorException
      */
     public function getFilesFromModuleFolder(string $moduleFolder): array
     {

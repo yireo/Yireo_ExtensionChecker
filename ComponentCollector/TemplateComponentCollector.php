@@ -24,7 +24,7 @@ class TemplateComponentCollector extends AbstractComponentCollector
 
     /**
      * @param string $file
-     * @return Component
+     * @return Component[]
      * @throws FileSystemException
      * @throws NotFoundException
      */

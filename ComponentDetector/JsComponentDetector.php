@@ -11,7 +11,7 @@ class JsComponentDetector implements ComponentDetectorInterface
 {
     /**
      * @param string $moduleName
-     * @return Component
+     * @return Component[]
      */
     public function getComponentsByModuleName(string $moduleName): array
     {
