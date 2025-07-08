@@ -51,7 +51,8 @@ class ModuleInfo
      */
     public function isKnown(string $moduleName): bool
     {
-        if (!in_array($moduleName, $this->moduleList->getNames())) {
+        $paths = $this->componentRegistrar->getPaths(ComponentRegistrar::MODULE);
+        if (false === array_key_exists($moduleName, $paths)) {
             return false;
         }
 
