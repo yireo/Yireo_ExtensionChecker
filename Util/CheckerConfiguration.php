@@ -3,6 +3,7 @@
 namespace Yireo\ExtensionChecker\Util;
 
 use Magento\Framework\Component\ComponentRegistrar;
+use Yireo\ExtensionChecker\Component\Component;
 
 class CheckerConfiguration
 {
@@ -23,13 +24,26 @@ class CheckerConfiguration
 
     public function isIgnored(string $moduleName, string $componentName): bool
     {
-        return in_array($componentName, $this->getIgnoredComponents($moduleName));
+        return in_array(
+            $componentName, $this->getIgnoredComponents($moduleName)
+        );
+    }
+
+    public function isComponentIgnored(
+        string $moduleName,
+        Component $component
+    ): bool {
+        $ignoredComponents = $this->getIgnoredComponents($moduleName);
+        return in_array($component->getComponentName(), $ignoredComponents)
+            || in_array($component->getPackageName(), $ignoredComponents);
     }
 
     private function getConfiguration(string $moduleName): array
     {
-        $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
-        $configurationFile = $modulePath.'/.yireo-extension-checker.json';
+        $modulePath = $this->componentRegistrar->getPath(
+            ComponentRegistrar::MODULE, $moduleName
+        );
+        $configurationFile = $modulePath . '/.yireo-extension-checker.json';
         if (false === file_exists($configurationFile)) {
             return [];
         }

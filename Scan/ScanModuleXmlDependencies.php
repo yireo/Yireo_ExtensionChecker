@@ -71,7 +71,7 @@ class ScanModuleXmlDependencies
 
             $isModuleXmlComponentFoundInDetectedComponents = false;
             foreach ($components as $component) {
-                if ($this->checkerConfiguration->isIgnored($moduleName, $moduleXmlComponent->getComponentName())) {
+                if ($this->checkerConfiguration->isComponentIgnored($moduleName, $moduleXmlComponent)) {
                     $isModuleXmlComponentFoundInDetectedComponents = true;
                     break;
                 }

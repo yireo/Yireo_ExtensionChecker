@@ -75,6 +75,10 @@ class ScanComposerRequirements
             return;
         }
 
+        if ($this->checkerConfiguration->isComponentIgnored($moduleName, $component)) {
+            return;
+        }
+
         if ($component->getPackageName() == 'symfony/console') {
             return;
         }
