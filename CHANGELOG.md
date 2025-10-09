@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.10] - 09 October 2025
+### Fixed
+- Copy generic CI/CD files
+- Make sure ignore list is only loaded once
+- Implement ignore-list in missing dependencies
+- Upgrade actions/checkout@v4
+- Upgrade GitHub Action to PHP 8.3 and Magento 2.4.7
+- Add exception if (dependent) module really can't be found
+- Steps to depend less on module to be enabled
+
 ## [2.5.9] - 05 June 2025
 ### Fixed
 - Add option to skip license validation in composer.json #62 @iranimij
