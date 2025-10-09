@@ -1,7 +1,17 @@
 {
-    "modules": [
+    "sequence": [
         "Magento_Catalog",
         "Magento_Customer",
+        "Magento_Store",
+        "Yireo_IntegrationTestHelper"
+    ],
+    "modules": [
+        "Magento_Catalog",
+        "Magento_Cms",
+        "Magento_Customer",
+        "Magento_Directory",
+        "Magento_Eav",
+        "Magento_Indexer",
         "Magento_Store",
         "Yireo_IntegrationTestHelper"
     ],
