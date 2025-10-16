@@ -3,6 +3,7 @@
 namespace Yireo\ExtensionChecker\ComponentDetector;
 
 use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 
 class ComponentDetectorList
 {
@@ -15,6 +16,7 @@ class ComponentDetectorList
      * @param ComponentDetectorInterface[] $componentDetectors
      */
     public function __construct(
+        private RuntimeConfig $runtimeConfig,
         array $componentDetectors = []
     ) {
         $this->componentDetectors = $componentDetectors;
@@ -36,6 +38,7 @@ class ComponentDetectorList
     {
         $components = [];
         foreach ($this->componentDetectors as $componentDetector) {
+            $this->runtimeConfig->debugMessage('Component detector: '.get_class($componentDetector));
             $components = array_merge($components, $componentDetector->getComponentsByModuleName($moduleName));
         }
 

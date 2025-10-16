@@ -2,6 +2,8 @@
 
 namespace Yireo\ExtensionChecker\Config;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 class RuntimeConfig
 {
     private bool $hideDeprecated = false;
@@ -10,6 +12,8 @@ class RuntimeConfig
     private array $whitelistedComposerPackages = ['magento/module-store'];
     private array $whitelistedMagentoModules = ['Magento_Store'];
     private bool $skipLicenseCheck = false;
+
+    private ?OutputInterface $output = null;
 
     /**
      * @param bool $hideDeprecated
@@ -91,5 +95,22 @@ class RuntimeConfig
     public function isComposerPackageWhitelisted(string $composerPackage): bool
     {
         return in_array($composerPackage, $this->whitelistedComposerPackages);
+    }
+
+    public function getOutput(): ?OutputInterface
+    {
+        return $this->output;
+    }
+
+    public function setOutput(?OutputInterface $output): void
+    {
+        $this->output = $output;
+    }
+
+    public function debugMessage(string $message): void
+    {
+        if ($this->isVerbose()) {
+            $this->getOutput()->writeln($message);
+        }
     }
 }

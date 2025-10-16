@@ -4,7 +4,6 @@ namespace Yireo\ExtensionChecker\Util;
 
 use Magento\Framework\Component\ComponentRegistrar;
 use Magento\Framework\Filesystem\Io\File;
-use RuntimeException;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 
 class OtherModuleInfo
@@ -54,7 +53,7 @@ class OtherModuleInfo
 
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
         if (empty($modulePath)) {
-            throw new RuntimeException('Unable to find path for module "'.$moduleName.'"');
+            throw new ModuleNotFoundException('Unable to find path for module "'.$moduleName.'"');
         }
 
         $moduleInfo = $this->loadFromModulePath($modulePath);

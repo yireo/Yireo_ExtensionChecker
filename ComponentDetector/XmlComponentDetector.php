@@ -34,6 +34,7 @@ class XmlComponentDetector implements ComponentDetectorInterface
     {
         $moduleFolder = $this->moduleInfo->getModuleFolder($moduleName);
         $files = $this->fileCollector->getFilesFromModuleFolder($moduleFolder.'/etc');
+
         $components = [];
 
         foreach ($files as $file) {

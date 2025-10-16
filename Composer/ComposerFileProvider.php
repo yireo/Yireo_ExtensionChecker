@@ -55,6 +55,7 @@ class ComposerFileProvider
     public function getComposerFileByModuleName(string $moduleName): ComposerFile
     {
         $moduleInfo = $this->moduleInfo->getModuleInfo($moduleName);
+
         $modulePath = $moduleInfo['path'];
         $possibleComposerPaths = [
             $modulePath . '/composer.json',

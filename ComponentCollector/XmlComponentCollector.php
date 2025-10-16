@@ -16,10 +16,10 @@ class XmlComponentCollector extends AbstractComponentCollector
     public function __construct(
         FileReadFactory $fileReadFactory,
         ComponentFactory $componentFactory,
-        ComponentCollector $componentCollector
+        ComponentCollector $componentCollector,
     ) {
-        $this->fileReadFactory = $fileReadFactory;
         parent::__construct($componentFactory, $componentCollector);
+        $this->fileReadFactory = $fileReadFactory;
     }
 
     /**

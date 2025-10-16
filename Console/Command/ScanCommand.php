@@ -124,6 +124,7 @@ class ScanCommand extends Command
             $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
             $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
             $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
+            $this->runtimeConfig->setOutput($output);
             $this->runtimeConfig->setSkipLicenseCheck((bool)$input->getOption('skip-license-check'));
 
             $moduleNameArray = explode(',', $moduleName);
