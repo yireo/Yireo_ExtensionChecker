@@ -8,6 +8,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
+use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 
@@ -17,6 +18,7 @@ class ComponentFactory
     private ComposerFileProvider $composerFileProvider;
     private ComposerProvider $composerProvider;
     private MessageBucket $messageBucket;
+    private RuntimeConfig $runtimeConfig;
 
     /**
      * @param ObjectManagerInterface $objectManager
@@ -28,12 +30,14 @@ class ComponentFactory
         ObjectManagerInterface $objectManager,
         ComposerFileProvider $composerFileProvider,
         ComposerProvider $composerProvider,
-        MessageBucket $messageBucket
+        MessageBucket $messageBucket,
+        RuntimeConfig $runtimeConfig
     ) {
         $this->objectManager = $objectManager;
         $this->composerFileProvider = $composerFileProvider;
         $this->composerProvider = $composerProvider;
         $this->messageBucket = $messageBucket;
+        $this->runtimeConfig = $runtimeConfig;
     }
 
     /**
@@ -42,7 +46,13 @@ class ComponentFactory
      */
     public function createByModuleName(string $moduleName, bool $hardRequirement = false): Component
     {
+        static $components = [];
+        if (isset($components[$moduleName])) {
+            return $components[$moduleName];
+        }
+
         try {
+            $this->runtimeConfig->debugMessage('Component by module name: '.$moduleName);
             $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
             $packageName = $composerFile->getName();
         } catch (FileSystemException|NotFoundException|ModuleNotFoundException $e) {
@@ -52,13 +62,15 @@ class ComponentFactory
 
         $packageVersion = $this->composerProvider->getVersionByComposerName($packageName);
 
-        return $this->objectManager->create(Component::class, [
+        $components[$moduleName] = $this->objectManager->create(Component::class, [
             'componentName' => $moduleName,
             'componentType' => ComponentRegistrar::MODULE,
             'packageName' => $packageName,
             'packageVersion' => $packageVersion,
             'hardRequirement' => $hardRequirement
         ]);
+
+        return $components[$moduleName];
     }
 
     /**
