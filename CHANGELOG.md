@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.11] - 16 October 2025
+### Fixed
+- Additional debugging with -vvv
+- Remember components already created
+
 ## [2.5.10] - 09 October 2025
 ### Fixed
 - Copy generic CI/CD files
