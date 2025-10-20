@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.12] - 20 October 2025
+### Fixed
+- Normalize class names in getComponentByClass method, fixes #66
+
 ## [2.5.11] - 16 October 2025
 ### Fixed
 - Additional debugging with -vvv
