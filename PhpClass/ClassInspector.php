@@ -226,7 +226,9 @@ class ClassInspector
      */
     public function getComponentByClass(): Component
     {
-        $parts = explode('\\', $this->className);
+        // Normalize fully-qualified class names that might start with a leading backslash
+        $normalizedClassName = ltrim($this->className, '\\');
+        $parts = explode('\\', $normalizedClassName);
         if (count($parts) >= 2) {
             $moduleName = $parts[0] . '_' . $parts[1];
             if ($this->moduleInfo->isKnown($moduleName)) {
