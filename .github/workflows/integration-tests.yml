@@ -1,33 +1,27 @@
 name: Magento 2 Integration Tests
-#on: ['push', 'pull_request']
-on:
-  release:
-  push:
-    branches:
-      - 'main'
+on: ['push', 'pull_request']
 
 jobs:
   integration-tests:
     name: Magento 2 Integration Tests
-    runs-on: self-hosted
-    #runs-on: ubuntu-latest
+    #runs-on: self-hosted
+    runs-on: ubuntu-latest
     container:
-        image: yireo/magento2installed:2.4.7-p4
+      image: yireo/magento2installed:2.4.8-p3
     services:
       mysql:
-        image: mysql:8.0
+        image: yireo/mariadb:10
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_USER: magento2
           MYSQL_PASSWORD: magento2
           MYSQL_DATABASE: magento2
-        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping"
+        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" 
       opensearch:
-        image: yireo/opensearch-dummy
+        image: yireo/opensearch:latest
         env:
           'discovery.type': single-node
-          'xpack.security.enabled': false
-          ES_JAVA_OPTS: "-Xms128m -Xmx128m"
+          ES_JAVA_OPTS: "-Xms256m -Xmx256m"
         options: --health-cmd="curl localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=3
       redis:
         image: redis
@@ -35,6 +29,19 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+
+      - name: Apply patch for reporting memory under Alpine
+        run: cd /tmp/magento && curl -fsSL https://patch-diff.githubusercontent.com/raw/magento/magento2/pull/39216.diff | git apply
+
+      - name: Apply patch for changing MySQL client configuration
+        run: cd /tmp/magento && curl -fsSL https://patch-diff.githubusercontent.com/raw/magento/magento2/pull/40410.diff | git apply
+
+      - name: Configure GitLab
+        run: |
+          test -n "${{ secrets.GITLAB_TOKEN }}" || exit 0
+          cd /tmp/magento
+          composer config --auth gitlab-token.gitlab.yireo.com ${{ secrets.GITLAB_TOKEN }}
+          composer config repositories.loki-checkout composer https://gitlab.yireo.com/api/v4/group/loki-checkout/-/packages/composer/packages.json
 
       - name: Add module source
         run: |
@@ -53,5 +60,7 @@ jobs:
           export MAGENTO_MODULE=${EXTENSION_VENDOR}_${EXTENSION_NAME}
           cd /tmp/magento/dev/tests/integration/
           cp -R ${GITHUB_WORKSPACE}/.github/workflows/integration-tests/* .
+          php ../../../vendor/bin/phpunit --atleast-version 9 && cp phpunit9.xml phpunit.xml
+          php ../../../vendor/bin/phpunit --atleast-version 10 && cp phpunit10.xml phpunit.xml
           php -d memory_limit=4G ../../../vendor/bin/phpunit -c phpunit.xml ../../../vendor/$COMPOSER_NAME/Test/Integration
 
