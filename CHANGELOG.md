@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.13] - 19 May 2026
+### Fixed
+- When suggesting composer.json, do not override original semver
+
 ## [2.5.12] - 20 October 2025
 ### Fixed
 - Normalize class names in getComponentByClass method, fixes #66
