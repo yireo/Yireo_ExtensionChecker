@@ -72,7 +72,7 @@ class SuggestComposerJsonCommand extends Command
         ksort($composerDependencies);
         $composerData = $this->getCurrentComposerData($moduleName);
         $composerData = array_merge($composerData, [
-            'require' =>  $composerDependencies,
+            'require' =>  $this->mergeRequirements($composerData['require'], $composerDependencies),
         ]);
 
         $composerJson = json_encode($composerData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
@@ -86,5 +86,29 @@ class SuggestComposerJsonCommand extends Command
         $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
         $composerPath = $modulePath . '/composer.json';
         return json_decode(file_get_contents($composerPath), true);
+    }
+
+    private function mergeRequirements(array $original, array $new): array
+    {
+        foreach ($original as $packageName => $version) {
+            if (!isset($new[$packageName])) {
+                unset($original[$packageName]);
+            }
+        }
+
+        foreach ($new as $packageName => $version) {
+            if (isset($original[$packageName]) && $original[$packageName] === '*') {
+                $original[$packageName] = $version;
+                continue;
+            }
+
+            if (!isset($original[$packageName])) {
+                $original[$packageName] = $version;
+            }
+        }
+
+        ksort($original);
+
+        return $original;
     }
 }
