@@ -50,6 +50,10 @@ class ScanModuleXmlDependencies
                 continue;
             }
 
+            if ($this->checkerConfiguration->isComponentIgnored($moduleName, $component)) {
+                continue;
+            }
+
             $isComponentFoundInModuleXml = false;
             foreach ($moduleXmlComponents as $moduleXmlComponent) {
                 if ($component->getComponentName() === $moduleXmlComponent->getComponentName()) {
