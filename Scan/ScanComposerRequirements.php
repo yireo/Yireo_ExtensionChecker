@@ -246,6 +246,10 @@ class ScanComposerRequirements
             return true;
         }
 
+        if (str_contains($dependency, 'functional-tests')) {
+            return true;
+        }
+
         return false;
     }
 }
