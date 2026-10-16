@@ -24,6 +24,10 @@ use Yireo\ExtensionChecker\Composer\ComposerRequirementsMerger;
 
 class SuggestComposerJsonCommand extends Command
 {
+    private const FIXED_VERSION_CONSTRAINTS = [
+        'psr/log' => '^1.0 || ^2.0 || ^3.0',
+    ];
+
     public function __construct(
         private ComponentDetectorList $componentDetectorList,
         private ComposerProvider $composerProvider,
@@ -75,6 +79,10 @@ class SuggestComposerJsonCommand extends Command
             $version = $this->composerProvider->getSuggestedVersion($component->getPackageVersion());
             if (str_starts_with($component->getPackageName(), 'ext-')) {
                 $version = '*';
+            }
+
+            if (isset(self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()])) {
+                $version = self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()];
             }
 
             if ($component->isDevRequirement()) {
