@@ -19,6 +19,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
+use Yireo\ExtensionChecker\Composer\ComposerRequirementsMerger;
 
 class SuggestComposerJsonCommand extends Command
 {
@@ -26,6 +27,7 @@ class SuggestComposerJsonCommand extends Command
         private ComponentDetectorList $componentDetectorList,
         private ComposerProvider $composerProvider,
         private ComponentRegistrar $componentRegistrar,
+        private ComposerRequirementsMerger $composerRequirementsMerger,
         $name = null
     ) {
         parent::__construct($name);
@@ -56,6 +58,7 @@ class SuggestComposerJsonCommand extends Command
 
         $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
         $composerDependencies = [];
+        $composerDevDependencies = [];
         foreach ($components as $component) {
             if (false === $component->hasPackageName()) {
                 continue;
@@ -66,14 +69,26 @@ class SuggestComposerJsonCommand extends Command
                 $version = '*';
             }
 
+            if ($component->isDevRequirement()) {
+                $composerDevDependencies[$component->getPackageName()] = $version;
+                continue;
+            }
+
             $composerDependencies[$component->getPackageName()] = $version;
         }
 
-        ksort($composerDependencies);
         $composerData = $this->getCurrentComposerData($moduleName);
-        $composerData = array_merge($composerData, [
-            'require' =>  $this->mergeRequirements($composerData['require'], $composerDependencies),
-        ]);
+        $require = $this->composerRequirementsMerger->mergeRequire(
+            $composerData['require'] ?? [],
+            $composerDependencies
+        );
+        $requireDev = $this->composerRequirementsMerger->mergeRequireDev(
+            $composerData['require-dev'] ?? [],
+            $composerDevDependencies,
+            $require
+        );
+
+        $composerData = $this->setRequirements($composerData, $require, $requireDev);
 
         $composerJson = json_encode($composerData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
         $output->writeln($composerJson);
@@ -88,27 +103,29 @@ class SuggestComposerJsonCommand extends Command
         return json_decode(file_get_contents($composerPath), true);
     }
 
-    private function mergeRequirements(array $original, array $new): array
+    private function setRequirements(array $composerData, array $require, array $requireDev): array
     {
-        foreach ($original as $packageName => $version) {
-            if (!isset($new[$packageName])) {
-                unset($original[$packageName]);
+        $composerData['require'] = $require;
+
+        if (empty($requireDev)) {
+            unset($composerData['require-dev']);
+            return $composerData;
+        }
+
+        if (isset($composerData['require-dev'])) {
+            $composerData['require-dev'] = $requireDev;
+            return $composerData;
+        }
+
+        // Insert "require-dev" directly after "require"
+        $newComposerData = [];
+        foreach ($composerData as $key => $value) {
+            $newComposerData[$key] = $value;
+            if ($key === 'require') {
+                $newComposerData['require-dev'] = $requireDev;
             }
         }
 
-        foreach ($new as $packageName => $version) {
-            if (isset($original[$packageName]) && $original[$packageName] === '*') {
-                $original[$packageName] = $version;
-                continue;
-            }
-
-            if (!isset($original[$packageName])) {
-                $original[$packageName] = $version;
-            }
-        }
-
-        ksort($original);
-
-        return $original;
+        return $newComposerData;
     }
 }
