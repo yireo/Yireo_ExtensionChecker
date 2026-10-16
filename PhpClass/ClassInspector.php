@@ -7,6 +7,7 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManager\ConfigInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionExtension;
 use ReflectionNamedType;
 use Throwable;
 use Yireo\ExtensionChecker\Component\Component;
@@ -148,7 +149,7 @@ class ClassInspector
                 continue;
             }
 
-            if (in_array($dependency, spl_classes())) {
+            if (in_array($dependency, (new ReflectionExtension('SPL'))->getClassNames(), true)) {
                 continue;
             }
 
