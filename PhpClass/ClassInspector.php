@@ -250,7 +250,8 @@ class ClassInspector
      */
     public function getPackageByClass(): string
     {
-        $object = $this->getReflectionObject();
+        // Do not use getReflectionObject() because that skips abstract classes (like PHPUnit\Framework\TestCase)
+        $object = new ReflectionClass($this->className);
         $filename = $object->getFileName();
         if (empty($filename)) {
             return '';
