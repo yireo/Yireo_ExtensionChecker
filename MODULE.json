@@ -6,20 +6,24 @@
         "Yireo_IntegrationTestHelper"
     ],
     "modules": [
+        "Magento_AdminNotification",
         "Magento_Catalog",
         "Magento_Cms",
+        "Magento_Csp",
         "Magento_Customer",
         "Magento_Directory",
         "Magento_Eav",
         "Magento_Indexer",
         "Magento_Store",
+        "Magento_Theme",
+        "Magento_Variable",
         "Yireo_IntegrationTestHelper"
     ],
     "components": [],
     "config": [],
     "tests": {
-        "unit": 2,
-        "integration": 28,
+        "unit": 5,
+        "integration": 29,
         "functional": 0
     },
     "module_name": "Yireo_ExtensionChecker",
