@@ -96,6 +96,14 @@ Likewise, the `require` section of the `composer.json` file can be generated too
 bin/magento yireo_extensionchecker:suggest:composer-json Yireo_Example
 ```
 
+Dependencies that are only used by PHP classes within the module its `Test/` folder (like `phpunit/phpunit` or `yireo/magento2-integration-test-helper`) are suggested within the `require-dev` section instead. Existing `require-dev` entries are kept.
+
+To also add a PHP requirement (`>=8.2 <8.6`, unless a `php` requirement already exists), add the `--with-php` flag:
+
+```bash
+bin/magento yireo_extensionchecker:suggest:composer-json Yireo_Example --with-php
+```
+
 ## Current status
 
 <!-- badges.test.start -->
