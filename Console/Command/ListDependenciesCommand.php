@@ -107,7 +107,8 @@ class ListDependenciesCommand extends Command
             'Component type',
             'Package name',
             'Current version',
-            'Hard requirement'
+            'Hard requirement',
+            'Dev requirement'
         ]);
 
         foreach ($components as $component) {
@@ -117,6 +118,7 @@ class ListDependenciesCommand extends Command
                 $component->getPackageName(),
                 $component->getPackageVersion(),
                 $component->isHardRequirement() ? 'Yes' : 'No',
+                $component->isDevRequirement() ? 'Yes' : 'No',
             ]);
         }
 

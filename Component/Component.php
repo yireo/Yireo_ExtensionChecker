@@ -26,6 +26,7 @@ class Component
      */
     private $packageVersion;
     private bool $hardRequirement;
+    private bool $devRequirement;
 
     /**
      * @param string $componentName
@@ -33,19 +34,22 @@ class Component
      * @param string $packageName
      * @param string $packageVersion
      * @param bool $hardRequirement
+     * @param bool $devRequirement
      */
     public function __construct(
         string $componentName = '',
         string $componentType = ComponentRegistrar::MODULE,
         string $packageName = '',
         string $packageVersion = '',
-        bool $hardRequirement = false
+        bool $hardRequirement = false,
+        bool $devRequirement = false
     ) {
         $this->componentName = $componentName;
         $this->componentType = $componentType;
         $this->packageName = $packageName;
         $this->packageVersion = $packageVersion;
         $this->hardRequirement = $hardRequirement;
+        $this->devRequirement = $devRequirement;
     }
 
     /**
@@ -107,6 +111,26 @@ class Component
     }
 
     /**
+     * @return bool
+     */
+    public function isDevRequirement(): bool
+    {
+        return $this->devRequirement;
+    }
+
+    /**
+     * Return a copy of this component flagged as dev requirement (components might be shared instances)
+     *
+     * @return static
+     */
+    public function withDevRequirement(): static
+    {
+        $component = clone $this;
+        $component->devRequirement = true;
+        return $component;
+    }
+
+    /**
      * @return string
      */
     public function __toString()
@@ -124,6 +148,7 @@ class Component
             'component-type' => $this->getComponentType(),
             'package-name' => $this->getPackageName(),
             'package-version' => $this->getPackageVersion(),
+            'dev-requirement' => $this->isDevRequirement(),
         ];
     }
 }

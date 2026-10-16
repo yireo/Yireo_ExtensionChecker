@@ -45,8 +45,7 @@ class ScanModuleXmlDependencies
                 continue;
             }
 
-            // @todo: Remove this hard-coded hack by flagging this component as dev requirement so optional
-            if ($component->getComponentName() === 'Yireo_IntegrationTestHelper') {
+            if ($component->isDevRequirement()) {
                 continue;
             }
 

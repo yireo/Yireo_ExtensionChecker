@@ -18,4 +18,25 @@ class PhpClassComponentDetectorTest extends TestCase
         $this->assertNotEmpty($components);
         $this->assertContainsByComponentName('Magento_Checkout', $components);
     }
+
+    public function testDevRequirementsForTestClasses()
+    {
+        $componentDetector = ObjectManager::getInstance()->get(PhpClassComponentDetector::class);
+        $components = $componentDetector->getComponentsByModuleName('Yireo_ExtensionChecker');
+
+        $devComponentNames = [];
+        $nonDevComponentNames = [];
+        foreach ($components as $component) {
+            if ($component->isDevRequirement()) {
+                $devComponentNames[] = $component->getComponentName();
+                continue;
+            }
+
+            $nonDevComponentNames[] = $component->getComponentName();
+        }
+
+        $this->assertContains('phpunit/phpunit', $devComponentNames);
+        $this->assertNotContains('phpunit/phpunit', $nonDevComponentNames);
+        $this->assertContains('magento/framework', $nonDevComponentNames);
+    }
 }

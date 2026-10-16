@@ -44,7 +44,30 @@ class ComponentDetectorList
 
         $components = array_filter($components, fn ($component) => $component->getComponentName() !== $moduleName);
         $components = array_unique($components, SORT_REGULAR);
+        $components = $this->filterDevAndNonDevDuplicates($components);
         $components = $this->filterSoftAndHardDuplicates($components);
+
+        return $components;
+    }
+
+    /**
+     * @param Component[] $components
+     * @return Component[]
+     */
+    private function filterDevAndNonDevDuplicates(array $components): array
+    {
+        $nonDevComponentNames = [];
+        foreach ($components as $component) {
+            if (false === $component->isDevRequirement()) {
+                $nonDevComponentNames[$component->getComponentName()] = true;
+            }
+        }
+
+        foreach ($components as $index => $component) {
+            if ($component->isDevRequirement() && isset($nonDevComponentNames[$component->getComponentName()])) {
+                unset($components[$index]);
+            }
+        }
 
         return $components;
     }

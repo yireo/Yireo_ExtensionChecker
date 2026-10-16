@@ -88,6 +88,9 @@ class ScanComposerRequirements
 
         $version = $component->getPackageVersion();
         $message = 'No composer dependency found for "'.$packageName.'"';
+        if ($component->isDevRequirement()) {
+            $message .= ' (require-dev)';
+        }
         $suggestion = sprintf('Current version is %s. ', $version);
         if ($this->composerProvider->shouldSuggestVersion($packageName)) {
             $suggestion .= sprintf('Perhaps use %s?', $this->composerProvider->getSuggestedVersion($version));
