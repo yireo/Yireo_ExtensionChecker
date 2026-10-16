@@ -16,6 +16,7 @@ use Magento\Framework\Component\ComponentRegistrar;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
@@ -46,6 +47,13 @@ class SuggestComposerJsonCommand extends Command
             InputArgument::REQUIRED,
             'Module name'
         );
+
+        $this->addOption(
+            'with-php',
+            null,
+            InputOption::VALUE_NONE,
+            'Add a PHP requirement (>=8.2 <8.6)'
+        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -75,6 +83,10 @@ class SuggestComposerJsonCommand extends Command
             }
 
             $composerDependencies[$component->getPackageName()] = $version;
+        }
+
+        if ($input->getOption('with-php')) {
+            $composerDependencies['php'] = '>=8.2 <8.6';
         }
 
         $composerData = $this->getCurrentComposerData($moduleName);
