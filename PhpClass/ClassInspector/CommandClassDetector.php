@@ -2,17 +2,20 @@
 
 namespace Yireo\ExtensionChecker\PhpClass\ClassInspector;
 
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Console\Cli as CliApplication;
+use Magento\Framework\Console\CliFactory as CliApplicationFactory;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 
 class CommandClassDetector implements ClassDetectorInterface
 {
-    private CliApplication $cliApplication;
+    private CliApplicationFactory $cliApplicationFactory;
+    private ?CliApplication $cliApplication = null;
 
     public function __construct(
-        CliApplication $cliApplication
+        CliApplicationFactory $cliApplicationFactory
     ) {
-        $this->cliApplication = $cliApplication;
+        $this->cliApplicationFactory = $cliApplicationFactory;
     }
 
     public function getClassNames(string $phpFileContent): array
@@ -25,7 +28,7 @@ class CommandClassDetector implements ClassDetectorInterface
 
         foreach ($matches[1] as $commandName) {
             try {
-                $command = $this->cliApplication->find($commandName);
+                $command = $this->getCliApplication()->find($commandName);
             } catch (CommandNotFoundException $exception) {
                 continue;
             }
@@ -34,5 +37,22 @@ class CommandClassDetector implements ClassDetectorInterface
         }
 
         return $classnames;
+    }
+
+    private function getCliApplication(): CliApplication
+    {
+        if ($this->cliApplication instanceof CliApplication) {
+            return $this->cliApplication;
+        }
+
+        // Constructing the CLI application bootstraps a new ObjectManager and sets it as the global instance
+        $objectManager = ObjectManager::getInstance();
+        try {
+            $this->cliApplication = $this->cliApplicationFactory->create();
+        } finally {
+            ObjectManager::setInstance($objectManager);
+        }
+
+        return $this->cliApplication;
     }
 }

@@ -19,9 +19,11 @@ class ClassInspectorTest extends TestCase
 {
     public function testGetDependencies()
     {
-        $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
+        $objectManager = ObjectManager::getInstance();
+        $classInspector = $objectManager->get(ClassInspector::class);
         $classInspector->setClassName(ProductRepository::class);
         $dependencies = $classInspector->getDependencies();
+        $this->assertSame($objectManager, ObjectManager::getInstance());
         $this->assertNotEmpty($dependencies);
         $this->assertContains(SearchCriteriaInterface::class, $dependencies, var_export($dependencies, true));
     }
