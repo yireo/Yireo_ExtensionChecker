@@ -20,7 +20,7 @@
         "ext-json": "*",
         "ext-pcre": "*",
         "ext-xml": "*",
-        "guzzlehttp/guzzle": "^6.0|^7.0",
+        "guzzlehttp/guzzle": "^7.15.2",
         "magento/framework": "^102.0|^103.0",
         "magento/module-catalog": "^103.0|^104.0",
         "magento/module-customer": "^103.0",
