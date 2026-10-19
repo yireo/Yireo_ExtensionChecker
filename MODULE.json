@@ -22,8 +22,8 @@
     "components": [],
     "config": [],
     "tests": {
-        "unit": 5,
-        "integration": 29,
+        "unit": 43,
+        "integration": 33,
         "functional": 0
     },
     "module_name": "Yireo_ExtensionChecker",
