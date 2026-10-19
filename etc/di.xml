@@ -12,6 +12,8 @@
                 <item name="yireo_extensionchecker_list_modules" xsi:type="object">Yireo\ExtensionChecker\Console\Command\ListModulesCommand</item>
                 <item name="yireo_extensionchecker_suggest_module_xml" xsi:type="object">Yireo\ExtensionChecker\Console\Command\SuggestModuleXmlCommand</item>
                 <item name="yireo_extensionchecker_suggest_composer_json" xsi:type="object">Yireo\ExtensionChecker\Console\Command\SuggestComposerJsonCommand</item>
+                <item name="yireo_extensionchecker_diff_module_xml" xsi:type="object">Yireo\ExtensionChecker\Console\Command\DiffModuleXmlCommand</item>
+                <item name="yireo_extensionchecker_diff_composer_json" xsi:type="object">Yireo\ExtensionChecker\Console\Command\DiffComposerJsonCommand</item>
             </argument>
         </arguments>
     </type>
