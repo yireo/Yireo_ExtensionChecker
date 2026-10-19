@@ -17,6 +17,7 @@ class ComposerJsonSuggestion extends AbstractSuggestion
 
     private const FIXED_VERSION_CONSTRAINTS = [
         'psr/log' => '^1.0 || ^2.0 || ^3.0',
+        'symfony/console' => '^5.0 | ^6.0 | ^7.0',
     ];
 
     public function __construct(

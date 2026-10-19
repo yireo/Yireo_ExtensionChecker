@@ -40,6 +40,7 @@ class ComposerJsonSuggestionTest extends TestCase
             new Component('Magento_Framework', 'library', 'magento/framework', '103.0.7'),
             new Component('Magento_Store', 'module', 'magento/module-store', '101.0.0'),
             new Component('psr/log', 'library', 'psr/log', '3.0.0'),
+            new Component('symfony/console', 'library', 'symfony/console', '7.4.1'),
             new Component('ext-json', 'library', 'ext-json', '8.4.0'),
             new Component('PHPUnit', 'library', 'phpunit/phpunit', '10.5.1', false, true),
         ]);
@@ -50,6 +51,7 @@ class ComposerJsonSuggestionTest extends TestCase
             'magento/framework' => '^103.0|^104.0',
             'magento/module-store' => '^101.0',
             'psr/log' => '^1.0 || ^2.0 || ^3.0',
+            'symfony/console' => '^5.0 | ^6.0 | ^7.0',
         ], $suggestedData['require']);
         $this->assertSame(['phpunit/phpunit' => '^10.5'], $suggestedData['require-dev']);
         $this->assertSame(['name', 'require', 'require-dev', 'autoload'], array_keys($suggestedData));
