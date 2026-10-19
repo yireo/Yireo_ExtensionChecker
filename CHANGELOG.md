@@ -5,18 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.6.1] - 19 October 2026
 ### Added
 - Add `diff:module-xml` and `diff:composer-json` commands to show differences between the current and suggested files
 - Add `autofix:module-xml` and `autofix:composer-json` commands to replace the current files with the suggested ones
 - Require `sebastian/diff` for generating unified diffs
 - Suggest `^5.0 | ^6.0 | ^7.0` as version constraint for `symfony/console` in `suggest:composer-json` command
 
-### Changed
+### Fixed
+- Require guzzlehttp/guzzle ^7.15.2 to exclude vulnerable versions
 - `suggest:module-xml` keeps the header (XML declaration, comments) and additional `<module>` attributes of the current `module.xml`
 - `suggest:module-xml` no longer adds an empty line before `</sequence>` and skips `<sequence>` when there are no dependencies
 - Move suggestion logic from commands into `ModuleXmlSuggestion` and `ComposerJsonSuggestion` classes
-
-### Fixed
 - `suggest:composer-json` outputs an empty `require` section as `{}` instead of `[]`
 - `suggest:composer-json` throws a clear error when `composer.json` is missing or invalid
 
