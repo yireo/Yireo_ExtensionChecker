@@ -12,27 +12,18 @@
 namespace Yireo\ExtensionChecker\Console\Command;
 
 use InvalidArgumentException;
-use Magento\Framework\Component\ComponentRegistrar;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
-use Yireo\ExtensionChecker\Composer\ComposerProvider;
-use Yireo\ExtensionChecker\Composer\ComposerRequirementsMerger;
+use Yireo\ExtensionChecker\Suggestion\ComposerJsonSuggestion;
 
 class SuggestComposerJsonCommand extends Command
 {
-    private const FIXED_VERSION_CONSTRAINTS = [
-        'psr/log' => '^1.0 || ^2.0 || ^3.0',
-    ];
+    use ComposerJsonOptionsTrait;
 
     public function __construct(
-        private ComponentDetectorList $componentDetectorList,
-        private ComposerProvider $composerProvider,
-        private ComponentRegistrar $componentRegistrar,
-        private ComposerRequirementsMerger $composerRequirementsMerger,
+        private ComposerJsonSuggestion $composerJsonSuggestion,
         $name = null
     ) {
         parent::__construct($name);
@@ -52,12 +43,7 @@ class SuggestComposerJsonCommand extends Command
             'Module name'
         );
 
-        $this->addOption(
-            'with-php',
-            null,
-            InputOption::VALUE_NONE,
-            'Add a PHP requirement (>=8.2 <8.6)'
-        );
+        $this->addComposerJsonOptions();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -68,84 +54,12 @@ class SuggestComposerJsonCommand extends Command
             throw new InvalidArgumentException('Module name is required');
         }
 
-        $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
-        $composerDependencies = [];
-        $composerDevDependencies = [];
-        foreach ($components as $component) {
-            if (false === $component->hasPackageName()) {
-                continue;
-            }
-
-            $version = $this->composerProvider->getSuggestedVersion($component->getPackageVersion());
-            if (str_starts_with($component->getPackageName(), 'ext-')) {
-                $version = '*';
-            }
-
-            if (isset(self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()])) {
-                $version = self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()];
-            }
-
-            if ($component->isDevRequirement()) {
-                $composerDevDependencies[$component->getPackageName()] = $version;
-                continue;
-            }
-
-            $composerDependencies[$component->getPackageName()] = $version;
-        }
-
-        if ($input->getOption('with-php')) {
-            $composerDependencies['php'] = '>=8.2 <8.6';
-        }
-
-        $composerData = $this->getCurrentComposerData($moduleName);
-        $require = $this->composerRequirementsMerger->mergeRequire(
-            $composerData['require'] ?? [],
-            $composerDependencies
+        $composerJson = $this->composerJsonSuggestion->getSuggestedContents(
+            $moduleName,
+            $this->getSuggestionOptions($input)
         );
-        $requireDev = $this->composerRequirementsMerger->mergeRequireDev(
-            $composerData['require-dev'] ?? [],
-            $composerDevDependencies,
-            $require
-        );
-
-        $composerData = $this->setRequirements($composerData, $require, $requireDev);
-
-        $composerJson = json_encode($composerData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
-        $output->writeln($composerJson);
+        $output->writeln(rtrim($composerJson, "\n"), OutputInterface::OUTPUT_RAW);
 
         return Command::SUCCESS;
-    }
-
-    private function getCurrentComposerData(string $moduleName): array
-    {
-        $modulePath = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, $moduleName);
-        $composerPath = $modulePath . '/composer.json';
-        return json_decode(file_get_contents($composerPath), true);
-    }
-
-    private function setRequirements(array $composerData, array $require, array $requireDev): array
-    {
-        $composerData['require'] = $require;
-
-        if (empty($requireDev)) {
-            unset($composerData['require-dev']);
-            return $composerData;
-        }
-
-        if (isset($composerData['require-dev'])) {
-            $composerData['require-dev'] = $requireDev;
-            return $composerData;
-        }
-
-        // Insert "require-dev" directly after "require"
-        $newComposerData = [];
-        foreach ($composerData as $key => $value) {
-            $newComposerData[$key] = $value;
-            if ($key === 'require') {
-                $newComposerData['require-dev'] = $requireDev;
-            }
-        }
-
-        return $newComposerData;
     }
 }

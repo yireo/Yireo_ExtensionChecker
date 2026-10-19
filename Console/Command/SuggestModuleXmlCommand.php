@@ -16,12 +16,12 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
+use Yireo\ExtensionChecker\Suggestion\ModuleXmlSuggestion;
 
 class SuggestModuleXmlCommand extends Command
 {
     public function __construct(
-        private ComponentDetectorList $componentDetectorList,
+        private ModuleXmlSuggestion $moduleXmlSuggestion,
         $name = null
     ) {
         parent::__construct($name);
@@ -50,38 +50,9 @@ class SuggestModuleXmlCommand extends Command
             throw new InvalidArgumentException('Module name is required');
         }
 
-        $components = $this->componentDetectorList->getComponentsByModuleName($moduleName);
-        $moduleDependencies = [];
-        foreach ($components as $component) {
-            if (false === $component->hasComponentName()) {
-                continue;
-            }
-
-            $moduleDependencies[] = $component->getComponentName();
-        }
-
-        sort($moduleDependencies);
-        $output->writeln($this->getModuleXml($moduleName, $moduleDependencies));
+        $moduleXml = $this->moduleXmlSuggestion->getSuggestedContents($moduleName);
+        $output->writeln(rtrim($moduleXml, "\n"), OutputInterface::OUTPUT_RAW);
 
         return Command::SUCCESS;
-    }
-
-    private function getModuleXml(string $moduleName, array $moduleDependencies = []): string
-    {
-        $moduleSequence = '';
-        foreach ($moduleDependencies as $moduleDependency) {
-            $moduleSequence .=  '            <module name="'.$moduleDependency.'"/>'."\n";
-        }
-
-        return <<<EOF
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="{$moduleName}">
-        <sequence>
-{$moduleSequence}
-        </sequence>
-    </module>
-</config>
-EOF;
     }
 }
