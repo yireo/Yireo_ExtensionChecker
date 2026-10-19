@@ -104,6 +104,28 @@ To also add a PHP requirement (`>=8.2 <8.6`, unless a `php` requirement already 
 bin/magento yireo_extensionchecker:suggest:composer-json Yireo_Example --with-php
 ```
 
+The suggested `module.xml` keeps everything before the `<config>` element of the current file (like the XML declaration and a license comment), as well as additional attributes of the `<module>` element (like `setup_version`).
+
+## Show differences with the current files
+To compare the current `etc/module.xml` or `composer.json` file with the suggested version, use the `diff` commands. These output a unified diff and, just like the `diff` tool, exit with `0` when there are no differences and with `1` when there are:
+
+```bash
+bin/magento yireo_extensionchecker:diff:module-xml Yireo_Example
+bin/magento yireo_extensionchecker:diff:composer-json Yireo_Example
+bin/magento yireo_extensionchecker:diff:composer-json Yireo_Example --with-php
+```
+
+## Automatically fix the current files
+To replace the current `etc/module.xml` or `composer.json` file with the suggested version, use the `autofix` commands. The applied changes are shown as a diff:
+
+```bash
+bin/magento yireo_extensionchecker:autofix:module-xml Yireo_Example
+bin/magento yireo_extensionchecker:autofix:composer-json Yireo_Example
+bin/magento yireo_extensionchecker:autofix:composer-json Yireo_Example --with-php
+```
+
+Make sure to review the changes (for instance with `git diff`) before committing them.
+
 ## Current status
 
 <!-- badges.test.start -->
