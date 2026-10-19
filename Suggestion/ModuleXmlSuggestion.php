@@ -115,7 +115,7 @@ class ModuleXmlSuggestion extends AbstractSuggestion
      */
     private function getModuleAttributes(string $currentContents): array
     {
-        if (trim($currentContents) === '') {
+        if (trim($currentContents, " \f\n\r\t\v\x00") === '') {
             return [];
         }
 
