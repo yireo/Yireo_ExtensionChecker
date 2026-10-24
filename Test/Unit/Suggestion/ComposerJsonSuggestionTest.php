@@ -88,6 +88,23 @@ class ComposerJsonSuggestionTest extends TestCase
         $this->assertArrayNotHasKey('require-dev', $suggestedData);
     }
 
+    public function testGetSuggestedContentsSkipsDevDependencyAlreadyInRequire()
+    {
+        $moduleFolder = $this->createTemporaryFolder(['composer.json' => $this->toJson([
+            'name' => 'foo/bar',
+            'require' => ['magento/module-store' => '^101.0'],
+        ])]);
+
+        $suggestion = $this->getSuggestion($moduleFolder, [
+            new Component('Magento_Store', 'module', 'magento/module-store', '101.0.0'),
+            new Component('Magento\Store', 'library', 'Magento/Module-Store', '101.0.0', false, true),
+        ]);
+
+        $suggestedData = json_decode($suggestion->getSuggestedContents('Foo_Bar'), true);
+        $this->assertSame(['magento/module-store' => '^101.0'], $suggestedData['require']);
+        $this->assertArrayNotHasKey('require-dev', $suggestedData);
+    }
+
     public function testGetSuggestedContentsWithEmptyRequireRemainsAnObject()
     {
         $moduleFolder = $this->createTemporaryFolder(['composer.json' => $this->toJson([

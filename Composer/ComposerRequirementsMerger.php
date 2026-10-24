@@ -33,14 +33,16 @@ class ComposerRequirementsMerger
      */
     public function mergeRequireDev(array $original, array $new, array $require): array
     {
+        $requiredPackageNames = array_change_key_case($require, CASE_LOWER);
+
         foreach ($original as $packageName => $version) {
-            if (isset($require[$packageName])) {
+            if (isset($requiredPackageNames[strtolower((string)$packageName)])) {
                 unset($original[$packageName]);
             }
         }
 
         foreach ($new as $packageName => $version) {
-            if (isset($require[$packageName])) {
+            if (isset($requiredPackageNames[strtolower((string)$packageName)])) {
                 unset($new[$packageName]);
             }
         }

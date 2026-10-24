@@ -55,4 +55,17 @@ class ComposerRequirementsMergerTest extends TestCase
             'yireo/magento2-integration-test-helper' => '^0.0.13',
         ], $result);
     }
+
+    public function testMergeRequireDevSkipsPackagesInRequireCaseInsensitively()
+    {
+        $original = ['Foo/Bar' => '^1.0', 'phpstan/phpstan' => '^1.0'];
+        $new = ['foo/baz' => '^2.0', 'phpunit/phpunit' => '^9.0'];
+        $require = ['foo/bar' => '^1.0', 'Foo/Baz' => '^2.0'];
+
+        $result = (new ComposerRequirementsMerger())->mergeRequireDev($original, $new, $require);
+        $this->assertSame([
+            'phpstan/phpstan' => '^1.0',
+            'phpunit/phpunit' => '^9.0',
+        ], $result);
+    }
 }

@@ -57,14 +57,23 @@ class ComponentDetectorList
     private function filterDevAndNonDevDuplicates(array $components): array
     {
         $nonDevComponentNames = [];
+        $nonDevPackageNames = [];
         foreach ($components as $component) {
             if (false === $component->isDevRequirement()) {
                 $nonDevComponentNames[$component->getComponentName()] = true;
+                if ($component->getPackageName() !== '') {
+                    $nonDevPackageNames[strtolower($component->getPackageName())] = true;
+                }
             }
         }
 
         foreach ($components as $index => $component) {
-            if ($component->isDevRequirement() && isset($nonDevComponentNames[$component->getComponentName()])) {
+            if (false === $component->isDevRequirement()) {
+                continue;
+            }
+
+            if (isset($nonDevComponentNames[$component->getComponentName()])
+                || isset($nonDevPackageNames[strtolower($component->getPackageName())])) {
                 unset($components[$index]);
             }
         }
