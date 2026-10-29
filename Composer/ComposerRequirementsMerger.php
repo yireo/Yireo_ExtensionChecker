@@ -14,6 +14,10 @@ class ComposerRequirementsMerger
     public function mergeRequire(array $original, array $new): array
     {
         foreach ($original as $packageName => $version) {
+            if ($packageName === 'php') {
+                continue;
+            }
+
             if (!isset($new[$packageName])) {
                 unset($original[$packageName]);
             }

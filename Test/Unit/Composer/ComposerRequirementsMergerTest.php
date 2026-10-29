@@ -29,6 +29,33 @@ class ComposerRequirementsMergerTest extends TestCase
         ], $result);
     }
 
+    public function testMergeRequireKeepsPhpRequirement()
+    {
+        $original = [
+            'php' => '>=8.1',
+            'foo/undetected' => '^1.0',
+        ];
+
+        $new = [
+            'foo/bar' => '^2.0',
+        ];
+
+        $result = (new ComposerRequirementsMerger())->mergeRequire($original, $new);
+        $this->assertSame([
+            'foo/bar' => '^2.0',
+            'php' => '>=8.1',
+        ], $result);
+    }
+
+    public function testMergeRequireKeepsOriginalPhpConstraint()
+    {
+        $original = ['php' => '>=8.1'];
+        $new = ['php' => '>=8.2 <8.6'];
+
+        $result = (new ComposerRequirementsMerger())->mergeRequire($original, $new);
+        $this->assertSame(['php' => '>=8.1'], $result);
+    }
+
     public function testMergeRequireDev()
     {
         $original = [
