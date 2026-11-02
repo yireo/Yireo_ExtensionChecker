@@ -23,7 +23,7 @@ class ScanComposerRequirementsTest extends TestCase
     public function testMissingDependencyNotReportedWhenAlternativeIsRequired(string $required, string $detected)
     {
         $this->scan([$required => '^104.0'], [
-            new Component('Magento_Catalog', 'module', $detected, '104.0.0'),
+            new Component('Magento_Catalog', 'module', $detected, '104.0.0', true),
         ]);
 
         $this->assertNotContains(MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $this->getMessageGroups());
@@ -41,10 +41,19 @@ class ScanComposerRequirementsTest extends TestCase
     public function testMissingDependencyIsReported()
     {
         $this->scan([], [
-            new Component('Magento_Catalog', 'module', 'magento/module-catalog', '104.0.0'),
+            new Component('Magento_Catalog', 'module', 'magento/module-catalog', '104.0.0', true),
         ]);
 
         $this->assertContains(MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $this->getMessageGroups());
+    }
+
+    public function testSoftRequirementIsNotReported()
+    {
+        $this->scan([], [
+            new Component('Magento_Catalog', 'module', 'magento/module-catalog', '104.0.0'),
+        ]);
+
+        $this->assertNotContains(MessageGroupLabels::GROUP_MISSING_COMPOSER_DEP, $this->getMessageGroups());
     }
 
     public function testUnnecessaryDependencyIsReported()
