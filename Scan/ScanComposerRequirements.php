@@ -75,6 +75,11 @@ class ScanComposerRequirements
             return;
         }
 
+        $alternativePackageName = $this->getAlternativePackageName($component->getPackageName());
+        if ($alternativePackageName && array_key_exists($alternativePackageName, $requirements)) {
+            return;
+        }
+
         if ($this->checkerConfiguration->isComponentIgnored($moduleName, $component)) {
             return;
         }
@@ -223,8 +228,13 @@ class ScanComposerRequirements
      */
     private function isComposerDependencyNeeded(string $dependency, array $components): bool
     {
+        $alternativeDependency = $this->getAlternativePackageName($dependency);
         foreach ($components as $component) {
             if ($component->getPackageName() === $dependency) {
+                return true;
+            }
+
+            if ($alternativeDependency && $component->getPackageName() === $alternativeDependency) {
                 return true;
             }
         }
@@ -241,7 +251,7 @@ class ScanComposerRequirements
             return true;
         }
 
-        if ($dependency === 'magento/framework') {
+        if (in_array($dependency, ['magento/framework', 'mage-os/framework'])) {
             return true;
         }
 
@@ -254,5 +264,24 @@ class ScanComposerRequirements
         }
 
         return false;
+    }
+
+    /**
+     * Map a package between the Magento and Mage-OS vendor namespaces
+     *
+     * @param string $packageName
+     * @return string|null
+     */
+    private function getAlternativePackageName(string $packageName): ?string
+    {
+        if (str_starts_with($packageName, 'magento/')) {
+            return 'mage-os/' . substr($packageName, strlen('magento/'));
+        }
+
+        if (str_starts_with($packageName, 'mage-os/')) {
+            return 'magento/' . substr($packageName, strlen('mage-os/'));
+        }
+
+        return null;
     }
 }
