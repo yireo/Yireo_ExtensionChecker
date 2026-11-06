@@ -6,6 +6,7 @@ use DOMDocument;
 use DOMElement;
 use Magento\Framework\Component\ComponentRegistrar;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
+use Yireo\ExtensionChecker\Composer\MagentoPackageResolver;
 
 class ModuleXmlSuggestion extends AbstractSuggestion
 {
@@ -13,7 +14,8 @@ class ModuleXmlSuggestion extends AbstractSuggestion
 
     public function __construct(
         ComponentRegistrar $componentRegistrar,
-        private ComponentDetectorList $componentDetectorList
+        private ComponentDetectorList $componentDetectorList,
+        private MagentoPackageResolver $magentoPackageResolver
     ) {
         parent::__construct($componentRegistrar);
     }
@@ -48,7 +50,8 @@ class ModuleXmlSuggestion extends AbstractSuggestion
                 continue;
             }
 
-            $moduleDependencies[] = $component->getComponentName();
+            $moduleDependencies[] = $this->magentoPackageResolver->getMagentoModuleName($component)
+                ?? $component->getComponentName();
         }
 
         $moduleDependencies = array_values(array_unique($moduleDependencies));

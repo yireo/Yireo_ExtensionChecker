@@ -7,6 +7,7 @@ use stdClass;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
 use Yireo\ExtensionChecker\Composer\ComposerRequirementsMerger;
+use Yireo\ExtensionChecker\Composer\MagentoPackageResolver;
 use Yireo\ExtensionChecker\Exception\ComposerException;
 use Yireo\ExtensionChecker\Exception\ComposerFileNotFoundException;
 
@@ -24,7 +25,8 @@ class ComposerJsonSuggestion extends AbstractSuggestion
         ComponentRegistrar $componentRegistrar,
         private ComponentDetectorList $componentDetectorList,
         private ComposerProvider $composerProvider,
-        private ComposerRequirementsMerger $composerRequirementsMerger
+        private ComposerRequirementsMerger $composerRequirementsMerger,
+        private MagentoPackageResolver $magentoPackageResolver
     ) {
         parent::__construct($componentRegistrar);
     }
@@ -73,21 +75,32 @@ class ComposerJsonSuggestion extends AbstractSuggestion
                 continue;
             }
 
+            $packageName = $component->getPackageName();
             $version = $this->composerProvider->getSuggestedVersion($component->getPackageVersion());
-            if (str_starts_with($component->getPackageName(), 'ext-')) {
+
+            $magentoReplacement = $this->magentoPackageResolver->getMagentoReplacement($packageName);
+            if (null !== $magentoReplacement) {
+                $magentoVersion = $this->composerProvider->getSuggestedVersion($magentoReplacement['version']);
+                if ($magentoVersion !== '') {
+                    $packageName = $magentoReplacement['name'];
+                    $version = $magentoVersion;
+                }
+            }
+
+            if (str_starts_with($packageName, 'ext-')) {
                 $version = '*';
             }
 
-            if (isset(self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()])) {
-                $version = self::FIXED_VERSION_CONSTRAINTS[$component->getPackageName()];
+            if (isset(self::FIXED_VERSION_CONSTRAINTS[$packageName])) {
+                $version = self::FIXED_VERSION_CONSTRAINTS[$packageName];
             }
 
             if ($component->isDevRequirement()) {
-                $composerDevDependencies[$component->getPackageName()] = $version;
+                $composerDevDependencies[$packageName] = $version;
                 continue;
             }
 
-            $composerDependencies[$component->getPackageName()] = $version;
+            $composerDependencies[$packageName] = $version;
         }
 
         return [$composerDependencies, $composerDevDependencies];

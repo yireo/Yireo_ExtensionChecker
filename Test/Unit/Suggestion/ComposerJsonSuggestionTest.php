@@ -9,6 +9,7 @@ use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
 use Yireo\ExtensionChecker\Composer\ComposerRequirementsMerger;
+use Yireo\ExtensionChecker\Composer\MagentoPackageResolver;
 use Yireo\ExtensionChecker\Exception\ComposerException;
 use Yireo\ExtensionChecker\Exception\ComposerFileNotFoundException;
 use Yireo\ExtensionChecker\Suggestion\ComposerJsonSuggestion;
@@ -146,6 +147,30 @@ class ComposerJsonSuggestionTest extends TestCase
         $suggestion->getSuggestedContents('Foo_Bar');
     }
 
+    public function testGetSuggestedContentsPrefersMagentoOverMageOs()
+    {
+        $moduleFolder = $this->createTemporaryFolder(['composer.json' => $this->toJson([
+            'name' => 'foo/bar',
+            'require' => ['mage-os/module-csp' => '^2.0'],
+        ])]);
+
+        $suggestion = $this->getSuggestion($moduleFolder, [
+            new Component('Magento_Csp', 'module', 'mage-os/module-csp', '2.0.0'),
+            new Component('MageOs_Foo', 'module', 'mage-os/module-foo', '1.2.0'),
+            new Component('Magento_Bar', 'module', 'mage-os/module-bar', '2.1.0'),
+        ], [
+            'mage-os/module-csp' => ['name' => 'magento/module-csp', 'version' => '100.4.7'],
+            'mage-os/module-bar' => ['name' => 'magento/module-bar', 'version' => '*'],
+        ]);
+
+        $suggestedData = json_decode($suggestion->getSuggestedContents('Foo_Bar'), true);
+        $this->assertSame([
+            'mage-os/module-bar' => '^2.1',
+            'mage-os/module-foo' => '^1.2',
+            'magento/module-csp' => '^100.4',
+        ], $suggestedData['require']);
+    }
+
     private function toJson(array $data): string
     {
         return (string)json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -154,8 +179,11 @@ class ComposerJsonSuggestionTest extends TestCase
     /**
      * @param Component[] $components
      */
-    private function getSuggestion(string $moduleFolder, array $components): ComposerJsonSuggestion
-    {
+    private function getSuggestion(
+        string $moduleFolder,
+        array $components,
+        array $magentoReplacements = []
+    ): ComposerJsonSuggestion {
         $componentRegistrar = $this->createMock(ComponentRegistrar::class);
         $componentRegistrar->method('getPath')
             ->with(ComponentRegistrar::MODULE, 'Foo_Bar')
@@ -168,11 +196,16 @@ class ComposerJsonSuggestionTest extends TestCase
 
         $composerProvider = new ComposerProvider($this->createMock(ComposerFileProvider::class));
 
+        $magentoPackageResolver = $this->createMock(MagentoPackageResolver::class);
+        $magentoPackageResolver->method('getMagentoReplacement')
+            ->willReturnCallback(fn (string $packageName) => $magentoReplacements[$packageName] ?? null);
+
         return new ComposerJsonSuggestion(
             $componentRegistrar,
             $componentDetectorList,
             $composerProvider,
-            new ComposerRequirementsMerger()
+            new ComposerRequirementsMerger(),
+            $magentoPackageResolver
         );
     }
 }

@@ -6,6 +6,7 @@ use Magento\Framework\Component\ComponentRegistrar;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
+use Yireo\ExtensionChecker\Composer\MagentoPackageResolver;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
 use Yireo\ExtensionChecker\Suggestion\ModuleXmlSuggestion;
 use Yireo\ExtensionChecker\Test\Unit\Behaviour\TemporaryFolder;
@@ -141,11 +142,30 @@ EOF;
         $this->assertStringContainsString('<module name="Foo_Bar"/>', $suggestedContents);
     }
 
+    public function testGetSuggestedContentsPrefersMagentoOverMageOs()
+    {
+        $moduleFolder = $this->createTemporaryFolder();
+        $suggestion = $this->getSuggestion($moduleFolder, [
+            new Component('MageOs_Csp', 'module', 'mage-os/module-csp', '2.0.0'),
+            new Component('Magento_Csp', 'module', 'magento/module-csp', '100.4.7'),
+            new Component('MageOs_AdminActivityLog', 'module', 'mage-os/module-admin-activity-log', '1.0.0'),
+        ], ['MageOs_Csp' => 'Magento_Csp']);
+
+        $this->assertSame(
+            ['MageOs_AdminActivityLog', 'Magento_Csp'],
+            $suggestion->getModuleDependencies('Foo_Bar')
+        );
+    }
+
     /**
      * @param Component[] $components
+     * @param array<string, string> $magentoModuleNames
      */
-    private function getSuggestion(?string $moduleFolder, array $components): ModuleXmlSuggestion
-    {
+    private function getSuggestion(
+        ?string $moduleFolder,
+        array $components,
+        array $magentoModuleNames = []
+    ): ModuleXmlSuggestion {
         $componentRegistrar = $this->createMock(ComponentRegistrar::class);
         $componentRegistrar->method('getPath')
             ->with(ComponentRegistrar::MODULE, 'Foo_Bar')
@@ -156,6 +176,10 @@ EOF;
             ->with('Foo_Bar')
             ->willReturn($components);
 
-        return new ModuleXmlSuggestion($componentRegistrar, $componentDetectorList);
+        $magentoPackageResolver = $this->createMock(MagentoPackageResolver::class);
+        $magentoPackageResolver->method('getMagentoModuleName')
+            ->willReturnCallback(fn (Component $component) => $magentoModuleNames[$component->getComponentName()] ?? null);
+
+        return new ModuleXmlSuggestion($componentRegistrar, $componentDetectorList, $magentoPackageResolver);
     }
 }
