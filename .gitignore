@@ -1,10 +1,4 @@
-.playwright
-.opencode
-.playwright
-.opencode
-.playwright
-.opencode
-.playwright
-.opencode
+.playwright/
+.opencode/
 .ai
 .yireo-extension-builder.json
