@@ -7,6 +7,8 @@ use Yireo\ExtensionChecker\Component\Component;
 
 class CheckerConfiguration
 {
+    private array $configurations = [];
+
     public function __construct(
         private ComponentRegistrar $componentRegistrar,
     ) {
@@ -14,11 +16,10 @@ class CheckerConfiguration
 
     public function getIgnoredComponents(string $moduleName): array
     {
-        static $configurations = [];
-        $configurations[$moduleName] ??= $this->getConfiguration($moduleName);
-        $configuration = $configurations[$moduleName];
+        $this->configurations[$moduleName] ??= $this->getConfiguration($moduleName);
+        $configuration = $this->configurations[$moduleName];
 
-        if (array_key_exists('ignore', $configuration)) {
+        if (isset($configuration['ignore']) && is_array($configuration['ignore'])) {
             return $configuration['ignore'];
         }
 
@@ -51,6 +52,11 @@ class CheckerConfiguration
             return [];
         }
 
-        return json_decode(file_get_contents($configurationFile), true);
+        $configuration = json_decode((string)file_get_contents($configurationFile), true);
+        if (!is_array($configuration)) {
+            return [];
+        }
+
+        return $configuration;
     }
 }
