@@ -79,14 +79,16 @@ class ScanCommand extends Command
             'hide-deprecated',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Hide deprecated dependency notices'
+            'Hide deprecated dependency notices',
+            false
         );
 
         $this->addOption(
             'hide-needless',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Hide needless dependency notices'
+            'Hide needless dependency notices',
+            false
         );
 
         $this->addOption(
@@ -100,7 +102,8 @@ class ScanCommand extends Command
             'skip-license-check',
             null,
             InputOption::VALUE_OPTIONAL,
-            'Skip composer license check'
+            'Skip composer license check',
+            false
         );
     }
 
@@ -121,11 +124,11 @@ class ScanCommand extends Command
                 throw new InvalidArgumentException('Either module name or module path is required');
             }
 
-            $this->runtimeConfig->setHideDeprecated((bool)$input->getOption('hide-deprecated'));
-            $this->runtimeConfig->setHideNeedless((bool)$input->getOption('hide-needless'));
+            $this->runtimeConfig->setHideDeprecated($this->getFlag($input, 'hide-deprecated'));
+            $this->runtimeConfig->setHideNeedless($this->getFlag($input, 'hide-needless'));
             $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
             $this->runtimeConfig->setOutput($output);
-            $this->runtimeConfig->setSkipLicenseCheck((bool)$input->getOption('skip-license-check'));
+            $this->runtimeConfig->setSkipLicenseCheck($this->getFlag($input, 'skip-license-check'));
 
             $moduleNameArray = explode(',', $moduleName);
             $modulePathArray = explode(',', $modulePath);
@@ -151,6 +154,16 @@ class ScanCommand extends Command
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return 1;
         }
+    }
+
+    private function getFlag(Input $input, string $name): bool
+    {
+        $value = $input->getOption($name);
+        if ($value === null) {
+            return true;
+        }
+
+        return (bool)$value;
     }
 
     /**
