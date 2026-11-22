@@ -34,7 +34,7 @@ class LayoutComponentCollector extends AbstractComponentCollector
     public function getComponentsFromFile(string $file): array
     {
         $fileRead = $this->fileReadFactory->create($file, 'file');
-        $contents = $fileRead->readAll();
+        $contents = $this->stripXmlComments($fileRead->readAll());
         $components = $this->findComponentsByModuleName($contents);
         $components = array_merge($components, $this->findComponentsByPattern($contents, $this->patterns));
         return $components;

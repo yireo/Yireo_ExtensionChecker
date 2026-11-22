@@ -31,7 +31,7 @@ class XmlComponentCollector extends AbstractComponentCollector
     public function getComponentsFromFile(string $file): array
     {
         $fileRead = $this->fileReadFactory->create($file, 'file');
-        $contents = $fileRead->readAll();
+        $contents = $this->stripXmlComments($fileRead->readAll());
         $components = $this->findComponentsByModuleName($contents, true);
         $components = array_merge($components, $this->findComponentsByClassName($contents, true));
 

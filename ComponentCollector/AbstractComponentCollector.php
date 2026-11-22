@@ -22,6 +22,11 @@ class AbstractComponentCollector
         $this->componentCollector = $componentCollector;
     }
 
+    protected function stripXmlComments(string $contents): string
+    {
+        return preg_replace('/<!--.*?-->/s', '', $contents) ?? $contents;
+    }
+
     /**
      * @param string $content
      * @param bool $hardRequirement
