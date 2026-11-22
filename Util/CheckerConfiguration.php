@@ -14,10 +14,9 @@ class CheckerConfiguration
 
     public function getIgnoredComponents(string $moduleName): array
     {
-        static $configuration = null;
-        if (!is_array($configuration)) {
-            $configuration = $this->getConfiguration($moduleName);
-        }
+        static $configurations = [];
+        $configurations[$moduleName] ??= $this->getConfiguration($moduleName);
+        $configuration = $configurations[$moduleName];
 
         if (array_key_exists('ignore', $configuration)) {
             return $configuration['ignore'];
