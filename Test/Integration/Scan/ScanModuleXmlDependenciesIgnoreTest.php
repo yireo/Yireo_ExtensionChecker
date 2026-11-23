@@ -6,9 +6,11 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Component\ComponentRegistrar;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Component\Component;
+use Yireo\ExtensionChecker\ComponentDetector\ModuleXmlComponentDetector;
 use Yireo\ExtensionChecker\Message\Message;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Scan\ScanModuleXmlDependencies;
+use Yireo\ExtensionChecker\Util\CheckerConfiguration;
 
 class ScanModuleXmlDependenciesIgnoreTest extends TestCase
 {
@@ -16,52 +18,61 @@ class ScanModuleXmlDependenciesIgnoreTest extends TestCase
 
     public function testIgnoreListIsAppliedPerModule()
     {
-        $suffix = uniqid();
-        $firstModule = 'YireoTest_First' . $suffix;
-        $secondModule = 'YireoTest_Second' . $suffix;
-        $this->registerModule($firstModule);
-        $this->registerModule($secondModule, '{"ignore":["Magento_Catalog","magento/module-catalog"]}');
+        $modulePaths = [
+            'Vendor_First' => $this->createModuleFolder(),
+            'Vendor_Second' => $this->createModuleFolder('{"ignore":["Magento_Catalog","magento/module-catalog"]}'),
+        ];
 
-        $messageBucket = ObjectManager::getInstance()->get(MessageBucket::class);
+        $componentRegistrar = $this->createMock(ComponentRegistrar::class);
+        $componentRegistrar->method('getPath')->willReturnMap([
+            [ComponentRegistrar::MODULE, 'Vendor_First', $modulePaths['Vendor_First']],
+            [ComponentRegistrar::MODULE, 'Vendor_Second', $modulePaths['Vendor_Second']],
+        ]);
+
+        $moduleXmlComponentDetector = $this->createMock(ModuleXmlComponentDetector::class);
+        $moduleXmlComponentDetector->method('getComponentsByModuleName')->willReturn([]);
+
+        $objectManager = ObjectManager::getInstance();
+        $messageBucket = $objectManager->get(MessageBucket::class);
         $messageBucket->clean();
 
-        $scan = ObjectManager::getInstance()->create(ScanModuleXmlDependencies::class);
+        $scan = $objectManager->create(ScanModuleXmlDependencies::class, [
+            'moduleXmlComponentDetector' => $moduleXmlComponentDetector,
+            'checkerConfiguration' => new CheckerConfiguration($componentRegistrar),
+        ]);
+
         $components = [new Component('Magento_Catalog', 'module', 'magento/module-catalog', '', true)];
-        $scan->scan($firstModule, $components);
-        $scan->scan($secondModule, $components);
+        $scan->scan('Vendor_First', $components);
+        $scan->scan('Vendor_Second', $components);
 
         $modules = array_map(fn (Message $message) => $message->getModule(), $messageBucket->getMessages());
         $messageBucket->clean();
 
-        $this->assertContains($firstModule, $modules);
-        $this->assertNotContains($secondModule, $modules);
+        $this->assertContains('Vendor_First', $modules);
+        $this->assertNotContains('Vendor_Second', $modules);
     }
 
-    private function registerModule(string $moduleName, string $configuration = ''): void
+    private function createModuleFolder(string $configuration = ''): string
     {
-        $folder = sys_get_temp_dir() . '/' . $moduleName;
-        mkdir($folder . '/etc', 0777, true);
+        $folder = sys_get_temp_dir() . '/yireo-extensionchecker-' . uniqid('', true);
+        mkdir($folder, 0777, true);
         $this->folders[] = $folder;
-
-        file_put_contents(
-            $folder . '/etc/module.xml',
-            '<?xml version="1.0"?><config><module name="' . $moduleName . '"/></config>'
-        );
 
         if ($configuration !== '') {
             file_put_contents($folder . '/.yireo-extension-checker.json', $configuration);
         }
 
-        ComponentRegistrar::register(ComponentRegistrar::MODULE, $moduleName, $folder);
+        return $folder;
     }
 
     protected function tearDown(): void
     {
         foreach ($this->folders as $folder) {
-            @unlink($folder . '/.yireo-extension-checker.json');
-            @unlink($folder . '/etc/module.xml');
-            @rmdir($folder . '/etc');
-            @rmdir($folder);
+            if (file_exists($folder . '/.yireo-extension-checker.json')) {
+                unlink($folder . '/.yireo-extension-checker.json');
+            }
+
+            rmdir($folder);
         }
 
         parent::tearDown();
