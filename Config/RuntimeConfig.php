@@ -112,7 +112,7 @@ class RuntimeConfig
 
     public function debugMessage(string $message): void
     {
-        if ($this->isVerbose()) {
+        if ($this->isVerbose() && $this->getOutput() instanceof OutputInterface) {
             $this->getOutput()->writeln($this->escapeOutput($message));
         }
     }

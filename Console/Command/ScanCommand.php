@@ -120,6 +120,11 @@ class ScanCommand extends Command
      */
     protected function execute(Input $input, Output $output): int
     {
+        $isJson = (string)$input->getOption('format') === 'json';
+        $errorOutput = $output instanceof ConsoleOutputInterface
+            ? $output->getErrorOutput()
+            : ($isJson ? null : $output);
+
         try {
             $moduleName = (string)$input->getOption('module');
             $modulePath = (string)$input->getOption('path');
@@ -131,9 +136,7 @@ class ScanCommand extends Command
             $this->runtimeConfig->setHideDeprecated($this->getFlag($input, 'hide-deprecated'));
             $this->runtimeConfig->setHideNeedless($this->getFlag($input, 'hide-needless'));
             $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
-            $isJson = (string)$input->getOption('format') === 'json';
-            $debugOutput = $isJson && $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
-            $this->runtimeConfig->setOutput($debugOutput);
+            $this->runtimeConfig->setOutput($isJson ? $errorOutput : $output);
             $this->runtimeConfig->setSkipLicenseCheck($this->getFlag($input, 'skip-license-check'));
 
             $moduleNameArray = explode(',', $moduleName);
@@ -157,7 +160,7 @@ class ScanCommand extends Command
 
             return $this->outputTable($output, $messages);
         } catch (\Throwable $e) {
-            $output->writeln('<error>' . $this->escapeOutput($e->getMessage()) . '</error>');
+            $errorOutput?->writeln('<error>' . $this->escapeOutput($e->getMessage()) . '</error>');
             return 1;
         }
     }

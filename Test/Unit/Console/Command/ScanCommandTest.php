@@ -7,6 +7,9 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Serialize\SerializerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
@@ -103,5 +106,99 @@ class ScanCommandTest extends TestCase
             ],
         ], json_decode($commandTester->getDisplay(), true));
         $this->assertStringContainsString('Component by module name: Foo_Bar', $commandTester->getErrorOutput());
+    }
+
+    public function testJsonFormatSendsErrorsToErrorOutput()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $scan = $this->createMock(Scan::class);
+        $scan->method('scan')->willReturnCallback(function () use ($runtimeConfig) {
+            $runtimeConfig->debugMessage('Component by module name: Foo_Bar');
+            throw new RuntimeException('Module "Foo_Bar" is <error>broken</error>');
+        });
+
+        $command = new ScanCommand($scan, new Json(), $runtimeConfig, $this->getMessageBucket($runtimeConfig));
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            ['--module' => 'Foo_Bar', '--format' => 'json'],
+            ['decorated' => true, 'verbosity' => OutputInterface::VERBOSITY_VERBOSE, 'capture_stderr_separately' => true]
+        );
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame('', $commandTester->getDisplay());
+        $errorOutput = $commandTester->getErrorOutput();
+        $this->assertStringContainsString('Component by module name: Foo_Bar', $errorOutput);
+        $this->assertStringContainsString('Module "Foo_Bar" is <error>broken</error>', $errorOutput);
+    }
+
+    public function testJsonFormatWithSingleOutputStream()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $scan = $this->createMock(Scan::class);
+        $scan->method('scan')->willReturnCallback(function () use ($runtimeConfig, $messageBucket) {
+            $runtimeConfig->debugMessage('Component by module name: Foo_Bar');
+            $messageBucket->add('Use <info>x</info>', MessageGroupLabels::GROUP_COMPOSER_ISSUES, '', 'Foo_Bar');
+        });
+
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE, true);
+        $command = new ScanCommand($scan, new Json(), $runtimeConfig, $messageBucket);
+        $exitCode = $command->run(new ArrayInput(['--module' => 'Foo_Bar', '--format' => 'json']), $output);
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame([
+            [
+                'message' => 'Use <info>x</info>',
+                'group' => MessageGroupLabels::GROUP_COMPOSER_ISSUES,
+                'suggestion' => '',
+                'module' => 'Foo_Bar',
+            ],
+        ], json_decode($output->fetch(), true));
+    }
+
+    public function testJsonFormatWithSingleOutputStreamOmitsErrors()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $scan = $this->createMock(Scan::class);
+        $scan->method('scan')->willReturnCallback(function () use ($runtimeConfig) {
+            $runtimeConfig->debugMessage('Component by module name: Foo_Bar');
+            throw new RuntimeException('Broken');
+        });
+
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE, true);
+        $command = new ScanCommand($scan, new Json(), $runtimeConfig, $this->getMessageBucket($runtimeConfig));
+        $exitCode = $command->run(new ArrayInput(['--module' => 'Foo_Bar', '--format' => 'json']), $output);
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame('', $output->fetch());
+    }
+
+    public function testTableFormatStillShowsErrorsOnOutput()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $scan = $this->createMock(Scan::class);
+        $scan->method('scan')->willThrowException(new RuntimeException('Broken'));
+
+        $output = new BufferedOutput();
+        $command = new ScanCommand($scan, new Json(), $runtimeConfig, $this->getMessageBucket($runtimeConfig));
+
+        $this->assertSame(1, $command->run(new ArrayInput(['--module' => 'Foo_Bar']), $output));
+        $this->assertSame("Broken\n", $output->fetch());
+    }
+
+    private function getMessageBucket(RuntimeConfig $runtimeConfig): MessageBucket
+    {
+        $objectManager = $this->createMock(ObjectManagerInterface::class);
+        $objectManager->method('create')->willReturnCallback(
+            fn (string $className, array $arguments) => new Message(
+                new MessageGroupLabels(),
+                $arguments['message'],
+                $arguments['group'],
+                $arguments['suggestion'],
+                $arguments['module']
+            )
+        );
+
+        return new MessageBucket($objectManager, $runtimeConfig);
     }
 }

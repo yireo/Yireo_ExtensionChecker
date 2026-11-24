@@ -22,6 +22,16 @@ class RuntimeConfigTest extends TestCase
         $this->assertSame("Component by module name: Foo</info><error>x[2J\n", $display);
     }
 
+    public function testDebugMessageWithoutOutput()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $runtimeConfig->setVerbose(true);
+        $runtimeConfig->setOutput(null);
+
+        $runtimeConfig->debugMessage('Hello');
+        $this->assertNull($runtimeConfig->getOutput());
+    }
+
     public function testDebugMessageIsSkippedWhenNotVerbose()
     {
         $output = new BufferedOutput();
