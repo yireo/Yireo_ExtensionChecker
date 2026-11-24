@@ -250,6 +250,44 @@ EOF;
         ];
     }
 
+    /**
+     * @dataProvider getNonUtf8Sources
+     */
+    #[DataProvider('getNonUtf8Sources')]
+    public function testGetSuggestedContentsConvertsNonUtf8SourceToUtf8(string $currentModuleXml)
+    {
+        $moduleFolder = $this->createTemporaryFolder(['etc/module.xml' => $currentModuleXml]);
+        $suggestedContents = $this->getSuggestion($moduleFolder, [])->getSuggestedContents('Foo_Bar');
+
+        $this->assertStringStartsWith(
+            '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<!-- Copyright Café © Straße -->' . "\n",
+            $suggestedContents
+        );
+        $this->assertSame(1, preg_match('//u', $suggestedContents));
+        $this->assertStringContainsString('setup_version="1.0.0-é"', $suggestedContents);
+
+        $document = new DOMDocument();
+        $this->assertTrue($document->loadXML($suggestedContents, LIBXML_NONET));
+        $this->assertSame(' Copyright Café © Straße ', $document->firstChild->textContent);
+    }
+
+    public static function getNonUtf8Sources(): array
+    {
+        $moduleXml = '<?xml version="1.0" encoding="%s"?>' . "\n"
+            . '<!-- Copyright Caf%s %s Stra%se -->' . "\n"
+            . '<config><module name="Foo_Bar" setup_version="1.0.0-%s"/></config>' . "\n";
+
+        $utf16Source = '';
+        foreach (str_split(sprintf($moduleXml, 'UTF-16', "\xE9", "\xA9", "\xDF", "\xE9")) as $character) {
+            $utf16Source .= $character . "\x00";
+        }
+
+        return [
+            'ISO-8859-1' => [sprintf($moduleXml, 'ISO-8859-1', "\xE9", "\xA9", "\xDF", "\xE9")],
+            'UTF-16' => ["\xFF\xFE" . $utf16Source],
+        ];
+    }
+
     public function testGetSuggestedContentsEscapesModuleNames()
     {
         $moduleName = 'Foo_Bar"/><evil a="&';

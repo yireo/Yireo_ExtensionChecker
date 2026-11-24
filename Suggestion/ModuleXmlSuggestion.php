@@ -128,13 +128,7 @@ class ModuleXmlSuggestion extends AbstractSuggestion
             return self::DEFAULT_HEADER;
         }
 
-        $header = '<?xml version="1.0"';
-        $encoding = (string)$document->xmlEncoding;
-        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/D', $encoding)) {
-            $header .= ' encoding="' . $encoding . '"';
-        }
-
-        $header .= '?>' . "\n";
+        $header = '<?xml version="1.0"' . (empty($document->xmlEncoding) ? '' : ' encoding="UTF-8"') . '?>' . "\n";
         foreach ($document->childNodes as $childNode) {
             if ($childNode->isSameNode($document->documentElement)) {
                 break;
