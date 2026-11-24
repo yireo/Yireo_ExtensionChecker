@@ -20,6 +20,7 @@ class ComposerFileProvider
     private SerializerInterface $serializer;
     private Shell $shell;
     private ModuleInfo $moduleInfo;
+    private array $installedPackages = [];
 
     /**
      * @param FileDriver $fileDriver
@@ -94,14 +95,11 @@ class ComposerFileProvider
      */
     public function getAllComposerNames(): array
     {
-        static $installedPackages = [];
-
-        if (!empty($installedPackages)) {
-            return $installedPackages;
+        if (!empty($this->installedPackages)) {
+            return $this->installedPackages;
         }
 
-        chdir($this->directoryList->getRoot());
-        $output = $this->shell->execute($this->getComposerShowCommand());
+        $output = $this->executeInRoot($this->getComposerShowCommand());
         $output = str_replace("\n", ' ', $output);
         $output = preg_replace('/^([^{]+)/m', '', $output);
 
@@ -116,6 +114,8 @@ class ComposerFileProvider
             throw new ComposerException('No installed packages found');
         }
 
+        $this->installedPackages = $installedPackages;
+
         return $installedPackages;
     }
 
@@ -125,8 +125,7 @@ class ComposerFileProvider
      */
     private function getComposerShowCommand(): string
     {
-        chdir($this->directoryList->getRoot());
-        $output = $this->shell->execute('composer show --help');
+        $output = $this->executeInRoot('composer show --help');
         $addNoScripts = (bool)strstr($output, '--no-scripts');
         $addNoPlugins = (bool)strstr($output, '--no-plugins');
 
@@ -141,5 +140,24 @@ class ComposerFileProvider
         }
 
         return $shellCommand;
+    }
+
+    /**
+     * @param string $command
+     * @return string
+     * @throws LocalizedException
+     */
+    private function executeInRoot(string $command): string
+    {
+        $workingDirectory = getcwd();
+        chdir($this->directoryList->getRoot());
+
+        try {
+            return $this->shell->execute($command);
+        } finally {
+            if (false !== $workingDirectory) {
+                chdir($workingDirectory);
+            }
+        }
     }
 }
