@@ -150,6 +150,57 @@ class CheckMagentoVersionCommandTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider getRequirementComparisons
+     */
+    #[DataProvider('getRequirementComparisons')]
+    public function testExecuteComparesExactVersionsIncludingPatchSuffixes(
+        string $magentoRequiredVersion,
+        string $moduleConstraint,
+        bool $verbose,
+        int $expectedExitCode,
+        ?string $expectedMessage
+    ) {
+        $shell = $this->createMock(Shell::class);
+        $shell->method('execute')->willReturn((string)json_encode([
+            'requires' => ['foo/bar' => $magentoRequiredVersion, 'foo/other' => '1.0.0'],
+        ]));
+
+        $command = $this->getCommand($this->createTemporaryFolder(), $shell, ['foo/bar' => $moduleConstraint]);
+        $commandTester = new CommandTester($command);
+        $input = ['--module' => 'Foo_Bar', '--magento-version' => '2.4.7-p3'];
+        if ($verbose) {
+            $input['--verbose'] = true;
+        }
+
+        $this->assertSame($expectedExitCode, $commandTester->execute($input));
+
+        $display = $commandTester->getDisplay();
+        $this->assertStringNotContainsString('foo/other', $display);
+        if (null === $expectedMessage) {
+            $this->assertStringNotContainsString('foo/bar', $display);
+            return;
+        }
+
+        $this->assertMatchesRegularExpression(
+            '#\\| foo/bar +\\| ' . preg_quote($magentoRequiredVersion, '#') . ' +\\| '
+            . preg_quote($moduleConstraint, '#') . ' +\\| ' . $expectedMessage . ' +\\|#',
+            $display
+        );
+    }
+
+    public static function getRequirementComparisons(): array
+    {
+        return [
+            'patched version satisfied' => ['1.2.3-p3', '^1.0', true, 1, 'Satisfied'],
+            'patched version not satisfied' => ['2.0.0-p1', '^1.0', false, 1, 'Not satisfied'],
+            'patched version below minimum' => ['1.2.3-p1', '^1.2.4', false, 1, 'Not satisfied'],
+            'patched version silent when satisfied' => ['1.2.3-p3', '^1.0', false, 0, null],
+            'range is skipped' => ['^2.0', '^1.0', true, 1, null],
+            'invalid module constraint' => ['1.2.3', 'not a constraint', false, 1, 'Invalid constraint'],
+        ];
+    }
+
     public function testExecuteWarnsWhenRequirementIsNotSatisfied()
     {
         $shell = $this->createMock(Shell::class);
@@ -162,10 +213,13 @@ class CheckMagentoVersionCommandTest extends TestCase
         $this->assertStringContainsString('Not satisfied', $commandTester->getDisplay());
     }
 
-    private function getCommand(string $rootFolder, Shell $shell): CheckMagentoVersionCommand
-    {
+    private function getCommand(
+        string $rootFolder,
+        Shell $shell,
+        array $moduleRequirements = ['foo/bar' => '^1.0']
+    ): CheckMagentoVersionCommand {
         $composerFile = $this->createMock(ComposerFile::class);
-        $composerFile->method('getRequirements')->willReturn(['foo/bar' => '^1.0']);
+        $composerFile->method('getRequirements')->willReturn($moduleRequirements);
 
         $composerFileProvider = $this->createMock(ComposerFileProvider::class);
         $composerFileProvider->method('getComposerFileByModuleName')->willReturn($composerFile);

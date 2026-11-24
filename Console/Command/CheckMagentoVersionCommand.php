@@ -12,12 +12,14 @@
 namespace Yireo\ExtensionChecker\Console\Command;
 
 use Composer\Semver\Semver;
+use Composer\Semver\VersionParser;
 use InvalidArgumentException;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Shell;
 use RuntimeException;
+use UnexpectedValueException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
@@ -104,16 +106,14 @@ class CheckMagentoVersionCommand extends Command
             }
 
             // @todo: We are unable to crossmatch constraints with constraints as of yet
-            if (preg_match('/([^0-9.])+/', $magentoRequiredVersion)) {
+            if (false === $this->isExactVersion((string)$magentoRequiredVersion)) {
                 continue;
             }
 
             $moduleVersion = $moduleRequirements[$magentoRequirement];
-            if (!Semver::satisfies($magentoRequiredVersion, $moduleVersion)) {
+            $message = $this->getSatisfactionMessage((string)$magentoRequiredVersion, (string)$moduleVersion);
+            if ($message !== 'Satisfied') {
                 $hasWarnings = true;
-                $message = 'Not satisfied';
-            } else {
-                $message = 'Satisfied';
             }
 
             $rows[] = [
@@ -140,6 +140,30 @@ class CheckMagentoVersionCommand extends Command
         $table->render();
 
         return 1;
+    }
+
+    private function isExactVersion(string $version): bool
+    {
+        if (preg_match('/[\s,|<>=^~*]/', $version)) {
+            return false;
+        }
+
+        try {
+            (new VersionParser())->normalize($version);
+        } catch (UnexpectedValueException $exception) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function getSatisfactionMessage(string $version, string $constraint): string
+    {
+        try {
+            return Semver::satisfies($version, $constraint) ? 'Satisfied' : 'Not satisfied';
+        } catch (UnexpectedValueException $exception) {
+            return 'Invalid constraint';
+        }
     }
 
     private function validateMagentoVersion(string $magentoVersion): void
