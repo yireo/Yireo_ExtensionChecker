@@ -54,7 +54,7 @@ trait TemporaryFolder
         );
 
         foreach ($iterator as $item) {
-            $item->isDir() ? rmdir($item->getPathname()) : unlink($item->getPathname());
+            $item->isDir() && !$item->isLink() ? rmdir($item->getPathname()) : unlink($item->getPathname());
         }
 
         rmdir($folder);
