@@ -102,11 +102,11 @@ class ScanComposerFile
      */
     private function fetchLicenseList(): ?array
     {
-        $cacheFile = $this->directoryList->getPath(DirectoryList::VAR_DIR)
-            . '/yireo_extensionchecker/spdx-licenses-' . self::LICENSE_LIST_VERSION . '.json';
+        $varFolder = $this->directoryList->getPath(DirectoryList::VAR_DIR);
+        $cacheFile = 'yireo_extensionchecker/spdx-licenses-' . self::LICENSE_LIST_VERSION . '.json';
 
         try {
-            $licenses = json_decode((string)$this->cacheFile->read($cacheFile), true);
+            $licenses = json_decode((string)$this->cacheFile->read($varFolder, $cacheFile), true);
             if ($this->isValidLicenseList($licenses)) {
                 return $licenses;
             }
@@ -124,8 +124,8 @@ class ScanComposerFile
             return null;
         }
 
-        if (false === $this->cacheFile->write($cacheFile, (string)json_encode($licenses))) {
-            $this->messageBucket->debug('Unable to cache the SPDX license list in "' . $cacheFile . '"');
+        if (false === $this->cacheFile->write($varFolder, $cacheFile, (string)json_encode($licenses))) {
+            $this->messageBucket->debug('Unable to cache the SPDX license list in "' . $varFolder . '/' . $cacheFile . '"');
         }
 
         return $licenses;

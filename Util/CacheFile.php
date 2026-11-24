@@ -12,36 +12,41 @@ class CacheFile
     ) {
     }
 
-    public function read(string $file): ?string
+    public function read(string $trustedFolder, string $relativePath): ?string
     {
-        if (false === $this->isSafeFolder($this->fileDriver->getParentDirectory($file))
-            || false === $this->isSafeFile($file)
-            || false === $this->fileDriver->isFile($file)) {
+        if (false === $this->isSafePath($trustedFolder, $relativePath)) {
             return null;
         }
 
+        $file = $this->getPath($trustedFolder, $relativePath);
+
         try {
+            if (false === $this->fileDriver->isFile($file)) {
+                return null;
+            }
+
             return $this->fileDriver->fileGetContents($file);
         } catch (FileSystemException $exception) {
             return null;
         }
     }
 
-    public function write(string $file, string $contents): bool
+    public function write(string $trustedFolder, string $relativePath, string $contents): bool
     {
-        $folder = $this->fileDriver->getParentDirectory($file);
+        if (false === $this->isSafePath($trustedFolder, $relativePath)) {
+            return false;
+        }
+
+        $file = $this->getPath($trustedFolder, $relativePath);
         $temporaryFile = $file . '.' . bin2hex(random_bytes(8)) . '.tmp';
 
         try {
-            if (false === $this->isSafeFolder($folder)) {
-                return false;
-            }
-
+            $folder = $this->fileDriver->getParentDirectory($file);
             if (false === $this->fileDriver->isExists($folder)) {
                 $this->fileDriver->createDirectory($folder);
             }
 
-            if (false === $this->isSafeFolder($folder) || false === $this->isSafeFile($file)) {
+            if (false === $this->isSafePath($trustedFolder, $relativePath)) {
                 return false;
             }
 
@@ -60,21 +65,43 @@ class CacheFile
         return true;
     }
 
-    private function isSafeFolder(string $folder): bool
+    private function getPath(string $trustedFolder, string $relativePath): string
     {
-        if (is_link($folder)) {
-            return false;
-        }
-
-        return false === $this->fileDriver->isExists($folder) || $this->fileDriver->isDirectory($folder);
+        return rtrim($trustedFolder, '/') . '/' . $relativePath;
     }
 
-    private function isSafeFile(string $file): bool
+    private function isSafePath(string $trustedFolder, string $relativePath): bool
     {
-        if (is_link($file)) {
+        $components = explode('/', $relativePath);
+        $path = rtrim($trustedFolder, '/');
+        $lastIndex = count($components) - 1;
+
+        try {
+            foreach ($components as $index => $component) {
+                if ($component === '' || $component === '.' || $component === '..') {
+                    return false;
+                }
+
+                $path .= '/' . $component;
+                if (is_link($path)) {
+                    return false;
+                }
+
+                if (false === $this->fileDriver->isExists($path)) {
+                    continue;
+                }
+
+                $isValidType = $index === $lastIndex
+                    ? $this->fileDriver->isFile($path)
+                    : $this->fileDriver->isDirectory($path);
+                if (false === $isValidType) {
+                    return false;
+                }
+            }
+        } catch (FileSystemException $exception) {
             return false;
         }
 
-        return false === $this->fileDriver->isExists($file) || $this->fileDriver->isFile($file);
+        return true;
     }
 }

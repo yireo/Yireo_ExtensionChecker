@@ -180,9 +180,9 @@ class CheckMagentoVersionCommand extends Command
      */
     private function getMagentoVersionComposerData(string $magentoVersion): array
     {
-        $cacheFile = $this->directoryList->getRoot() . '/var/composer_home/magento-product-community-edition-'
-            . $magentoVersion . '.json';
-        $magentoVersionComposerData = json_decode((string)$this->cacheFile->read($cacheFile), true);
+        $varFolder = $this->directoryList->getRoot() . '/var';
+        $cacheFile = 'composer_home/magento-product-community-edition-' . $magentoVersion . '.json';
+        $magentoVersionComposerData = json_decode((string)$this->cacheFile->read($varFolder, $cacheFile), true);
         if ($this->isValidComposerData($magentoVersionComposerData)) {
             return $magentoVersionComposerData;
         }
@@ -197,7 +197,7 @@ class CheckMagentoVersionCommand extends Command
             throw new RuntimeException('Unable to retrieve composer data of Magento version "' . $magentoVersion . '"');
         }
 
-        $this->cacheFile->write($cacheFile, $magentoVersionComposerString);
+        $this->cacheFile->write($varFolder, $cacheFile, $magentoVersionComposerString);
 
         return $magentoVersionComposerData;
     }
