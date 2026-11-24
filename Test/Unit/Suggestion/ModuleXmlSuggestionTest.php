@@ -2,7 +2,9 @@
 
 namespace Yireo\ExtensionChecker\Test\Unit\Suggestion;
 
+use DOMDocument;
 use Magento\Framework\Component\ComponentRegistrar;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
@@ -145,6 +147,82 @@ EOF;
 
         // No trailing newline, because the current file does not have one either
         $this->assertSame($expected, $suggestion->getSuggestedContents('Foo_Bar'));
+    }
+
+    public function testGetSuggestedContentsDropsDoctypeFromHeader()
+    {
+        $currentModuleXml = <<<EOF
+<?xml version="1.0"?>
+<!-- Copyright Foo -->
+<!DOCTYPE config [
+    <!ENTITY xxe SYSTEM "file:///etc/passwd">
+    <!ENTITY tricky "]>">
+]>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Foo_Bar" setup_version="1.0.0"/>
+</config>
+
+EOF;
+
+        $moduleFolder = $this->createTemporaryFolder(['etc/module.xml' => $currentModuleXml]);
+        $suggestedContents = $this->getSuggestion($moduleFolder, [])->getSuggestedContents('Foo_Bar');
+
+        $this->assertStringStartsWith('<?xml version="1.0"?>' . "\n" . '<!-- Copyright Foo -->' . "\n", $suggestedContents);
+        $this->assertStringNotContainsStringIgnoringCase('DOCTYPE', $suggestedContents);
+        $this->assertStringNotContainsString('ENTITY', $suggestedContents);
+        $this->assertStringNotContainsString(']>', $suggestedContents);
+        $this->assertStringContainsString('<module name="Foo_Bar" setup_version="1.0.0"/>', $suggestedContents);
+    }
+
+    /**
+     * @dataProvider getUnterminatedDoctypes
+     */
+    #[DataProvider('getUnterminatedDoctypes')]
+    public function testGetSuggestedContentsWithUnterminatedDoctype(string $doctype)
+    {
+        $currentModuleXml = '<?xml version="1.0"?>' . "\n" . $doctype . "\n" . '<config><module name="Foo_Bar"/></config>';
+        $moduleFolder = $this->createTemporaryFolder(['etc/module.xml' => $currentModuleXml]);
+        $suggestedContents = $this->getSuggestion($moduleFolder, [])->getSuggestedContents('Foo_Bar');
+
+        $this->assertStringStartsWith('<?xml version="1.0"?>' . "\n" . '<config ', $suggestedContents);
+        $this->assertStringNotContainsStringIgnoringCase('DOCTYPE', $suggestedContents);
+    }
+
+    public static function getUnterminatedDoctypes(): array
+    {
+        return [
+            ['<!DOCTYPE config ['],
+            ['<!doctype config [ <!ENTITY a "b">'],
+        ];
+    }
+
+    public function testGetSuggestedContentsEscapesModuleNames()
+    {
+        $moduleName = 'Foo_Bar"/><evil a="&';
+        $dependency = 'Dep_Name"/></sequence><evil/><x a="<';
+        $moduleFolder = $this->createTemporaryFolder();
+
+        $componentRegistrar = $this->createMock(ComponentRegistrar::class);
+        $componentRegistrar->method('getPath')->with(ComponentRegistrar::MODULE, $moduleName)->willReturn($moduleFolder);
+        $componentDetectorList = $this->createMock(ComponentDetectorList::class);
+        $componentDetectorList->method('getComponentsByModuleName')->willReturn([
+            new Component($dependency, 'module', 'foo/bar', '1.0.0'),
+        ]);
+
+        $suggestion = new ModuleXmlSuggestion(
+            $componentRegistrar,
+            $componentDetectorList,
+            $this->createMock(MagentoPackageResolver::class)
+        );
+
+        $document = new DOMDocument();
+        $this->assertTrue($document->loadXML($suggestion->getSuggestedContents($moduleName)));
+        $this->assertSame(0, $document->getElementsByTagName('evil')->length);
+
+        $modules = $document->getElementsByTagName('module');
+        $this->assertSame(2, $modules->length);
+        $this->assertSame($moduleName, $modules->item(0)->getAttribute('name'));
+        $this->assertSame($dependency, $modules->item(1)->getAttribute('name'));
     }
 
     public function testGetSuggestedContentsKeepsTrailingNewline()

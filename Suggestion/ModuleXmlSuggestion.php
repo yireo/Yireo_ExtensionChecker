@@ -70,7 +70,7 @@ class ModuleXmlSuggestion extends AbstractSuggestion
         string $header,
         array $moduleAttributes
     ): string {
-        $moduleTag = '<module name="' . $moduleName . '"';
+        $moduleTag = '<module name="' . htmlspecialchars($moduleName, ENT_XML1 | ENT_QUOTES) . '"';
         foreach ($moduleAttributes as $attributeName => $attributeValue) {
             $moduleTag .= ' ' . $attributeName . '="' . htmlspecialchars($attributeValue, ENT_XML1 | ENT_QUOTES) . '"';
         }
@@ -88,7 +88,7 @@ class ModuleXmlSuggestion extends AbstractSuggestion
         $xml .= '    ' . $moduleTag . '>' . "\n";
         $xml .= '        <sequence>' . "\n";
         foreach ($moduleDependencies as $moduleDependency) {
-            $xml .= '            <module name="' . $moduleDependency . '"/>' . "\n";
+            $xml .= '            <module name="' . htmlspecialchars($moduleDependency, ENT_XML1 | ENT_QUOTES) . '"/>' . "\n";
         }
 
         $xml .= '        </sequence>' . "\n";
@@ -108,7 +108,13 @@ class ModuleXmlSuggestion extends AbstractSuggestion
             return self::DEFAULT_HEADER;
         }
 
-        return substr($currentContents, 0, $configPosition);
+        $header = substr($currentContents, 0, $configPosition);
+        $header = (string)preg_replace('/<!DOCTYPE\b[^\[>]*(\[[\s\S]*\]\s*)?>\s*/i', '', $header);
+        if (false !== stripos($header, '<!DOCTYPE')) {
+            return self::DEFAULT_HEADER;
+        }
+
+        return $header;
     }
 
     /**
@@ -124,7 +130,7 @@ class ModuleXmlSuggestion extends AbstractSuggestion
 
         $document = new DOMDocument();
         $previousErrorSetting = libxml_use_internal_errors(true);
-        $loaded = $document->loadXML($currentContents);
+        $loaded = $document->loadXML($currentContents, LIBXML_NONET);
         libxml_clear_errors();
         libxml_use_internal_errors($previousErrorSetting);
 
