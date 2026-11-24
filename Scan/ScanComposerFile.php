@@ -39,9 +39,19 @@ class ScanComposerFile
             $licenses = [$licenses];
         }
 
+        if (false === is_array($licenses)) {
+            $this->addInvalidLicenseMessage($moduleName);
+            return;
+        }
+
         $knownLicenses = $this->fetchLicenseList();
         foreach ($licenses as $license) {
-            if (in_array($license, $knownLicenses)) {
+            if (false === is_string($license)) {
+                $this->addInvalidLicenseMessage($moduleName);
+                continue;
+            }
+
+            if (in_array($license, $knownLicenses, true)) {
                 continue;
             }
 
@@ -50,6 +60,13 @@ class ScanComposerFile
             $this->messageBucket->add($message, MessageGroupLabels::GROUP_COMPOSER_ISSUES, $suggestion, $moduleName);
 
         }
+    }
+
+    private function addInvalidLicenseMessage(string $moduleName): void
+    {
+        $message = 'Composer file mentions an invalid license';
+        $suggestion = 'Use a SPDX license identifier like OSL-3.0';
+        $this->messageBucket->add($message, MessageGroupLabels::GROUP_COMPOSER_ISSUES, $suggestion, $moduleName);
     }
 
     private function fetchLicenseList(): array

@@ -20,7 +20,7 @@ class CheckerConfiguration
         $configuration = $this->configurations[$moduleName];
 
         if (isset($configuration['ignore']) && is_array($configuration['ignore'])) {
-            return $configuration['ignore'];
+            return array_values(array_filter($configuration['ignore'], 'is_string'));
         }
 
         return [];
@@ -29,7 +29,7 @@ class CheckerConfiguration
     public function isIgnored(string $moduleName, string $componentName): bool
     {
         return in_array(
-            $componentName, $this->getIgnoredComponents($moduleName)
+            $componentName, $this->getIgnoredComponents($moduleName), true
         );
     }
 
@@ -38,8 +38,8 @@ class CheckerConfiguration
         Component $component
     ): bool {
         $ignoredComponents = $this->getIgnoredComponents($moduleName);
-        return in_array($component->getComponentName(), $ignoredComponents)
-            || in_array($component->getPackageName(), $ignoredComponents);
+        return in_array($component->getComponentName(), $ignoredComponents, true)
+            || in_array($component->getPackageName(), $ignoredComponents, true);
     }
 
     private function getConfiguration(string $moduleName): array

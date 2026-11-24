@@ -82,6 +82,29 @@ class CheckerConfigurationTest extends TestCase
         $this->assertTrue($configuration->isComponentIgnored('Vendor_Second', $fixtures));
     }
 
+    public function testNonStringIgnoreEntriesAreSkipped()
+    {
+        $configuration = $this->getConfiguration([
+            'Vendor_Bool' => ['.yireo-extension-checker.json' => '{"ignore":[true, 0, null, 1.5, ["Magento_Store"], {"a":"b"}]}'],
+            'Vendor_Mixed' => ['.yireo-extension-checker.json' => '{"ignore":[true, "Magento_Catalog", 0]}'],
+        ]);
+
+        $catalog = new Component('Magento_Catalog', 'module', 'magento/module-catalog');
+        $store = new Component('Magento_Store', 'module', 'magento/module-store');
+
+        $this->assertSame([], $configuration->getIgnoredComponents('Vendor_Bool'));
+        $this->assertFalse($configuration->isIgnored('Vendor_Bool', 'Magento_Catalog'));
+        $this->assertFalse($configuration->isIgnored('Vendor_Bool', '0'));
+        $this->assertFalse($configuration->isComponentIgnored('Vendor_Bool', $catalog));
+        $this->assertFalse($configuration->isComponentIgnored('Vendor_Bool', $store));
+
+        $this->assertSame(['Magento_Catalog'], $configuration->getIgnoredComponents('Vendor_Mixed'));
+        $this->assertTrue($configuration->isIgnored('Vendor_Mixed', 'Magento_Catalog'));
+        $this->assertFalse($configuration->isIgnored('Vendor_Mixed', 'Magento_Store'));
+        $this->assertTrue($configuration->isComponentIgnored('Vendor_Mixed', $catalog));
+        $this->assertFalse($configuration->isComponentIgnored('Vendor_Mixed', $store));
+    }
+
     public function testConfigurationIsNotSharedBetweenInstances()
     {
         $first = $this->getConfiguration(['Vendor_Shared' => []]);
