@@ -8,6 +8,7 @@ use Yireo\ExtensionChecker\Component\Component;
 use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\MagentoPackageResolver;
 use Yireo\ExtensionChecker\Exception\ModuleNotFoundException;
+use Yireo\ExtensionChecker\Exception\UnsafeFileException;
 use Yireo\ExtensionChecker\Suggestion\ModuleXmlSuggestion;
 use Yireo\ExtensionChecker\Test\Unit\Behaviour\TemporaryFolder;
 
@@ -36,6 +37,31 @@ class ModuleXmlSuggestionTest extends TestCase
 
         $moduleFolder = $this->createTemporaryFolder();
         $this->assertSame('', $this->getSuggestion($moduleFolder, [])->getCurrentContents('Foo_Bar'));
+    }
+
+    public function testGetCurrentContentsRefusesSymlink()
+    {
+        $outsideFile = $this->createTemporaryFolder(['secret.xml' => 'secret']) . '/secret.xml';
+        $moduleFolder = $this->createTemporaryFolder();
+        mkdir($moduleFolder . '/etc');
+        symlink($outsideFile, $moduleFolder . '/etc/module.xml');
+
+        $this->expectException(UnsafeFileException::class);
+        $this->getSuggestion($moduleFolder, [])->getCurrentContents('Foo_Bar');
+    }
+
+    public function testAssertSafeCurrentPath()
+    {
+        $moduleFolder = $this->createTemporaryFolder(['etc/module.xml' => 'foobar']);
+        $this->getSuggestion($moduleFolder, [])->assertSafeCurrentPath('Foo_Bar');
+
+        $moduleFolder = $this->createTemporaryFolder();
+        $this->getSuggestion($moduleFolder, [])->assertSafeCurrentPath('Foo_Bar');
+
+        $this->expectException(UnsafeFileException::class);
+        $moduleFolder = $this->createTemporaryFolder();
+        symlink($this->createTemporaryFolder(), $moduleFolder . '/etc');
+        $this->getSuggestion($moduleFolder, [])->assertSafeCurrentPath('Foo_Bar');
     }
 
     public function testGetSuggestedContentsWithoutExistingFile()
