@@ -13,35 +13,38 @@ namespace Yireo\ExtensionChecker\Console\Command;
 
 use Composer\Semver\Semver;
 use InvalidArgumentException;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DirectoryList;
-use Magento\Framework\Serialize\SerializerInterface;
-use ReflectionException;
+use Magento\Framework\Filesystem\Driver\File as FileDriver;
+use Magento\Framework\Shell;
+use RuntimeException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\OutputInterface as Output;
-use Yireo\ExtensionChecker\ComponentDetector\ComponentDetectorList;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
-use Yireo\ExtensionChecker\Config\RuntimeConfig;
-use Yireo\ExtensionChecker\Message\Message;
-use Yireo\ExtensionChecker\Message\MessageBucket;
-use Yireo\ExtensionChecker\Scan\Scan;
 
 class CheckMagentoVersionCommand extends Command
 {
     private ComposerFileProvider $composerFileProvider;
     private DirectoryList $directoryList;
+    private Shell $shell;
+    private FileDriver $fileDriver;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         DirectoryList $directoryList,
+        Shell $shell,
+        FileDriver $fileDriver,
         ?string $name = null
     ) {
         parent::__construct($name);
         $this->composerFileProvider = $composerFileProvider;
         $this->directoryList = $directoryList;
+        $this->shell = $shell;
+        $this->fileDriver = $fileDriver;
     }
 
     /**
@@ -79,31 +82,19 @@ class CheckMagentoVersionCommand extends Command
      * @param Output $output
      *
      * @return int
-     * @throws ReflectionException
+     * @throws FileSystemException
+     * @throws LocalizedException
      */
     protected function execute(Input $input, Output $output): int
     {
         $verbose = (bool)$input->getOption('verbose');
         $moduleName = (string)$input->getOption('module');
         $magentoVersion = (string)$input->getOption('magento-version');
-        if (!preg_match('/2\.[0-9]+\.[0-9]+/', $magentoVersion)) {
-            throw new \RuntimeException('Not a valid Magento version');
-        }
+        $this->validateMagentoVersion($magentoVersion);
 
         $composerFile = $this->composerFileProvider->getComposerFileByModuleName($moduleName);
         $moduleRequirements = $composerFile->getRequirements();
-
-        $magentoVersionDir = 'magento-product-community-edition-' . $magentoVersion . '.json';
-        $magentoVersionFile = $this->directoryList->getRoot() . '/var/composer_home/' . $magentoVersionDir;
-        if (file_exists($magentoVersionFile)) {
-            $magentoVersionComposerData = json_decode(file_get_contents($magentoVersionFile), true);
-        } else {
-            // phpcs:ignore
-            exec('composer show magento/product-community-edition ' . $magentoVersion . ' --format json -a', $output);
-            $magentoVersionComposerString = implode("\n", $output);
-            file_put_contents($magentoVersionFile, $magentoVersionComposerString);
-            $magentoVersionComposerData = json_decode($magentoVersionComposerString, true);
-        }
+        $magentoVersionComposerData = $this->getMagentoVersionComposerData($magentoVersion);
 
         $hasWarnings = false;
         $rows = [];
@@ -119,6 +110,7 @@ class CheckMagentoVersionCommand extends Command
 
             $moduleVersion = $moduleRequirements[$magentoRequirement];
             if (!Semver::satisfies($magentoRequiredVersion, $moduleVersion)) {
+                $hasWarnings = true;
                 $message = 'Not satisfied';
             } else {
                 $message = 'Satisfied';
@@ -148,5 +140,59 @@ class CheckMagentoVersionCommand extends Command
         $table->render();
 
         return 1;
+    }
+
+    private function validateMagentoVersion(string $magentoVersion): void
+    {
+        if (!preg_match('/^2\.\d+\.\d+(-p\d+)?$/D', $magentoVersion)) {
+            throw new InvalidArgumentException('Not a valid Magento version');
+        }
+    }
+
+    /**
+     * @param string $magentoVersion
+     * @return array
+     * @throws FileSystemException
+     * @throws LocalizedException
+     */
+    private function getMagentoVersionComposerData(string $magentoVersion): array
+    {
+        $cacheFolder = $this->directoryList->getRoot() . '/var/composer_home';
+        $cacheFile = $cacheFolder . '/magento-product-community-edition-' . $magentoVersion . '.json';
+        if ($this->fileDriver->isExists($cacheFile)) {
+            $magentoVersionComposerData = json_decode($this->fileDriver->fileGetContents($cacheFile), true);
+            if ($this->isValidComposerData($magentoVersionComposerData)) {
+                return $magentoVersionComposerData;
+            }
+        }
+
+        $magentoVersionComposerString = $this->shell->execute(
+            'composer show magento/product-community-edition %s --format=json -a --no-plugins --no-scripts',
+            [$magentoVersion]
+        );
+
+        $magentoVersionComposerData = json_decode($magentoVersionComposerString, true);
+        if (false === $this->isValidComposerData($magentoVersionComposerData)) {
+            throw new RuntimeException('Unable to retrieve composer data of Magento version "' . $magentoVersion . '"');
+        }
+
+        if (false === $this->fileDriver->isDirectory($cacheFolder)) {
+            $this->fileDriver->createDirectory($cacheFolder);
+        }
+
+        $this->fileDriver->filePutContents($cacheFile, $magentoVersionComposerString);
+
+        return $magentoVersionComposerData;
+    }
+
+    /**
+     * @param mixed $magentoVersionComposerData
+     * @return bool
+     */
+    private function isValidComposerData($magentoVersionComposerData): bool
+    {
+        return is_array($magentoVersionComposerData)
+            && isset($magentoVersionComposerData['requires'])
+            && is_array($magentoVersionComposerData['requires']);
     }
 }
