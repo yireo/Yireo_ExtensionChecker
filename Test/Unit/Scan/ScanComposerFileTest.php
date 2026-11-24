@@ -194,6 +194,75 @@ class ScanComposerFileTest extends TestCase
     }
 
     /**
+     * @dataProvider getLicenseListResponses
+     */
+    #[DataProvider('getLicenseListResponses')]
+    public function testLicenseListIsFetchedOncePerInstance(bool $fails, array $expectedMessages)
+    {
+        $composerFiles = [];
+        foreach (['Foo_Bar' => 'Proprietary', 'Foo_Baz' => true] as $moduleName => $license) {
+            $composerFile = $this->createMock(ComposerFile::class);
+            $composerFile->method('get')->with('license')->willReturn($license);
+            $composerFiles[$moduleName] = $composerFile;
+        }
+
+        $composerFileProvider = $this->createMock(ComposerFileProvider::class);
+        $composerFileProvider->method('getComposerFileByModuleName')
+            ->willReturnCallback(fn (string $moduleName) => $composerFiles[$moduleName]);
+
+        $messageBucket = $this->createMock(MessageBucket::class);
+        $messageBucket->method('add')->willReturnCallback(function (string $message, string $group) {
+            $this->messages[] = $message;
+        });
+
+        $client = $this->createMock(Client::class);
+        if ($fails) {
+            $client->expects($this->once())->method('get')->willThrowException(new TransferException('Timeout'));
+        } else {
+            $client->expects($this->once())->method('get')->willReturn(new Response(200, [], self::LICENSE_LIST));
+        }
+
+        $clientFactory = $this->createMock(ClientFactory::class);
+        $clientFactory->expects($this->once())->method('create')->willReturn($client);
+
+        $directoryList = $this->createMock(DirectoryList::class);
+        $directoryList->method('getPath')->willReturn($this->varFolder);
+
+        $cacheFile = $this->createMock(CacheFile::class);
+        $cacheFile->expects($this->once())->method('read')->willReturn(null);
+        $cacheFile->expects($fails ? $this->never() : $this->once())->method('write')->willReturn(true);
+
+        $scanComposerFile = new ScanComposerFile(
+            $composerFileProvider,
+            $messageBucket,
+            $clientFactory,
+            $directoryList,
+            $cacheFile
+        );
+
+        $scanComposerFile->scan('Foo_Bar');
+        $scanComposerFile->scan('Foo_Baz');
+        $scanComposerFile->scan('Foo_Bar');
+
+        $this->assertSame($expectedMessages, $this->messages);
+    }
+
+    public static function getLicenseListResponses(): array
+    {
+        return [
+            'failure' => [true, [
+                self::FETCH_WARNING,
+                'Composer file mentions an invalid license',
+            ]],
+            'success' => [false, [
+                'Composer file mentions unsupported license: Proprietary',
+                'Composer file mentions an invalid license',
+                'Composer file mentions unsupported license: Proprietary',
+            ]],
+        ];
+    }
+
+    /**
      * @dataProvider getInvalidLicenseLists
      */
     #[DataProvider('getInvalidLicenseLists')]

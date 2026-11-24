@@ -22,6 +22,8 @@ class ScanComposerFile
     private ClientFactory $clientFactory;
     private DirectoryList $directoryList;
     private CacheFile $cacheFile;
+    private ?array $knownLicenses = null;
+    private bool $isLicenseListLoaded = false;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
@@ -55,7 +57,7 @@ class ScanComposerFile
             return;
         }
 
-        $knownLicenses = $this->fetchLicenseList();
+        $knownLicenses = $this->getKnownLicenses();
         foreach ($licenses as $license) {
             if (false === is_string($license)) {
                 $this->addInvalidLicenseMessage($moduleName);
@@ -78,6 +80,20 @@ class ScanComposerFile
         $message = 'Composer file mentions an invalid license';
         $suggestion = 'Use a SPDX license identifier like OSL-3.0';
         $this->messageBucket->add($message, MessageGroupLabels::GROUP_COMPOSER_ISSUES, $suggestion, $moduleName);
+    }
+
+    /**
+     * @return string[]|null
+     * @throws FileSystemException
+     */
+    private function getKnownLicenses(): ?array
+    {
+        if (false === $this->isLicenseListLoaded) {
+            $this->knownLicenses = $this->fetchLicenseList();
+            $this->isLicenseListLoaded = true;
+        }
+
+        return $this->knownLicenses;
     }
 
     /**
