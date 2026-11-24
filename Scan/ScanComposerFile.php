@@ -6,10 +6,10 @@ use Exception;
 use GuzzleHttp\ClientFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
+use Yireo\ExtensionChecker\Util\CacheFile;
 
 class ScanComposerFile
 {
@@ -21,20 +21,20 @@ class ScanComposerFile
     private MessageBucket $messageBucket;
     private ClientFactory $clientFactory;
     private DirectoryList $directoryList;
-    private FileDriver $fileDriver;
+    private CacheFile $cacheFile;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         MessageBucket $messageBucket,
         ClientFactory $clientFactory,
         DirectoryList $directoryList,
-        FileDriver $fileDriver
+        CacheFile $cacheFile
     ) {
         $this->composerFileProvider = $composerFileProvider;
         $this->messageBucket = $messageBucket;
         $this->clientFactory = $clientFactory;
         $this->directoryList = $directoryList;
-        $this->fileDriver = $fileDriver;
+        $this->cacheFile = $cacheFile;
     }
 
     /**
@@ -90,11 +90,9 @@ class ScanComposerFile
             . '/yireo_extensionchecker/spdx-licenses-' . self::LICENSE_LIST_VERSION . '.json';
 
         try {
-            if ($this->fileDriver->isExists($cacheFile)) {
-                $licenses = json_decode($this->fileDriver->fileGetContents($cacheFile), true);
-                if ($this->isValidLicenseList($licenses)) {
-                    return $licenses;
-                }
+            $licenses = json_decode((string)$this->cacheFile->read($cacheFile), true);
+            if ($this->isValidLicenseList($licenses)) {
+                return $licenses;
             }
 
             $client = $this->clientFactory->create();
@@ -110,23 +108,11 @@ class ScanComposerFile
             return null;
         }
 
-        $this->writeLicenseListCache($cacheFile, $licenses);
+        if (false === $this->cacheFile->write($cacheFile, (string)json_encode($licenses))) {
+            $this->messageBucket->debug('Unable to cache the SPDX license list in "' . $cacheFile . '"');
+        }
 
         return $licenses;
-    }
-
-    private function writeLicenseListCache(string $cacheFile, array $licenses): void
-    {
-        try {
-            $cacheFolder = $this->fileDriver->getParentDirectory($cacheFile);
-            if (false === $this->fileDriver->isDirectory($cacheFolder)) {
-                $this->fileDriver->createDirectory($cacheFolder);
-            }
-
-            $this->fileDriver->filePutContents($cacheFile, (string)json_encode($licenses));
-        } catch (FileSystemException $exception) {
-            $this->messageBucket->debug('Unable to cache the SPDX license list: ' . $exception->getMessage());
-        }
     }
 
     /**

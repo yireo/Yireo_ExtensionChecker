@@ -14,6 +14,7 @@ use Yireo\ExtensionChecker\Composer\ComposerFile;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
 use Yireo\ExtensionChecker\Console\Command\CheckMagentoVersionCommand;
 use Yireo\ExtensionChecker\Test\Unit\Behaviour\TemporaryFolder;
+use Yireo\ExtensionChecker\Util\CacheFile;
 
 class CheckMagentoVersionCommandTest extends TestCase
 {
@@ -97,6 +98,40 @@ class CheckMagentoVersionCommandTest extends TestCase
         $this->assertSame(0, $commandTester->execute(['--module' => 'Foo_Bar', '--magento-version' => '2.4.7']));
     }
 
+    public function testExecuteIgnoresSymlinkedCacheFile()
+    {
+        $outsideFile = $this->createTemporaryFolder(['outside.json' => '{"requires":{}}']) . '/outside.json';
+        $rootFolder = $this->createTemporaryFolder();
+        mkdir($rootFolder . '/var/composer_home', 0777, true);
+        symlink($outsideFile, $rootFolder . '/var/composer_home/magento-product-community-edition-2.4.7.json');
+
+        $shell = $this->createMock(Shell::class);
+        $shell->expects($this->once())
+            ->method('execute')
+            ->willReturn((string)json_encode(['requires' => ['foo/bar' => '1.0.0']]));
+
+        $commandTester = new CommandTester($this->getCommand($rootFolder, $shell));
+        $this->assertSame(0, $commandTester->execute(['--module' => 'Foo_Bar', '--magento-version' => '2.4.7']));
+        $this->assertSame('{"requires":{}}', file_get_contents($outsideFile));
+    }
+
+    public function testExecuteIgnoresSymlinkedCacheFolder()
+    {
+        $outsideFolder = $this->createTemporaryFolder();
+        $rootFolder = $this->createTemporaryFolder();
+        mkdir($rootFolder . '/var');
+        symlink($outsideFolder, $rootFolder . '/var/composer_home');
+
+        $shell = $this->createMock(Shell::class);
+        $shell->expects($this->once())
+            ->method('execute')
+            ->willReturn((string)json_encode(['requires' => ['foo/bar' => '1.0.0']]));
+
+        $commandTester = new CommandTester($this->getCommand($rootFolder, $shell));
+        $this->assertSame(0, $commandTester->execute(['--module' => 'Foo_Bar', '--magento-version' => '2.4.7']));
+        $this->assertSame(['.', '..'], scandir($outsideFolder));
+    }
+
     public function testExecuteDoesNotCacheInvalidOutput()
     {
         $rootFolder = $this->createTemporaryFolder();
@@ -138,7 +173,12 @@ class CheckMagentoVersionCommandTest extends TestCase
         $directoryList = $this->createMock(DirectoryList::class);
         $directoryList->method('getRoot')->willReturn($rootFolder);
 
-        $command = new CheckMagentoVersionCommand($composerFileProvider, $directoryList, $shell, new FileDriver());
+        $command = new CheckMagentoVersionCommand(
+            $composerFileProvider,
+            $directoryList,
+            $shell,
+            new CacheFile(new FileDriver())
+        );
         $application = new Application();
         $application->add($command);
 

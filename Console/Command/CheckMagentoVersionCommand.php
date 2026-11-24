@@ -16,7 +16,6 @@ use InvalidArgumentException;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Filesystem\DirectoryList;
-use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Shell;
 use RuntimeException;
 use Symfony\Component\Console\Command\Command;
@@ -25,26 +24,27 @@ use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
+use Yireo\ExtensionChecker\Util\CacheFile;
 
 class CheckMagentoVersionCommand extends Command
 {
     private ComposerFileProvider $composerFileProvider;
     private DirectoryList $directoryList;
     private Shell $shell;
-    private FileDriver $fileDriver;
+    private CacheFile $cacheFile;
 
     public function __construct(
         ComposerFileProvider $composerFileProvider,
         DirectoryList $directoryList,
         Shell $shell,
-        FileDriver $fileDriver,
+        CacheFile $cacheFile,
         ?string $name = null
     ) {
         parent::__construct($name);
         $this->composerFileProvider = $composerFileProvider;
         $this->directoryList = $directoryList;
         $this->shell = $shell;
-        $this->fileDriver = $fileDriver;
+        $this->cacheFile = $cacheFile;
     }
 
     /**
@@ -152,18 +152,15 @@ class CheckMagentoVersionCommand extends Command
     /**
      * @param string $magentoVersion
      * @return array
-     * @throws FileSystemException
      * @throws LocalizedException
      */
     private function getMagentoVersionComposerData(string $magentoVersion): array
     {
-        $cacheFolder = $this->directoryList->getRoot() . '/var/composer_home';
-        $cacheFile = $cacheFolder . '/magento-product-community-edition-' . $magentoVersion . '.json';
-        if ($this->fileDriver->isExists($cacheFile)) {
-            $magentoVersionComposerData = json_decode($this->fileDriver->fileGetContents($cacheFile), true);
-            if ($this->isValidComposerData($magentoVersionComposerData)) {
-                return $magentoVersionComposerData;
-            }
+        $cacheFile = $this->directoryList->getRoot() . '/var/composer_home/magento-product-community-edition-'
+            . $magentoVersion . '.json';
+        $magentoVersionComposerData = json_decode((string)$this->cacheFile->read($cacheFile), true);
+        if ($this->isValidComposerData($magentoVersionComposerData)) {
+            return $magentoVersionComposerData;
         }
 
         $magentoVersionComposerString = $this->shell->execute(
@@ -176,11 +173,7 @@ class CheckMagentoVersionCommand extends Command
             throw new RuntimeException('Unable to retrieve composer data of Magento version "' . $magentoVersion . '"');
         }
 
-        if (false === $this->fileDriver->isDirectory($cacheFolder)) {
-            $this->fileDriver->createDirectory($cacheFolder);
-        }
-
-        $this->fileDriver->filePutContents($cacheFile, $magentoVersionComposerString);
+        $this->cacheFile->write($cacheFile, $magentoVersionComposerString);
 
         return $magentoVersionComposerData;
     }

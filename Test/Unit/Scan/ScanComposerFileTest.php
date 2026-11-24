@@ -16,6 +16,7 @@ use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 use Yireo\ExtensionChecker\Scan\ScanComposerFile;
 use Yireo\ExtensionChecker\Test\Unit\Behaviour\TemporaryFolder;
+use Yireo\ExtensionChecker\Util\CacheFile;
 
 class ScanComposerFileTest extends TestCase
 {
@@ -152,6 +153,35 @@ class ScanComposerFileTest extends TestCase
         );
     }
 
+    public function testScanIgnoresSymlinkedCacheFile()
+    {
+        $outsideFile = $this->createTemporaryFolder(['outside.json' => '["Proprietary"]']) . '/outside.json';
+        mkdir(dirname($this->varFolder . self::CACHE_FILE));
+        symlink($outsideFile, $this->varFolder . self::CACHE_FILE);
+
+        $client = $this->createMock(Client::class);
+        $client->expects($this->once())->method('get')->willReturn(new Response(200, [], self::LICENSE_LIST));
+
+        $this->getScanComposerFile('Proprietary', $client)->scan('Foo_Bar');
+
+        $this->assertSame([
+            ['Composer file mentions unsupported license: Proprietary', MessageGroupLabels::GROUP_COMPOSER_ISSUES],
+        ], $this->messages);
+        $this->assertSame('["Proprietary"]', file_get_contents($outsideFile));
+        $this->assertTrue(is_link($this->varFolder . self::CACHE_FILE));
+    }
+
+    public function testScanIgnoresSymlinkedCacheFolder()
+    {
+        $outsideFolder = $this->createTemporaryFolder();
+        symlink($outsideFolder, dirname($this->varFolder . self::CACHE_FILE));
+
+        $this->getScanComposerFile('MIT')->scan('Foo_Bar');
+
+        $this->assertSame([], $this->messages);
+        $this->assertSame(['.', '..'], scandir($outsideFolder));
+    }
+
     public function testScanSkipsLicenseCheckWhenFetchFails()
     {
         $client = $this->createMock(Client::class);
@@ -224,7 +254,7 @@ class ScanComposerFileTest extends TestCase
             $messageBucket,
             $clientFactory,
             $directoryList,
-            new FileDriver()
+            new CacheFile(new FileDriver())
         );
     }
 }
