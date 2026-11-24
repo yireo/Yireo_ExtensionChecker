@@ -25,6 +25,7 @@ use Yireo\ExtensionChecker\Config\RuntimeConfig;
 use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Message\Message;
 use Yireo\ExtensionChecker\Message\MessageBucket;
+use Yireo\ExtensionChecker\Message\MessageGroupLabels;
 use Yireo\ExtensionChecker\Scan\Scan;
 
 class ScanCommand extends Command
@@ -155,7 +156,7 @@ class ScanCommand extends Command
             }
 
             if ($isJson) {
-                return $this->outputJson($output, $messages);
+                return $this->outputJson($output, $errorOutput, $messages);
             }
 
             return $this->outputTable($output, $messages);
@@ -177,18 +178,44 @@ class ScanCommand extends Command
 
     /**
      * @param Output $output
+     * @param Output|null $errorOutput
      * @param Message[] $messages
      * @return int
      */
-    private function outputJson(OutputInterface $output, array $messages = []): int
+    private function outputJson(OutputInterface $output, ?OutputInterface $errorOutput, array $messages = []): int
     {
         $outputData = [];
         foreach ($messages as $message) {
+            if ($this->isDebugMessage($message)) {
+                $errorOutput?->writeln($this->escapeOutput($message->getMessage()));
+                continue;
+            }
+
             $outputData[] = $message->toArray();
         }
 
         $output->writeln($this->serializer->serialize($outputData), OutputInterface::OUTPUT_RAW);
-        return empty($messages) ? 0 : 1;
+        return $this->getExitCode($messages);
+    }
+
+    /**
+     * @param Message[] $messages
+     * @return int
+     */
+    private function getExitCode(array $messages): int
+    {
+        foreach ($messages as $message) {
+            if (false === $this->isDebugMessage($message)) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
+    private function isDebugMessage(Message $message): bool
+    {
+        return $message->getGroup() === MessageGroupLabels::GROUP_DEBUG;
     }
 
     /**
@@ -220,6 +247,6 @@ class ScanCommand extends Command
         }
 
         $table->render();
-        return 1;
+        return $this->getExitCode($messages);
     }
 }

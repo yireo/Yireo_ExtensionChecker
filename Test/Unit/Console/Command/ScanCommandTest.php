@@ -186,6 +186,101 @@ class ScanCommandTest extends TestCase
         $this->assertSame("Broken\n", $output->fetch());
     }
 
+    public function testVerboseJsonScanWithOnlyDebugMessagesSendsThemToErrorOutput()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $command = new ScanCommand($this->getDebugScan($messageBucket, false), new Json(), $runtimeConfig, $messageBucket);
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            ['--module' => 'Foo_Bar', '--format' => 'json'],
+            ['decorated' => true, 'verbosity' => OutputInterface::VERBOSITY_VERBOSE, 'capture_stderr_separately' => true]
+        );
+
+        $this->assertSame(0, $exitCode);
+        $this->assertSame([], json_decode($commandTester->getDisplay(), true));
+        $this->assertSame("[]\n", $commandTester->getDisplay());
+        $errorOutput = $commandTester->getErrorOutput();
+        $this->assertStringContainsString('Found class "Foo\\Bar<info>x</info>"', $errorOutput);
+        $this->assertStringNotContainsString("\e[32mx", $errorOutput);
+    }
+
+    public function testVerboseJsonScanWithOnlyDebugMessagesOnSingleOutputStream()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $command = new ScanCommand($this->getDebugScan($messageBucket, false), new Json(), $runtimeConfig, $messageBucket);
+        $output = new BufferedOutput(OutputInterface::VERBOSITY_VERBOSE, true);
+
+        $this->assertSame(0, $command->run(new ArrayInput(['--module' => 'Foo_Bar', '--format' => 'json']), $output));
+        $this->assertSame("[]\n", $output->fetch());
+    }
+
+    public function testVerboseJsonScanExcludesDebugMessagesFromFindings()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $command = new ScanCommand($this->getDebugScan($messageBucket, true), new Json(), $runtimeConfig, $messageBucket);
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            ['--module' => 'Foo_Bar', '--format' => 'json'],
+            ['verbosity' => OutputInterface::VERBOSITY_VERBOSE, 'capture_stderr_separately' => true]
+        );
+
+        $this->assertSame(1, $exitCode);
+        $this->assertSame([
+            [
+                'message' => 'Real finding',
+                'group' => MessageGroupLabels::GROUP_COMPOSER_ISSUES,
+                'suggestion' => '',
+                'module' => 'Foo_Bar',
+            ],
+        ], json_decode($commandTester->getDisplay(), true));
+        $this->assertStringContainsString('Found class', $commandTester->getErrorOutput());
+    }
+
+    public function testVerboseTableScanWithOnlyDebugMessagesExitsWithZero()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $command = new ScanCommand($this->getDebugScan($messageBucket, false), new Json(), $runtimeConfig, $messageBucket);
+        $commandTester = new CommandTester($command);
+
+        $exitCode = $commandTester->execute(
+            ['--module' => 'Foo_Bar'],
+            ['verbosity' => OutputInterface::VERBOSITY_VERBOSE]
+        );
+
+        $this->assertSame(0, $exitCode);
+        $this->assertStringContainsString('Found class', $commandTester->getDisplay());
+        $this->assertStringContainsString('Debug', $commandTester->getDisplay());
+    }
+
+    public function testTableScanWithFindingsStillExitsWithOne()
+    {
+        $runtimeConfig = new RuntimeConfig();
+        $messageBucket = $this->getMessageBucket($runtimeConfig);
+        $command = new ScanCommand($this->getDebugScan($messageBucket, true), new Json(), $runtimeConfig, $messageBucket);
+        $commandTester = new CommandTester($command);
+
+        $this->assertSame(1, $commandTester->execute(['--module' => 'Foo_Bar']));
+        $this->assertStringContainsString('Real finding', $commandTester->getDisplay());
+        $this->assertStringNotContainsString('Found class', $commandTester->getDisplay());
+    }
+
+    private function getDebugScan(MessageBucket $messageBucket, bool $withFinding): Scan
+    {
+        $scan = $this->createMock(Scan::class);
+        $scan->method('scan')->willReturnCallback(function () use ($messageBucket, $withFinding) {
+            $messageBucket->debug('Found class "Foo\\Bar<info>x</info>"');
+            if ($withFinding) {
+                $messageBucket->add('Real finding', MessageGroupLabels::GROUP_COMPOSER_ISSUES, '', 'Foo_Bar');
+            }
+        });
+
+        return $scan;
+    }
+
     private function getMessageBucket(RuntimeConfig $runtimeConfig): MessageBucket
     {
         $objectManager = $this->createMock(ObjectManagerInterface::class);
