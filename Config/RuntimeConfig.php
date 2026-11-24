@@ -3,9 +3,12 @@
 namespace Yireo\ExtensionChecker\Config;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 
 class RuntimeConfig
 {
+    use OutputSanitizer;
+
     private bool $hideDeprecated = false;
     private bool $hideNeedless = false;
     private bool $verbose = false;
@@ -110,7 +113,7 @@ class RuntimeConfig
     public function debugMessage(string $message): void
     {
         if ($this->isVerbose()) {
-            $this->getOutput()->writeln($message);
+            $this->getOutput()->writeln($this->escapeOutput($message));
         }
     }
 }
