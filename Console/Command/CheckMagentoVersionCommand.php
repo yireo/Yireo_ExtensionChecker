@@ -26,10 +26,13 @@ use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Composer\ComposerFileProvider;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Util\CacheFile;
 
 class CheckMagentoVersionCommand extends Command
 {
+    use OutputSanitizer;
+
     private ComposerFileProvider $composerFileProvider;
     private DirectoryList $directoryList;
     private Shell $shell;
@@ -117,9 +120,9 @@ class CheckMagentoVersionCommand extends Command
             }
 
             $rows[] = [
-                $magentoRequirement,
-                $magentoRequiredVersion,
-                $moduleVersion,
+                $this->escapeOutput((string)$magentoRequirement),
+                $this->escapeOutput((string)$magentoRequiredVersion),
+                $this->escapeOutput((string)$moduleVersion),
                 $message
             ];
         }
@@ -131,7 +134,7 @@ class CheckMagentoVersionCommand extends Command
         $table = new Table($output);
         $table->setHeaders([
             'Composer requirement',
-            'Magento version ' . $magentoVersion,
+            'Magento version ' . $this->escapeOutput($magentoVersion),
             'Module constraint',
             'Message'
         ]);

@@ -201,6 +201,33 @@ class CheckMagentoVersionCommandTest extends TestCase
         ];
     }
 
+    public function testExecuteEscapesTableCells()
+    {
+        $payload = "</info><error>x\e[2J";
+        $shell = $this->createMock(Shell::class);
+        $shell->method('execute')->willReturn((string)json_encode([
+            'requires' => ['foo/bar' => '1.0.0', 'foo/' . $payload => '1.0.0'],
+        ]));
+
+        $command = $this->getCommand($this->createTemporaryFolder(), $shell, [
+            'foo/bar' => $payload,
+            'foo/' . $payload => '^1.0',
+        ]);
+        $commandTester = new CommandTester($command);
+        $exitCode = $commandTester->execute(
+            ['--module' => 'Foo_Bar', '--magento-version' => '2.4.7'],
+            ['decorated' => true]
+        );
+
+        $this->assertSame(1, $exitCode);
+        $display = $commandTester->getDisplay();
+        $this->assertStringContainsString('| </info><error>x[2J', $display);
+        $this->assertStringContainsString('| foo/</info><error>x[2J', $display);
+        $this->assertStringContainsString('Invalid constraint', $display);
+        $this->assertStringNotContainsString("\e[2J", $display);
+        $this->assertStringNotContainsString("\e[37;41mx", $display);
+    }
+
     public function testExecuteWarnsWhenRequirementIsNotSatisfied()
     {
         $shell = $this->createMock(Shell::class);
