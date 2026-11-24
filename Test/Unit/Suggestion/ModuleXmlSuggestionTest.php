@@ -196,6 +196,60 @@ EOF;
         ];
     }
 
+    /**
+     * @dataProvider getTrickyHeaders
+     */
+    #[DataProvider('getTrickyHeaders')]
+    public function testGetSuggestedContentsWithTrickyHeader(string $header, string $expectedHeader)
+    {
+        $currentModuleXml = $header . '<config><module name="Foo_Bar" setup_version="1.0.0"/></config>' . "\n";
+        $moduleFolder = $this->createTemporaryFolder(['etc/module.xml' => $currentModuleXml]);
+        $suggestedContents = $this->getSuggestion($moduleFolder, [
+            new Component('Magento_Store', 'module', 'magento/module-store', '101.0.0'),
+        ])->getSuggestedContents('Foo_Bar');
+
+        $this->assertStringStartsWith($expectedHeader . '<config ', $suggestedContents);
+        $this->assertStringNotContainsStringIgnoringCase('DOCTYPE', $suggestedContents);
+        $this->assertStringNotContainsString('ENTITY', $suggestedContents);
+
+        $document = new DOMDocument();
+        $this->assertTrue($document->loadXML($suggestedContents, LIBXML_NONET));
+        $this->assertSame('config', $document->documentElement->nodeName);
+        $this->assertSame(2, $document->getElementsByTagName('module')->length);
+    }
+
+    public static function getTrickyHeaders(): array
+    {
+        $declaration = '<?xml version="1.0"?>' . "\n";
+
+        return [
+            'quoted delimiters in internal subset' => [
+                $declaration . '<!DOCTYPE config [' . "\n"
+                . '    <!ENTITY a "]>">' . "\n"
+                . '    <!ENTITY b \'[<config>\'>' . "\n"
+                . ']>' . "\n"
+                . '<!-- Copyright Foo -->' . "\n",
+                $declaration . '<!-- Copyright Foo -->' . "\n",
+            ],
+            'quoted delimiter in system identifier' => [
+                $declaration . '<!DOCTYPE config SYSTEM "foo>bar[">' . "\n",
+                $declaration,
+            ],
+            'config element inside comment' => [
+                $declaration . '<!-- see <config> for details -->' . "\n" . '<!-- Copyright Foo -->' . "\n",
+                $declaration . '<!-- see <config> for details -->' . "\n" . '<!-- Copyright Foo -->' . "\n",
+            ],
+            'no declaration' => [
+                '<!-- Copyright Foo -->' . "\n",
+                $declaration . '<!-- Copyright Foo -->' . "\n",
+            ],
+            'processing instruction' => [
+                '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . '<?foo bar="<config>"?>' . "\n",
+                '<?xml version="1.0" encoding="UTF-8"?>' . "\n",
+            ],
+        ];
+    }
+
     public function testGetSuggestedContentsEscapesModuleNames()
     {
         $moduleName = 'Foo_Bar"/><evil a="&';

@@ -2,6 +2,7 @@
 
 namespace Yireo\ExtensionChecker\Suggestion;
 
+use DOMComment;
 use DOMDocument;
 use DOMElement;
 use Magento\Framework\Component\ComponentRegistrar;
@@ -28,11 +29,12 @@ class ModuleXmlSuggestion extends AbstractSuggestion
     public function getSuggestedContents(string $moduleName, array $options = []): string
     {
         $currentContents = $this->getCurrentContents($moduleName);
+        $document = $this->loadDocument($currentContents);
         $moduleXml = $this->getModuleXml(
             $moduleName,
             $this->getModuleDependencies($moduleName),
-            $this->getHeader($currentContents),
-            $this->getModuleAttributes($currentContents)
+            $this->getHeader($document),
+            $this->getModuleAttributes($document)
         );
 
         return $this->matchTrailingNewline($moduleXml, $currentContents);
@@ -98,20 +100,49 @@ class ModuleXmlSuggestion extends AbstractSuggestion
         return $xml;
     }
 
-    /**
-     * Return everything before the <config> element (XML declaration, comments) of the current file
-     */
-    private function getHeader(string $currentContents): string
+    private function loadDocument(string $currentContents): ?DOMDocument
     {
-        $configPosition = strpos($currentContents, '<config');
-        if (false === $configPosition || $configPosition === 0) {
+        if (trim($currentContents, " \f\n\r\t\v\x00") === '') {
+            return null;
+        }
+
+        $document = new DOMDocument();
+        $previousErrorSetting = libxml_use_internal_errors(true);
+        $loaded = $document->loadXML($currentContents, LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorSetting);
+
+        if (false === $loaded || null === $document->documentElement) {
+            return null;
+        }
+
+        return $document;
+    }
+
+    /**
+     * Return the XML declaration and the comments before the <config> element of the current file
+     */
+    private function getHeader(?DOMDocument $document): string
+    {
+        if (null === $document) {
             return self::DEFAULT_HEADER;
         }
 
-        $header = substr($currentContents, 0, $configPosition);
-        $header = (string)preg_replace('/<!DOCTYPE\b[^\[>]*(\[[\s\S]*\]\s*)?>\s*/i', '', $header);
-        if (false !== stripos($header, '<!DOCTYPE')) {
-            return self::DEFAULT_HEADER;
+        $header = '<?xml version="1.0"';
+        $encoding = (string)$document->xmlEncoding;
+        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/D', $encoding)) {
+            $header .= ' encoding="' . $encoding . '"';
+        }
+
+        $header .= '?>' . "\n";
+        foreach ($document->childNodes as $childNode) {
+            if ($childNode->isSameNode($document->documentElement)) {
+                break;
+            }
+
+            if ($childNode instanceof DOMComment) {
+                $header .= '<!--' . $childNode->data . '-->' . "\n";
+            }
         }
 
         return $header;
@@ -122,19 +153,9 @@ class ModuleXmlSuggestion extends AbstractSuggestion
      *
      * @return array<string, string>
      */
-    private function getModuleAttributes(string $currentContents): array
+    private function getModuleAttributes(?DOMDocument $document): array
     {
-        if (trim($currentContents, " \f\n\r\t\v\x00") === '') {
-            return [];
-        }
-
-        $document = new DOMDocument();
-        $previousErrorSetting = libxml_use_internal_errors(true);
-        $loaded = $document->loadXML($currentContents, LIBXML_NONET);
-        libxml_clear_errors();
-        libxml_use_internal_errors($previousErrorSetting);
-
-        if (false === $loaded || null === $document->documentElement) {
+        if (null === $document) {
             return [];
         }
 
