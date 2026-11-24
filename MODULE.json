@@ -2,8 +2,7 @@
     "sequence": [
         "Magento_Catalog",
         "Magento_Customer",
-        "Magento_Store",
-        "Yireo_IntegrationTestHelper"
+        "Magento_Store"
     ],
     "modules": [
         "Magento_AdminNotification",
