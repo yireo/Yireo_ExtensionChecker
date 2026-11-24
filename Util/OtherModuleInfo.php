@@ -73,7 +73,14 @@ class OtherModuleInfo
             throw new ModuleNotFoundException('No "etc/module.xml" found for path "'.$modulePath.'"');
         }
 
-        $configNode = simplexml_load_file($moduleXmlFile);
+        $previousErrorSetting = libxml_use_internal_errors(true);
+        $configNode = simplexml_load_file($moduleXmlFile, null, LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousErrorSetting);
+        if (false === $configNode) {
+            throw new ModuleNotFoundException('Unable to parse "'.$moduleXmlFile.'"');
+        }
+
         $moduleName = (string)$configNode->module['name'];
         if (empty($moduleName)) {
             throw new ModuleNotFoundException('No useful name found after parsing "'.$moduleXmlFile.'"');
