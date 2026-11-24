@@ -126,6 +126,13 @@ bin/magento yireo_extensionchecker:autofix:composer-json Yireo_Example --with-ph
 
 Make sure to review the changes (for instance with `git diff`) before committing them.
 
+## Security considerations
+- Scanning a module loads and executes its PHP code: classes are autoloaded and inspected with Reflection (`PhpClass/ClassInspector.php`, `PhpClass/ComponentCollector.php`), and `PhpClass/ClassInspector/CommandClassDetector.php` builds the Magento CLI application, which instantiates all console commands. Only scan untrusted code in a disposable environment (like a container or CI job).
+- Install this extension as a development dependency only: `composer require --dev yireo/magento2-extensionchecker`.
+- The `autofix` commands write `etc/module.xml` and `composer.json` of the given module. Symbolic links and paths outside of the module folder are refused.
+- The `check-magento-version` command runs `composer show magento/product-community-edition <version>` (with `--no-plugins --no-scripts`) and only accepts versions like `2.4.7` or `2.4.7-p3`.
+- The license check of the `scan` command fetches a pinned version of the SPDX license list from GitHub over the network and caches it in `var/yireo_extensionchecker/`. Skip it with `--skip-license-check`.
+
 ## Current status
 
 <!-- badges.test.start -->
