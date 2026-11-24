@@ -10,6 +10,11 @@ interface SuggestionInterface
     public function getCurrentPath(string $moduleName): string;
 
     /**
+     * Throw an exception when the file is a symbolic link or is located outside of the module folder
+     */
+    public function assertSafeCurrentPath(string $moduleName): void;
+
+    /**
      * Current contents of the file, or an empty string when the file does not exist yet
      */
     public function getCurrentContents(string $moduleName): string;

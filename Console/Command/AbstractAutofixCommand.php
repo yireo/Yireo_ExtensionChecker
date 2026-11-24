@@ -35,6 +35,7 @@ abstract class AbstractAutofixCommand extends AbstractSuggestionCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $moduleName = $this->getModuleName($input);
+        $this->suggestion->assertSafeCurrentPath($moduleName);
         $path = $this->suggestion->getCurrentPath($moduleName);
         $suggestedContents = $this->getSuggestedContents($moduleName, $input);
         $diff = $this->getDiff($moduleName, $suggestedContents);
@@ -49,6 +50,7 @@ abstract class AbstractAutofixCommand extends AbstractSuggestionCommand
             $this->fileDriver->createDirectory($folder);
         }
 
+        $this->suggestion->assertSafeCurrentPath($moduleName);
         $this->fileDriver->filePutContents($path, $suggestedContents);
 
         $output->write($diff, false, OutputInterface::OUTPUT_RAW);
