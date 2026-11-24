@@ -18,6 +18,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
@@ -130,7 +131,9 @@ class ScanCommand extends Command
             $this->runtimeConfig->setHideDeprecated($this->getFlag($input, 'hide-deprecated'));
             $this->runtimeConfig->setHideNeedless($this->getFlag($input, 'hide-needless'));
             $this->runtimeConfig->setVerbose(($output->getVerbosity() > Output::VERBOSITY_NORMAL));
-            $this->runtimeConfig->setOutput($output);
+            $isJson = (string)$input->getOption('format') === 'json';
+            $debugOutput = $isJson && $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output;
+            $this->runtimeConfig->setOutput($debugOutput);
             $this->runtimeConfig->setSkipLicenseCheck($this->getFlag($input, 'skip-license-check'));
 
             $moduleNameArray = explode(',', $moduleName);
@@ -148,7 +151,7 @@ class ScanCommand extends Command
                 }
             }
 
-            if ((string)$input->getOption('format') === 'json') {
+            if ($isJson) {
                 return $this->outputJson($output, $messages);
             }
 
@@ -181,7 +184,7 @@ class ScanCommand extends Command
             $outputData[] = $message->toArray();
         }
 
-        $output->writeln($this->serializer->serialize($outputData));
+        $output->writeln($this->serializer->serialize($outputData), OutputInterface::OUTPUT_RAW);
         return empty($messages) ? 0 : 1;
     }
 
