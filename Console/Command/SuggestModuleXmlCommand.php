@@ -16,10 +16,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Suggestion\ModuleXmlSuggestion;
 
 class SuggestModuleXmlCommand extends Command
 {
+    use OutputSanitizer;
+
     public function __construct(
         private ModuleXmlSuggestion $moduleXmlSuggestion,
         $name = null
@@ -51,7 +54,7 @@ class SuggestModuleXmlCommand extends Command
         }
 
         $moduleXml = $this->moduleXmlSuggestion->getSuggestedContents($moduleName);
-        $output->writeln(rtrim($moduleXml, "\n"), OutputInterface::OUTPUT_RAW);
+        $output->writeln($this->stripControlCharacters(rtrim($moduleXml, "\n")), OutputInterface::OUTPUT_RAW);
 
         return Command::SUCCESS;
     }

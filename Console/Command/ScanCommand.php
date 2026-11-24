@@ -21,12 +21,15 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\OutputInterface as Output;
 use Yireo\ExtensionChecker\Config\RuntimeConfig;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Message\Message;
 use Yireo\ExtensionChecker\Message\MessageBucket;
 use Yireo\ExtensionChecker\Scan\Scan;
 
 class ScanCommand extends Command
 {
+    use OutputSanitizer;
+
     private Scan $scan;
     private SerializerInterface $serializer;
     private RuntimeConfig $runtimeConfig;
@@ -151,7 +154,7 @@ class ScanCommand extends Command
 
             return $this->outputTable($output, $messages);
         } catch (\Throwable $e) {
-            $output->writeln('<error>' . $e->getMessage() . '</error>');
+            $output->writeln('<error>' . $this->escapeOutput($e->getMessage()) . '</error>');
             return 1;
         }
     }
@@ -203,10 +206,10 @@ class ScanCommand extends Command
 
         foreach ($messages as $message) {
             $table->addRow([
-                $message->getMessage(),
-                $message->getGroupLabel(),
-                $message->getSuggestion(),
-                $message->getModule()
+                $this->escapeOutput($message->getMessage()),
+                $this->escapeOutput($message->getGroupLabel()),
+                $this->escapeOutput($message->getSuggestion()),
+                $this->escapeOutput((string)$message->getModule())
             ]);
         }
 

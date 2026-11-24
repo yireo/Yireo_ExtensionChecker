@@ -30,7 +30,7 @@ abstract class AbstractDiffCommand extends AbstractSuggestionCommand
             return Command::SUCCESS;
         }
 
-        $output->write($diff, false, OutputInterface::OUTPUT_RAW);
+        $output->write($this->stripControlCharacters($diff), false, OutputInterface::OUTPUT_RAW);
 
         return Command::FAILURE;
     }

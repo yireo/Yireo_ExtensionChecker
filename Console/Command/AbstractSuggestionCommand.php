@@ -15,11 +15,14 @@ use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Diff\DiffGenerator;
 use Yireo\ExtensionChecker\Suggestion\SuggestionInterface;
 
 abstract class AbstractSuggestionCommand extends Command
 {
+    use OutputSanitizer;
+
     public function __construct(
         protected SuggestionInterface $suggestion,
         protected DiffGenerator $diffGenerator,

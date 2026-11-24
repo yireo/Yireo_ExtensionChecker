@@ -16,11 +16,13 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Yireo\ExtensionChecker\Console\OutputSanitizer;
 use Yireo\ExtensionChecker\Suggestion\ComposerJsonSuggestion;
 
 class SuggestComposerJsonCommand extends Command
 {
     use ComposerJsonOptionsTrait;
+    use OutputSanitizer;
 
     public function __construct(
         private ComposerJsonSuggestion $composerJsonSuggestion,
@@ -58,7 +60,7 @@ class SuggestComposerJsonCommand extends Command
             $moduleName,
             $this->getSuggestionOptions($input)
         );
-        $output->writeln(rtrim($composerJson, "\n"), OutputInterface::OUTPUT_RAW);
+        $output->writeln($this->stripControlCharacters(rtrim($composerJson, "\n")), OutputInterface::OUTPUT_RAW);
 
         return Command::SUCCESS;
     }

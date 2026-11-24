@@ -41,7 +41,7 @@ abstract class AbstractAutofixCommand extends AbstractSuggestionCommand
         $diff = $this->getDiff($moduleName, $suggestedContents);
 
         if ($diff === '') {
-            $output->writeln('<info>No changes needed for "' . $path . '"</info>');
+            $output->writeln('<info>No changes needed for "' . $this->escapeOutput($path) . '"</info>');
             return Command::SUCCESS;
         }
 
@@ -53,8 +53,8 @@ abstract class AbstractAutofixCommand extends AbstractSuggestionCommand
         $this->suggestion->assertSafeCurrentPath($moduleName);
         $this->fileDriver->filePutContents($path, $suggestedContents);
 
-        $output->write($diff, false, OutputInterface::OUTPUT_RAW);
-        $output->writeln('<info>Updated "' . $path . '"</info>');
+        $output->write($this->stripControlCharacters($diff), false, OutputInterface::OUTPUT_RAW);
+        $output->writeln('<info>Updated "' . $this->escapeOutput($path) . '"</info>');
 
         return Command::SUCCESS;
     }
