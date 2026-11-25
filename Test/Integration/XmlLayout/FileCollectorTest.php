@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Test\Integration;
+namespace Yireo\ExtensionChecker\Test\Integration\XmlLayout;
 
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;

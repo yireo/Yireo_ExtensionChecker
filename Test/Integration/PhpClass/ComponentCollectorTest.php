@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Yireo\ExtensionChecker\Test\Integration\Composer;
+namespace Yireo\ExtensionChecker\Test\Integration\PhpClass;
 
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\ObjectManager;
