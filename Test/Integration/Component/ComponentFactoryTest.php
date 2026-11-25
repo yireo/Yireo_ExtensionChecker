@@ -6,6 +6,7 @@ use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Component\ComponentRegistrar;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Component\ComponentFactory;
+use Yireo\ExtensionChecker\Test\Integration\Behaviour\InstalledCorePackage;
 
 class ComponentFactoryTest extends TestCase
 {
@@ -22,11 +23,11 @@ class ComponentFactoryTest extends TestCase
         $this->assertEquals($packageName, $component->getPackageName());
     }
 
-    public function createByModuleNameProvider()
+    public static function createByModuleNameProvider(): array
     {
         return [
-            ['Magento_Sales', 'magento/module-sales'],
-            ['Magento_Customer', 'magento/module-customer'],
+            ['Magento_Sales', InstalledCorePackage::getName('module-sales')],
+            ['Magento_Customer', InstalledCorePackage::getName('module-customer')],
             ['Yireo_ExtensionChecker', 'yireo/magento2-extensionchecker'],
         ];
     }
@@ -44,10 +45,10 @@ class ComponentFactoryTest extends TestCase
         $this->assertEquals($frameworkPackageName, $component->getPackageName());
     }
 
-    public function createByFrameworkProvider()
+    public static function createByFrameworkProvider(): array
     {
         return [
-            ['magento/framework'],
+            [InstalledCorePackage::getName('framework')],
             ['league/flysystem'],
             ['phpunit/phpunit'],
         ];

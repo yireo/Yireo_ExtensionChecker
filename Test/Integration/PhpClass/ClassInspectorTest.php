@@ -14,6 +14,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\UrlInterface;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\PhpClass\ClassInspector;
+use Yireo\ExtensionChecker\Test\Integration\Behaviour\InstalledCorePackage;
 
 class ClassInspectorTest extends TestCase
 {
@@ -55,7 +56,7 @@ class ClassInspectorTest extends TestCase
 
         $classInspector->setClassName(UrlInterface::class);
         $component = $classInspector->getComponentByClass();
-        $this->assertEquals('magento/framework', $component->getComponentName());
+        $this->assertEquals(InstalledCorePackage::getName('framework'), $component->getComponentName());
         $this->assertEquals('library', $component->getComponentType());
     }
 
@@ -63,16 +64,16 @@ class ClassInspectorTest extends TestCase
     {
         $classInspector = ObjectManager::getInstance()->get(ClassInspector::class);
         $classInspector->setClassName(Registry::class);
-        $this->assertEquals('magento/framework', $classInspector->getPackageByClass());
+        $this->assertEquals(InstalledCorePackage::getName('framework'), $classInspector->getPackageByClass());
 
         $classInspector->setClassName(ProductRepositoryInterface::class);
-        $this->assertEquals('magento/module-catalog', $classInspector->getPackageByClass());
+        $this->assertEquals(InstalledCorePackage::getName('module-catalog'), $classInspector->getPackageByClass());
     }
 
-    public function getComponentByClassProvider(): array
+    public static function getComponentByClassProvider(): array
     {
         return [
-            [PackageInfo::class, 'magento/framework'],
+            [PackageInfo::class, InstalledCorePackage::getName('framework')],
             [CustomerRepositoryInterface::class, 'Magento_Customer'],
             [ClassInspectorTest::class, 'Yireo_ExtensionChecker'],
         ];

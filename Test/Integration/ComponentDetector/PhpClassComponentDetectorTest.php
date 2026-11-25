@@ -6,6 +6,7 @@ use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\ComponentDetector\PhpClassComponentDetector;
 use Yireo\ExtensionChecker\Test\Integration\Behaviour\AssertContainsByComponentName;
+use Yireo\ExtensionChecker\Test\Integration\Behaviour\InstalledCorePackage;
 
 class PhpClassComponentDetectorTest extends TestCase
 {
@@ -37,6 +38,6 @@ class PhpClassComponentDetectorTest extends TestCase
 
         $this->assertContains('phpunit/phpunit', $devComponentNames);
         $this->assertNotContains('phpunit/phpunit', $nonDevComponentNames);
-        $this->assertContains('magento/framework', $nonDevComponentNames);
+        $this->assertContains(InstalledCorePackage::getName('framework'), $nonDevComponentNames);
     }
 }

@@ -5,13 +5,14 @@ namespace Yireo\ExtensionChecker\Test\Integration\Composer;
 use Magento\Framework\App\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Yireo\ExtensionChecker\Composer\ComposerProvider;
+use Yireo\ExtensionChecker\Test\Integration\Behaviour\InstalledCorePackage;
 
 class ComposerProviderTest extends TestCase
 {
     public function testGetVersionByComposerName()
     {
         $composerProvider = ObjectManager::getInstance()->get(ComposerProvider::class);
-        $version = $composerProvider->getVersionByComposerName('magento/framework');
+        $version = $composerProvider->getVersionByComposerName(InstalledCorePackage::getName('framework'));
         $this->assertNotEmpty($version);
     }
 
