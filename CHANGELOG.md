@@ -6,6 +6,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 26 November 2026
+### Added
+- Suggest Magento core packages instead of their Mage-OS equivalents, and treat `magento/` and `mage-os/` dependencies as equal when scanning
+- Document security considerations in README and SECURITY (module and `var/` folders must not be writable by less-trusted users)
+
+### Changed
+- Fetch a pinned SPDX license list (v3.29.0) with timeouts, cache it in `var/yireo_extensionchecker/` and load it only once per scan; when it can not be fetched, warn and skip the license check instead of aborting the scan
+
+### Fixed
+- Security: prevent shell injection through the `--magento-version` option of `check-magento-version`, which now only accepts `2.x.y` and `2.x.y-pN`
+- Security: `diff:*` and `autofix:*` commands refuse to read or write a symlinked `composer.json` or `etc/module.xml`, or a file outside of the module folder
+- Security: cache files (SPDX license list, composer data) are no longer read or written through symbolic links anywhere below `var/`
+- Security: harden the `module.xml` suggestion: escape module names, drop any DOCTYPE with entity declarations from the copied header, always declare UTF-8 and parse `module.xml` files without network access
+- Security: escape module-controlled strings (exception messages, table cells, file paths, debug messages) in console output, so they can not inject style tags or terminal escape sequences
+- Non-string entries in the `ignore` list of `.yireo-extension-checker.json` no longer match every component, and non-string composer licenses are reported as issues instead of passing silently
+- The checker configuration is loaded per module, so the ignore list of the first module is no longer applied to every module in the same scan (#69), and a malformed `.yireo-extension-checker.json` is ignored
+- Valueless `--skip-license-check`, `--hide-deprecated` and `--hide-needless` flags are treated as enabled (#64)
+- `scan --format=json` always outputs parseable JSON: errors and debug messages go to stderr, and debug messages no longer count as findings or make a clean scan exit with 1
+- `check-magento-version` compares exact patched versions (like `104.0.7-p3`), reports invalid module constraints instead of failing and flags unsatisfied requirements as warnings
+- Restore the working directory after running composer commands, and keep the existing `php` requirement and skip `require-dev` dependencies already in `require` in the suggested `composer.json`
+
 ## [2.6.1] - 19 October 2026
 ### Added
 - Add `diff:module-xml` and `diff:composer-json` commands to show differences between the current and suggested files
