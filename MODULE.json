@@ -13,16 +13,16 @@
         "Magento_Directory",
         "Magento_Eav",
         "Magento_Indexer",
+        "Magento_MediaGalleryUiApi",
         "Magento_Store",
         "Magento_Theme",
-        "Magento_Variable",
-        "Yireo_IntegrationTestHelper"
+        "Magento_Variable"
     ],
     "components": [],
     "config": [],
     "tests": {
-        "unit": 43,
-        "integration": 33,
+        "unit": 129,
+        "integration": 36,
         "functional": 0
     },
     "module_name": "Yireo_ExtensionChecker",
